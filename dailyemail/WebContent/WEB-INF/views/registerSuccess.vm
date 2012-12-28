@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		#parse("header.vm")		
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h2>Sign Up</h2>
+			</div>
+            <div class="navigation">
+                <nav>
+                    <ul>
+                        <li><a href="index.jsp">Home</a></li>
+                        <li><a href="login.jsp">Login</a></li>
+                        <li id="yourhere"><a href="signup.jsp">Sign Up</a></li>                        
+                        <li><a href="about.jsp">About</a></li>
+                    </ul>
+                </nav>
+            </div>
+			<div class="content">
+				$accountSignUp.First_name <br/>
+				$accountSignUp.Last_name <br/>
+				$accountSignUp.email <br/>
+				$accountSignUp.password <br/>
+				
+			</div>
+		</div>
+	</body>
+</html>
+					

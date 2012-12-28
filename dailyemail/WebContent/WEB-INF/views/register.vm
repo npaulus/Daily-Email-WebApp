@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		#parse("header.vm")
+		<script>
+			function check(input) {
+  				if (input.value != document.getElementById('email_addr').value) {
+    				input.setCustomValidity('The two email addresses must match.');
+  				} else {
+    			// input is valid -- reset the error message
+    				input.setCustomValidity('');
+  				}
+			}
+		</script>
+		<link href="./resources/css/register.css" rel="stylesheet" type="text/css" />
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h2>Sign Up</h2>
+			</div>
+            <div class="navigation">
+                <nav>
+                    <ul>
+                        <li><a href="index.jsp">Home</a></li>
+                        <li><a href="login.jsp">Login</a></li>
+                        <li id="yourhere"><a href="signup.jsp">Sign Up</a></li>                        
+                        <li><a href="about.jsp">About</a></li>
+                    </ul>
+                </nav>
+            </div>
+			<div class="content">
+				#if($status.errors.hasErrors())
+					## Global error messages
+					#foreach($e in $status.errorMessages)
+						<p>${e}</p>
+					#end
+				#end
+				<form name="register" action="/dailyemail/register" method="post">
+					<label>First Name:</label>
+					#springBind("accountSignUp.first_name")
+					#springShowErrors("<br />", "")
+					#springFormInput("accountSignUp.first_name" )
+					<!-- <input type="text" id="first_name" name="first_name" required /> -->
+					
+					<label>Last Name:</label>
+					#springBind("accountSignUp.last_name")
+					#springShowErrors("<br />", "")
+					#springFormInput("accountSignUp.last_name" )					
+					
+					<label>Zip Code:</label>
+					#springBind("accountSignUp.zipcode")
+					#springShowErrors("<br />", "")
+					#springFormInput("accountSignUp.zipcode" )					
+					
+					<label>Email:</label>
+					#springBind("accountSignUp.email")
+					#springShowErrors("<br />", "")
+					#springFormInput("accountSignUp.email" )					
+					
+					<label>Confirm Email:</label>
+					#springBind("accountSignUp.confirm_email")
+					#springShowErrors("<br />", "")
+					#springFormInput("accountSignUp.confirm_email" )					
+					
+					<label>Password:</label>
+					#springBind("accountSignUp.password")
+					#springShowErrors("<br />", "")
+					#springFormPasswordInput("accountSignUp.password")	
+										
+					<label>Confirm Password:</label>
+					#springBind("accountSignUp.confirm_password")
+					#springShowErrors("<br />", "")
+					#springFormPasswordInput("accountSignUp.confirm_password")	
+										
+					<input type="submit" value="Register" />
+				</form>
+			</div>
+			
+		</div>
+	</body>
+	
+</html>	
