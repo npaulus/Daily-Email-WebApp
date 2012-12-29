@@ -2,6 +2,7 @@ package com.natepaulus.dailyemail.web.controller;
 
 import javax.validation.Valid;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -11,10 +12,14 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.natepaulus.dailyemail.web.domain.AccountSignUp;
+import com.natepaulus.dailyemail.web.service.UserService;
 
 
 @Controller
 public class RegisterController {		
+	
+	@Autowired
+	UserService userService;
 	
 	@RequestMapping(value = "/register", method = RequestMethod.GET)
 	public String displayRegisterPage(Model model) {
@@ -29,6 +34,8 @@ public class RegisterController {
 		if(result.hasErrors()){
 			return "register";
 		}
+		
+		userService.addNewUser(accountSignUp);
 		
 		redirect.addFlashAttribute("accountSignUp", accountSignUp);
 		return "registerSuccess";				
