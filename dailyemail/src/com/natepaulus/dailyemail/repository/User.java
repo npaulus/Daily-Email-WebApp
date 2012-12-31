@@ -2,32 +2,50 @@ package com.natepaulus.dailyemail.repository;
 
 import java.io.Serializable;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
 
+@SuppressWarnings("serial")
 @Entity
 @Table(name = "users")
 public class User implements Serializable{
 	
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 2027999775758047052L;
-	private Long id;
-	private int version;
-	private String firstName;
-	private String lastName;
-	private String email;
-	private String password;
-	
 	@Id	
 	@Column(name = "idusers")
-	@GeneratedValue(strategy = GenerationType.AUTO)
+	@GeneratedValue(strategy = GenerationType.AUTO)		
+	private Long id;
+	
+	@Version
+	@Column(name = "version")
+	private int version;
+	
+	@Column(name = "first_name")
+	private String firstName;
+	
+	@Column(name = "last_name")
+	private String lastName;
+	
+	@Column(name = "email")
+	private String email;
+	
+	@Column(name = "password")
+	private String password;
+	
+	@Column
+	private String zipcode;
+	
+	@OneToOne(fetch = FetchType.EAGER, mappedBy = "user", cascade=CascadeType.PERSIST)
+	private Weather weather;		
+	
 	public Long getId() {
 		return id;
 	}
@@ -35,8 +53,7 @@ public class User implements Serializable{
 		this.id = id;
 	}
 	
-	@Version
-	@Column(name = "version")
+	
 	public int getVersion() {
 		return version;
 	}
@@ -44,7 +61,7 @@ public class User implements Serializable{
 		this.version = version;
 	}
 	
-	@Column(name = "first_name")
+	
 	public String getFirstName() {
 		return firstName;
 	}
@@ -52,7 +69,7 @@ public class User implements Serializable{
 		this.firstName = firstName;
 	}
 	
-	@Column(name = "last_name")
+	
 	public String getLastName() {
 		return lastName;
 	}
@@ -60,7 +77,7 @@ public class User implements Serializable{
 		this.lastName = lastName;
 	}
 	
-	@Column(name = "email")
+	
 	public String getEmail() {
 		return email;
 	}
@@ -68,13 +85,30 @@ public class User implements Serializable{
 		this.email = email;
 	}
 	
-	@Column(name = "password")
+	
 	public String getPassword() {
 		return password;
 	}
 	public void setPassword(String password) {
 		this.password = password;
+	}	
+	
+	
+	public String getZipcode() {
+		return zipcode;
 	}
+	public void setZipcode(String zipcode) {
+		this.zipcode = zipcode;
+	}
+	
+	
+	public Weather getWeather() {
+		return weather;
+	}
+	public void setWeather(Weather weather) {
+		this.weather = weather;
+	}
+	
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", version=" + version + ", firstName="
