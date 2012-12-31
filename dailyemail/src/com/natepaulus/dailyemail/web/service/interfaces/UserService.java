@@ -1,4 +1,4 @@
-package com.natepaulus.dailyemail.web.service;
+package com.natepaulus.dailyemail.web.service.interfaces;
 
 import com.natepaulus.dailyemail.web.domain.AccountSignUp;
 

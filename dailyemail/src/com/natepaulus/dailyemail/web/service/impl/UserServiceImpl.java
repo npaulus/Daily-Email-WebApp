@@ -1,4 +1,4 @@
-package com.natepaulus.dailyemail.web.service;
+package com.natepaulus.dailyemail.web.service.impl;
 
 import javax.annotation.Resource;
 
@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.natepaulus.dailyemail.repository.User;
 import com.natepaulus.dailyemail.repository.UserRepository;
 import com.natepaulus.dailyemail.web.domain.AccountSignUp;
+import com.natepaulus.dailyemail.web.service.interfaces.UserService;
 
 @Service
 public class UserServiceImpl implements UserService {
