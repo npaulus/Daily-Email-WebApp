@@ -19,7 +19,7 @@
 		</div>
 		<div class="content">
 			<div class="error">
-				#if(!$exception)
+				#if($exception)
 					#springMessageText($exception.code $exception.message)
 				#end					
 			</div>

@@ -1,6 +1,5 @@
 package com.natepaulus.dailyemail.web.service;
 
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -10,11 +9,10 @@ public class PasswordEncryption {
 	
 	public static String toSHA1(String password) {
 		byte[] passInBytes = null;
-		try{
-			passInBytes = password.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e){
-			passInBytes = password.getBytes();
-		}
+		
+		
+		passInBytes = password.getBytes();
+		
 		MessageDigest md = null;
 		String hexPassword = "";
 		try {

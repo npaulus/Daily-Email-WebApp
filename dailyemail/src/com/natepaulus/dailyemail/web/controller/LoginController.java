@@ -12,7 +12,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.natepaulus.dailyemail.repository.User;
 import com.natepaulus.dailyemail.web.exceptions.AuthenticationException;
-import com.natepaulus.dailyemail.web.service.PasswordEncryption;
 import com.natepaulus.dailyemail.web.service.interfaces.UserService;
 
 @Controller
@@ -31,7 +30,7 @@ public class LoginController {
 	@RequestMapping(value = "/login", method = RequestMethod.POST)
 	public String processLogin(@RequestParam String emailAddress,
 			@RequestParam String pwd, HttpSession session, RedirectAttributes redirect) throws AuthenticationException {
-		User user = this.userService.login(emailAddress, PasswordEncryption.toSHA1(pwd));
+		User user = this.userService.login(emailAddress, pwd);
 		session.setAttribute("user", user);
 		String url = (String) session.getAttribute(REQUESTED_URL);
 		session.removeAttribute(REQUESTED_URL);
@@ -40,7 +39,7 @@ public class LoginController {
 			return "redirect:" + url;			
 		} else {
 			redirect.addFlashAttribute("user", user);
-			return "redirect:/index";
+			return "redirect:/account";
 		}
 		
 		

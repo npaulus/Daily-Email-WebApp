@@ -58,7 +58,6 @@ public class UserServiceImpl implements UserService {
 	@Override
 	public User login(String email, String password) throws AuthenticationException{
 		User user = userRepository.findByEmail(email);		
-				
 		if(user == null || !user.getPassword().equals(PasswordEncryption.toSHA1(password))){
 			throw new AuthenticationException("Invalid Login. Please try again.");
 		}
