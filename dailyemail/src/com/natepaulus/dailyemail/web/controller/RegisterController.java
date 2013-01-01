@@ -14,31 +14,32 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import com.natepaulus.dailyemail.web.domain.AccountSignUp;
 import com.natepaulus.dailyemail.web.service.interfaces.UserService;
 
-
 @Controller
-public class RegisterController {		
-	
+public class RegisterController {
+
 	@Autowired
 	UserService userService;
-	
+
 	@RequestMapping(value = "/register", method = RequestMethod.GET)
 	public String displayRegisterPage(Model model) {
 		model.addAttribute("accountSignUp", new AccountSignUp());
-		
-		return "register";				
+
+		return "register";
 	}
-	
+
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public String processSignUp(@Valid @ModelAttribute("accountSignUp") AccountSignUp accountSignUp, BindingResult result, RedirectAttributes redirect) {
-				
-		if(result.hasErrors()){
+	public String processSignUp(
+			@Valid @ModelAttribute("accountSignUp") AccountSignUp accountSignUp,
+			BindingResult result, RedirectAttributes redirect) {
+
+		if (result.hasErrors()) {
 			return "register";
 		}
-		
+
 		userService.addNewUser(accountSignUp);
-		
+
 		redirect.addFlashAttribute("accountSignUp", accountSignUp);
-		return "registerSuccess";				
+		return "registerSuccess";
 	}
-	
+
 }

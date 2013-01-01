@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		#parse("header.vm")		
+	</head>
+	<body>
+		<div class="header">
+			<h2>Daily Email Service</h2>
+		</div>
+		<div class="navigation">
+			<nav>
+				<ul>
+					<li><a href="index.jsp">Home</a></li>
+					<li id="yourhere"><a href="login.jsp">Login</a></li>
+					<li><a href="signup.jsp">Sign Up</a></li>                        
+					<li><a href="about.jsp">About</a></li>
+				</ul>
+			</nav>
+		</div>
+		<div class="content">
+			<div class="error">
+				#if(!$exception)
+					#springMessageText($exception.code $exception.message)
+				#end					
+			</div>
+			<form name="login" action="/dailyemail/login" method="post">
+				<table class="center">
+					<tr>
+						<td>E-Mail Address: </td>
+						<td><input type="text" name="emailAddress" /></td>
+					</tr>
+					<tr>
+						<td>Password: </td>
+						<td><input type="password" name="pwd" /></td>
+					</tr>
+					<tr>
+						<td colspan="2" style="text-align:right;">
+							<input type="submit" value="Login" />
+							<input type="label" value="login" name="action" style="display:none" />
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+		#include("footer.vm")
+	</body>
+</html>

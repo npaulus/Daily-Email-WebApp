@@ -1,12 +1,13 @@
 package com.natepaulus.dailyemail.web.controller;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
+@RequestMapping("/")
 public class IndexController {
 	
 	public String home() {
-		System.out.println("Test");
-		return "home";
+		return "index";
 	}
 }

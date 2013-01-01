@@ -19,12 +19,11 @@
                 </nav>
             </div>
 			<div class="content">
-				$accountSignUp.First_name <br/>
-				$accountSignUp.Last_name <br/>
-				$accountSignUp.email <br/>
-				$accountSignUp.password <br/>
+				
+				<p style="text-align: center;">Thanks for signing up!  Login <a href="/dailyemail/login">here!</a></p>
 				
 			</div>
+			#include("footer.vm")
 		</div>
 	</body>
 </html>
