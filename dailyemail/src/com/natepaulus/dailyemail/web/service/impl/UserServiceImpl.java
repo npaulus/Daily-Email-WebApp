@@ -33,13 +33,7 @@ public class UserServiceImpl implements UserService {
 	 */
 
 	@Transactional
-	public void addNewUser(AccountSignUp acctSignUp) {
-
-		Weather weather = new Weather();
-		weather.setDeliver_pref(0);
-		weather.setLatitude("TestLat");
-		weather.setLongitude("TestLong");
-		weather.setLocation_name("Test Location Name");
+	public void addNewUser(AccountSignUp acctSignUp, Weather weather) {
 
 		User newUser = new User();
 		newUser.setFirstName(acctSignUp.getFirst_name());

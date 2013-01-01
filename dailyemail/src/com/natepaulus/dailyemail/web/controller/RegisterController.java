@@ -11,14 +11,19 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import com.natepaulus.dailyemail.repository.Weather;
 import com.natepaulus.dailyemail.web.domain.AccountSignUp;
 import com.natepaulus.dailyemail.web.service.interfaces.UserService;
+import com.natepaulus.dailyemail.web.service.interfaces.WeatherService;
 
 @Controller
 public class RegisterController {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	WeatherService weatherService;
 
 	@RequestMapping(value = "/register", method = RequestMethod.GET)
 	public String displayRegisterPage(Model model) {
@@ -35,11 +40,12 @@ public class RegisterController {
 		if (result.hasErrors()) {
 			return "register";
 		}
-
-		userService.addNewUser(accountSignUp);
+		Weather weather = weatherService.setInitialWeatherLocation(accountSignUp.getZipcode());		
+		
+		userService.addNewUser(accountSignUp, weather);
 
 		redirect.addFlashAttribute("accountSignUp", accountSignUp);
-		return "registerSuccess";
+		return "redirect:/registerSuccess";
 	}
 
 }
