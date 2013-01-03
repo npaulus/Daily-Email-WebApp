@@ -1,6 +1,7 @@
 package com.natepaulus.dailyemail.repository;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -9,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.Version;
@@ -44,6 +46,9 @@ public class User implements Serializable{
 	
 	@OneToOne(fetch = FetchType.EAGER, mappedBy = "user", cascade=CascadeType.PERSIST)
 	private Weather weather;		
+	
+	@OneToMany(mappedBy="user", fetch= FetchType.EAGER, cascade=CascadeType.PERSIST)
+	private Set<NewsLink> newsLink;
 	
 	public Long getId() {
 		return id;

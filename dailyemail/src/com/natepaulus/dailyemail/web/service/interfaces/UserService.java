@@ -5,13 +5,7 @@ import com.natepaulus.dailyemail.repository.Weather;
 import com.natepaulus.dailyemail.web.domain.AccountSignUp;
 import com.natepaulus.dailyemail.web.exceptions.AuthenticationException;
 
-public interface UserService {
-	
-	
-	
-	/*public String findByEmail(String email);
-	
-	public String findByPassword(String password);*/
+public interface UserService {	
 	
 	public void addNewUser(AccountSignUp acctSignUp, Weather weather);
 	

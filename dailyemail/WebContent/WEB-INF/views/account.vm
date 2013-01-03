@@ -1,1 +1,55 @@
-<p>You are logged in</p>
+<!DOCTYPE html>
+<html>
+	<head>
+		#parse("header.vm")		
+	</head>
+	<body>
+		<div class="container">
+			<div class="header">
+				<h2>Sign Up</h2>
+			</div>
+            <div class="navigation">
+                <nav>
+                    <ul>
+						<li><a href="index">Home</a></li>
+						<li><a id="yourhere" href="account">Account</a></li>
+						<li><a href="about">About</a></li>
+						<li><a href="logout">Logout</a></li>
+					</ul>
+                </nav>
+            </div>
+			<div class="content">
+				
+				<div id="weather">
+					<h3>Weather Settings</h3>
+					<form name="addNews" action="/dailyemail/account/weather" method="post">
+					
+					Location: $user.weather.location_name
+                    
+						
+						#set( $weatherOptions = [0, 1, 2, 3])
+						#set( $weatherOptLabels = {0 : "No Weather Information", 1 : "Current Conditions", 2 : "Forecast", 3 : "Current Conditions & Forecast"})
+						#foreach($option in $weatherOptions)
+							#if($option == $user.weather.deliver_pref)
+								<input type="radio" name="weather" value="$option" checked="true" /> $weatherOptLabels.get($option)
+							#else
+								<input type="radio" name="weather" value="$option" /> $weatherOptLabels.get($option)
+							#end
+						#end
+                        <input type="submit" value="Set Weather" />                        
+					
+					</form>
+				</div>
+				<div id="addNewsLink">
+					<form name="addNews" action="/dailyemail/account/addNews" method="post">
+						<input type="text" name="name" /> <br />
+						<input type="text" name="url" /><br />
+						<input type="submit" value="Add" />
+					</form>
+				</div>
+								
+			</div>
+			
+		</div>
+	</body>
+</html>
