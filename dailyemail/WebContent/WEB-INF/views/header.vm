@@ -1,3 +1,9 @@
 <title>Daily Email Service</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-			<link href=#springUrl("/resources/css/layout.css") rel="stylesheet" type="text/css" /> 
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<link rel="stylesheet" type="text/css" media="all" href=#springUrl("/resources/css/reset.css") />
+<link rel="stylesheet" type="text/css" media="all" href=#springUrl("/resources/css/text.css") />
+<link rel="stylesheet" type="text/css" media="all" href=#springUrl("/resources/css/960.css") />
+<link rel="stylesheet" type="text/css" media="all" href=#springUrl("/resources/css/dailyemail.css") />
+
+<script src=#springUrl("/resources/js/jquery-1.8.3.min.js")></script>
+<script src=#springUrl("/resources/js/jquery.timePicker.min.js")></script>

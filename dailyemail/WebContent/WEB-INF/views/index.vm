@@ -4,29 +4,42 @@
 		#parse("header.vm")		
 	</head>
 	<body>
-		<div class="container">
-            <div class="header">
-                <h2>Daily Email Service</h2>
-            </div>
-
-            <div class="navigation">
+		<div class="container_12">
+			<div class="grid_12 header">
+				<h2>Daily Email Service</h2>
+			</div>
+            <div class="grid_2">
                 <nav>
                     <ul>
-                        <li id="yourhere"><a href="index.jsp">Home</a></li>
-                        <li><a href="login.jsp">Login</a></li>
-                        <li><a href="signup.jsp">Sign Up</a></li>                        
-                        <li><a href="about.jsp">About</a></li>
+                        <li id="yourhere"><a href="index">Home</a></li>
+                        <li><a href="login">Login</a></li>
+                        <li><a href=#springUrl("register")>Register</a></li>                        
+                        <li><a href="about">About</a></li>
                     </ul>
                 </nav>
             </div>
 
-            <div class="content">
+            <div class="grid_7 content">
                 <p>This daily email service allows you to choose various weather
                     and news options.  Specifically, you can receive current 
                     temperature information and weather forecast data.  Currently,
                     you can get 5 articles from WSJ, NYT, and/or Richmond TD.</p>
             </div>
-             <div class="footer">
+			<div class="grid_3">
+				<div class="error">
+				#if($exception)
+					#springMessageText($exception.code $exception.message)
+				#end					
+				</div>
+				<form name="login" action="/dailyemail/login/index" method="post">
+					<label>E-Mail Address:</label>
+					<input type="text" name="emailAddress" />
+					<label>Password:</label> 
+					<input type="password" name="pwd" />
+					<input type="submit" value="Login" />
+				</form>
+            </div>
+             <div class="grid_12 footer">
             Nate Paulus Copyright &copy; 2012
             </div>
         </div>

@@ -1,55 +1,142 @@
 <!DOCTYPE html>
 <html>
-	<head>
-		#parse("header.vm")		
-	</head>
-	<body>
-		<div class="container">
-			<div class="header">
-				<h2>Sign Up</h2>
-			</div>
-            <div class="navigation">
+    <head>
+        #parse("header.vm")
+        <link rel="stylesheet" type="text/css" media="all" href=#springUrl("/resources/css/timePicker.css") />
+        <script>
+            $(document).ready(function() {
+            // 02.00 AM - 03.30 PM, 15 minutes steps.
+            $("#wkDayTime").timePicker({
+            startTime: "00:00", // Using string. Can take string or Date object.
+            endTime: "23:55", // Using Date object here.
+            show24Hours: false,
+            separator: ':',
+            step: 5});
+            $("#wkEndTime").timePicker({
+            startTime: "00:00", // Using string. Can take string or Date object.
+            endTime: "23:55", // Using Date object here.
+            show24Hours: false,
+            separator: ':',
+            step: 5});
+            });
+        </script>
+    </head>
+    <body>
+        <div class="container_12">
+            <div class="grid_12 header">
+                <h2>Account Settings</h2>
+            </div>
+            <div class="grid_2">
                 <nav>
                     <ul>
-						<li><a href="index">Home</a></li>
-						<li><a id="yourhere" href="account">Account</a></li>
-						<li><a href="about">About</a></li>
-						<li><a href="logout">Logout</a></li>
-					</ul>
+                        <li>
+                            <a href="index">Home</a>
+                        </li>
+                        <li>
+                            <a id="yourhere" href="account">Account</a>
+                        </li>
+                        <li>
+                            <a href="about">About</a>
+                        </li>
+                        <li>
+                            <a href="logout">Logout</a>
+                        </li>
+                    </ul>
                 </nav>
             </div>
-			<div class="content">
-				
-				<div id="weather">
-					<h3>Weather Settings</h3>
-					<form name="addNews" action="/dailyemail/account/weather" method="post">
-					
-					Location: $user.weather.location_name
-                    
-						
-						#set( $weatherOptions = [0, 1, 2, 3])
-						#set( $weatherOptLabels = {0 : "No Weather Information", 1 : "Current Conditions", 2 : "Forecast", 3 : "Current Conditions & Forecast"})
-						#foreach($option in $weatherOptions)
-							#if($option == $user.weather.deliver_pref)
-								<input type="radio" name="weather" value="$option" checked="true" /> $weatherOptLabels.get($option)
-							#else
-								<input type="radio" name="weather" value="$option" /> $weatherOptLabels.get($option)
-							#end
-						#end
-                        <input type="submit" value="Set Weather" />                        
-					
-					</form>
-				</div>
-				<div id="addNewsLink">
-					<form name="addNews" action="/dailyemail/account/addNews" method="post">
-						<input type="text" name="name" /> <br />
-						<input type="text" name="url" /><br />
-						<input type="submit" value="Add" />
-					</form>
-				</div>
-								
-			</div>
-			
-		</div>
-	</body>
+            <div class="grid_5">
+                <div class="weather">
+                    <h3>Weather Settings</h3>
+                    <div class="wxDelivery">
+                        <h5>Set Included Weather Information</h5>
+                        <form name="addNews" action="/dailyemail/account/weather" method="post">
+                            <ul>                   		
+                                #set( $weatherOptions = [0, 1, 2, 3])
+                                #set( $weatherOptLabels = {0 : "No Weather Information", 1 : "Current Conditions", 2 : "Forecast", 3 : "Current Conditions & Forecast"})
+                                #foreach($option in $weatherOptions)
+                                    #if($option == $user.weather.deliver_pref)
+                                        <li>
+                                            <input type="radio" name="weather" value="$option" checked="true" />
+                                            $weatherOptLabels.get($option)</li>
+                                            #else
+                                                <li>
+                                                    <input type="radio" name="weather" value="$option" />
+                                                    $weatherOptLabels.get($option)</li>
+                                    #end
+                                #end
+                            </ul>
+                            <input type="submit" value="Set Weather" />
+                        </form>
+                    </div>
+                    <div class="zipcode">
+                        <h5>Update Zipcode</h5>
+                        Current Location (Zipcode): $user.weather.location_name ($user.zipcode)
+                        <form name="changeZip" action="/dailyemail/account/changezip" method="post">
+                            <label>Change Zipcode:</label>
+                            <input type="text" name="zipCode" size="7" />
+                            <input type="submit" value="Update Zipcode" />
+                        </form>
+                    </div>
+                </div>
+                <div class="deliverySettings">
+                    <h3>Delivery Settings</h3>
+                    <div class="delivery">
+                        <form name="news" action="/dailyemail/account/news" method="post">
+                            <table>
+                                <tr>
+                                    <td>Time Zone: <select name="tz">#include("tz.vm")</select>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Delivery Times</td>
+									<td>Disable Delivery</td>
+                                </tr>
+                                <tr>
+                                    <td>Weekday:<input type="text" name="wkDayTime" id="wkDayTime" size="10" />
+                                    </td>
+									<td><input type="checkbox" name="disableDay" value="true" />
+									</td>
+                                </tr>
+                                <tr>
+                                    <td>Weekend:<input type="text" name="wkEndTime" id="wkEndTime" size="10" />
+                                    </td>
+									<td><input type="checkbox" name="disableEnd" value="true" />
+									</td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <input type="submit" value="Set Delivery Times" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="grid_5">
+                <h3>News Sources</h3>
+                <div class="newsDelivery">
+					<h5>Set Included News Information</h5>
+                    <form name="news" action="/dailyemail/account/news" method="post">
+                        <input type="checkbox" name="news" value="" />
+                        News Source Name <br />
+                        <input type="submit" value="Save" />
+                    </form>
+                </div>
+                <div class="addLinks">
+					<h5>Add News Sources</h5>
+                    <form name="addNews" action="/dailyemail/account/addNews" method="post">
+                        <label>RSS Feed Name</label>
+                        <input type="text" name="name" />
+                        <br />
+                        <label>RSS Feed URL</label>
+                        <input type="text" name="url" />
+                        <br />
+                        <input type="submit" value="Add" />
+                    </form>
+                </div>
+            </div>
+        </div>
+</div>
+</body>
 </html>

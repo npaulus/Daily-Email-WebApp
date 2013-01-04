@@ -1,0 +1,70 @@
+@CHARSET "ISO-8859-1";
+
+.footer 
+{
+	text-align: right;
+}
+
+.header
+{
+	text-align: center;
+}
+
+.content
+{
+	
+}
+
+.weather ul
+{
+	list-style-type: none;
+}
+
+.news input[type="text"]
+{
+	display: block;
+}
+
+.zipcode {
+	margin: 8px;
+    border-radius: 7px;
+    border-style: solid;
+    border-width: 1px;
+    padding: 5px;
+}
+
+.wxDelivery 
+{
+	margin: 8px;
+    border-radius: 7px;
+    border-style: solid;
+    border-width: 1px;
+    padding: 5px;
+}
+
+.delivery 
+{
+	margin: 8px;
+    border-radius: 7px;
+    border-style: solid;
+    border-width: 1px;
+    padding: 5px;
+}
+
+.newsDelivery 
+{
+	margin: 8px;
+    border-radius: 7px;
+    border-style: solid;
+    border-width: 1px;
+    padding: 5px;
+}
+
+.addLinks
+{
+	margin: 8px;
+    border-radius: 7px;
+    border-style: solid;
+    border-width: 1px;
+    padding: 5px;	
+}

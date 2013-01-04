@@ -27,7 +27,7 @@ public class LoginController {
 		return "login";
 	}
 
-	@RequestMapping(value = "/login", method = RequestMethod.POST)
+	@RequestMapping(value = "/login/*", method = RequestMethod.POST)
 	public String processLogin(@RequestParam String emailAddress,
 			@RequestParam String pwd, HttpSession session, RedirectAttributes redirect) throws AuthenticationException {
 		User user = this.userService.login(emailAddress, pwd);
