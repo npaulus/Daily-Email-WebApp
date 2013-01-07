@@ -6,4 +6,5 @@ public interface WeatherService {
 	
 	public Weather setInitialWeatherLocation(String zipCode);
 	
+	public Weather updateWeatherLocation(String zipCode, Weather weather);
 }

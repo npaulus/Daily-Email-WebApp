@@ -7,4 +7,12 @@ public interface AccountService {
 	
 	public Weather updateWeatherDeliveryPreference(int weather, User user);
 	
+	public User updateUserZipCode(User user, String zipCode);
+	
+	public User addNewsLink(String url, String name, User user);
+	
+	public User setIncludedNewsInformation(String[] news, User user);
+	
+	public User deleteNewsLink(int id, User user);
+		
 }

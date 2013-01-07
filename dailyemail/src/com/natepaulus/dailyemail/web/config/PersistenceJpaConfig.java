@@ -28,14 +28,7 @@ public class PersistenceJpaConfig {
 		factoryBean
 				.setPackagesToScan(new String[] { "com.natepaulus.dailyemail" });
 		factoryBean.setPersistenceProviderClass(HibernatePersistence.class);
-	/*	JpaVendorAdapter vendorAdapter = new HibernateJpaVendorAdapter() {
-			{
-				this.setDatabase(Database.MYSQL);
-				this.setShowSql(true);				
-			}
-		};
-		factoryBean.setJpaVendorAdapter(vendorAdapter);*/
-		
+
 		Properties jpaProperties = new Properties();
 		jpaProperties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
 		jpaProperties.put("hibernate.format_sql", "true");

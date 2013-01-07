@@ -1,13 +1,16 @@
 package com.natepaulus.dailyemail.web.service.impl;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import com.natepaulus.dailyemail.repository.Weather;
 import com.natepaulus.dailyemail.repository.WeatherRepository;
@@ -22,12 +25,36 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
 @Service
 public class WeatherServiceImpl implements WeatherService {
 
-	@Autowired
-	WeatherRepository weatherRepository;
-
 	@Override
 	public Weather setInitialWeatherLocation(String zip) {
 
+		Map<String, String> map = new HashMap<String, String>();
+		map = getWeatherLocationData(zip, "0");
+
+		Weather weather = new Weather();
+		weather.setDeliver_pref(Integer.parseInt(map.get("DeliveryPref")));
+		weather.setLocation_name(map.get("LocationName"));
+		weather.setLatitude(map.get("Lat"));
+		weather.setLongitude(map.get("Long"));
+
+		return weather;
+	}
+
+	public Weather updateWeatherLocation(String zipCode, Weather weather){
+		Map<String, String> map = new HashMap<String, String>();
+		String del = weather.getDeliver_pref() + "";
+		map = getWeatherLocationData(zipCode, del);
+		
+		weather.setDeliver_pref(Integer.parseInt(map.get("DeliveryPref")));
+		weather.setLocation_name(map.get("LocationName"));
+		weather.setLatitude(map.get("Lat"));
+		weather.setLongitude(map.get("Long"));
+		
+		return weather;
+	}
+	
+	private Map<String, String> getWeatherLocationData(String zip,
+			String deliveryPref) {
 		Client zipCode = Client.create();
 		zipCode.setFollowRedirects(true);
 		WebResource r = zipCode
@@ -79,22 +106,23 @@ public class WeatherServiceImpl implements WeatherService {
 					}
 				}
 			}
-						
-			Weather weather = new Weather();
-			weather.setDeliver_pref(0);
-			weather.setLocation_name(result);
-			weather.setLatitude(latLong[0]);
-			weather.setLongitude(latLong[1]);
-			
-			return weather;
+
+			Map<String, String> map = new HashMap<String, String>();
+			map.put("LocationName", result);
+			map.put("Lat", latLong[0]);
+			map.put("Long", latLong[1]);
+			map.put("DeliveryPref", deliveryPref);
+
+			return map;
 		} else {
-			Weather weather = new Weather();
-			weather.setDeliver_pref(0);
-			weather.setLocation_name("");
-			weather.setLatitude("0.0");
-			weather.setLongitude("0.0");
-			
-			return weather;
+
+			Map<String, String> map = new HashMap<String, String>();
+			map.put("LocationName", "");
+			map.put("Lat", "0.0");
+			map.put("Long", "0.0");
+			map.put("DeliveryPref", "0");
+
+			return map;
 		}
 	}
 }

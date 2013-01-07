@@ -13,7 +13,6 @@ import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
-import javax.persistence.Version;
 
 @SuppressWarnings("serial")
 @Entity
@@ -24,11 +23,7 @@ public class User implements Serializable{
 	@Column(name = "idusers")
 	@GeneratedValue(strategy = GenerationType.AUTO)		
 	private Long id;
-	
-	@Version
-	@Column(name = "version")
-	private int version;
-	
+		
 	@Column(name = "first_name")
 	private String firstName;
 	
@@ -44,27 +39,24 @@ public class User implements Serializable{
 	@Column
 	private String zipcode;
 	
-	@OneToOne(fetch = FetchType.EAGER, mappedBy = "user", cascade=CascadeType.PERSIST)
+	@OneToOne(fetch = FetchType.EAGER, mappedBy = "user", cascade=CascadeType.ALL)
 	private Weather weather;		
 	
-	@OneToMany(mappedBy="user", fetch= FetchType.EAGER, cascade=CascadeType.PERSIST)
+	@OneToMany(mappedBy="user", fetch= FetchType.EAGER, cascade=CascadeType.ALL, orphanRemoval= true)
 	private Set<NewsLink> newsLink;
 	
+	public Set<NewsLink> getNewsLink() {
+		return newsLink;
+	}
+	public void setNewsLink(Set<NewsLink> newsLink) {
+		this.newsLink = newsLink;
+	}
 	public Long getId() {
 		return id;
 	}
 	public void setId(Long id) {
 		this.id = id;
 	}
-	
-	
-	public int getVersion() {
-		return version;
-	}
-	public void setVersion(int version) {
-		this.version = version;
-	}
-	
 	
 	public String getFirstName() {
 		return firstName;
@@ -115,7 +107,7 @@ public class User implements Serializable{
 	
 	@Override
 	public String toString() {
-		return "User [id=" + id + ", version=" + version + ", firstName="
+		return "User [id=" + id + ", firstName="
 				+ firstName + ", lastName=" + lastName + ", email=" + email
 				+ ", password=" + password + "]";
 	}

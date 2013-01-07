@@ -12,13 +12,22 @@
             show24Hours: false,
             separator: ':',
             step: 5});
+			
             $("#wkEndTime").timePicker({
             startTime: "00:00", // Using string. Can take string or Date object.
             endTime: "23:55", // Using Date object here.
             show24Hours: false,
             separator: ':',
-            step: 5});
+            step: 5});		
+				
             });
+			
+			function doDelete(theNum) {
+
+				if (confirm("Are you sure you want to remove this news link?")){
+					window.location="#springUrl("/account/deleteNewsLink/")" + theNum;  
+				}
+			}
         </script>
     </head>
     <body>
@@ -49,21 +58,19 @@
                     <h3>Weather Settings</h3>
                     <div class="wxDelivery">
                         <h5>Set Included Weather Information</h5>
-                        <form name="addNews" action="/dailyemail/account/weather" method="post">
-                            <ul>                   		
-                                #set( $weatherOptions = [0, 1, 2, 3])
+						
+                        <form name="setWeatherPref" action="/dailyemail/account/weather" method="post">
+							<ul>
                                 #set( $weatherOptLabels = {0 : "No Weather Information", 1 : "Current Conditions", 2 : "Forecast", 3 : "Current Conditions & Forecast"})
-                                #foreach($option in $weatherOptions)
-                                    #if($option == $user.weather.deliver_pref)
-                                        <li>
-                                            <input type="radio" name="weather" value="$option" checked="true" />
-                                            $weatherOptLabels.get($option)</li>
-                                            #else
-                                                <li>
-                                                    <input type="radio" name="weather" value="$option" />
-                                                    $weatherOptLabels.get($option)</li>
-                                    #end
-                                #end
+                                #foreach($option in $weatherOptLabels.keySet())
+									<li>
+									<input type="radio" name="deliver_pref" value="$option"
+										#if($user.weather.deliver_pref == $option)
+											checked="checked"
+										#end
+										/>$weatherOptLabels.get($option)
+									</li>
+								#end
                             </ul>
                             <input type="submit" value="Set Weather" />
                         </form>
@@ -117,11 +124,25 @@
                 <h3>News Sources</h3>
                 <div class="newsDelivery">
 					<h5>Set Included News Information</h5>
+					 #if(!$user.newsLink.isEmpty())
                     <form name="news" action="/dailyemail/account/news" method="post">
-                        <input type="checkbox" name="news" value="" />
-                        News Source Name <br />
-                        <input type="submit" value="Save" />
+                       
+							#foreach($link in $user.newsLink)
+								<input type="checkbox" name="news" value="$link.id"
+								#if($link.deliver == 1)
+									checked="checked"
+								#end
+								/>
+								$link.source_name <a href="javascript:;" onclick="doDelete($!link.id)"><img src=#springUrl("/resources/images/delete.png") /></a>
+							#end
+							
+						
+                        <input type="submit" value="Save" />						
                     </form>
+					#else
+						<p>Add some RSS links below to setup news options to include in your daily email.</p>
+					#end
+					 
                 </div>
                 <div class="addLinks">
 					<h5>Add News Sources</h5>
