@@ -45,6 +45,15 @@ public class User implements Serializable{
 	@OneToMany(mappedBy="user", fetch= FetchType.EAGER, cascade=CascadeType.ALL, orphanRemoval= true)
 	private Set<NewsLink> newsLink;
 	
+	@OneToMany(mappedBy="user", fetch= FetchType.EAGER, cascade=CascadeType.ALL, orphanRemoval= true)
+	private Set<DeliverySchedule> deliveryTimes;
+	
+	public Set<DeliverySchedule> getDeliveryTimes() {
+		return deliveryTimes;
+	}
+	public void setDeliveryTimes(Set<DeliverySchedule> deliveryTimes) {
+		this.deliveryTimes = deliveryTimes;
+	}
 	public Set<NewsLink> getNewsLink() {
 		return newsLink;
 	}

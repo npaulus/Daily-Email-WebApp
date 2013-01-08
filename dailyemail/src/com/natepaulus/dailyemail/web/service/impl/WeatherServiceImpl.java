@@ -8,12 +8,9 @@ import java.util.Map;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import com.natepaulus.dailyemail.repository.Weather;
-import com.natepaulus.dailyemail.repository.WeatherRepository;
 import com.natepaulus.dailyemail.web.service.interfaces.WeatherService;
 import com.natepaulus.nws.DataType;
 import com.natepaulus.nws.Dwml;

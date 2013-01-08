@@ -1,0 +1,34 @@
+
+	#set( $deliveryLabel = {
+		0 : "Weekday",
+		1 : "Weekend"
+	})
+	
+	#set( $deliveryName = {
+		0 : "wkDayTime",
+		1 : "wkEndTime"
+	})
+	
+	#set( $disable = {
+		0 : "disableDay",
+		1 : "disableEnd"
+	})
+	
+	#foreach($day in $user.deliveryTimes)
+		<tr>
+		<td>$deliveryLabel.get($day.delivery_day)			
+			<input type="text" name="$deliveryName.get($day.delivery_day)" id="$deliveryName.get($day.delivery_day)" 
+				value="$!day.displayTime" size=10 />
+		</td>
+		<td>
+			<input type="checkbox" name="$disable.get($day.delivery_day)" value="1"
+			#if($day.disabled == 1)
+					checked
+			#end
+			
+				/>
+		</td>
+		</tr>
+	#end
+	
+	

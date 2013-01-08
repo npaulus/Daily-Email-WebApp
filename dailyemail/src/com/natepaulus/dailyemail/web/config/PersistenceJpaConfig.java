@@ -33,6 +33,7 @@ public class PersistenceJpaConfig {
 		jpaProperties.put("hibernate.dialect", "org.hibernate.dialect.MySQL5InnoDBDialect");
 		jpaProperties.put("hibernate.format_sql", "true");
 		jpaProperties.put("hibernate.show_sql", "true");
+		//jpaProperties.put("jadira.usertype.databaseZone", "UTC");
 		factoryBean.setJpaProperties(jpaProperties);
 		return factoryBean;
 	}

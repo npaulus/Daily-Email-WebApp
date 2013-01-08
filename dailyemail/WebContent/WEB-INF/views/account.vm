@@ -88,28 +88,20 @@
                 <div class="deliverySettings">
                     <h3>Delivery Settings</h3>
                     <div class="delivery">
-                        <form name="news" action="/dailyemail/account/news" method="post">
+                        <form name="news" action="/dailyemail/account/delivery" method="post">
                             <table>
                                 <tr>
-                                    <td>Time Zone: <select name="tz">#include("tz.vm")</select>
+                                    <td>Time Zone: 
+										<select name="tz">
+											#parse("tz.vm")
+										</select>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>Delivery Times</td>
 									<td>Disable Delivery</td>
                                 </tr>
-                                <tr>
-                                    <td>Weekday:<input type="text" name="wkDayTime" id="wkDayTime" size="10" />
-                                    </td>
-									<td><input type="checkbox" name="disableDay" value="true" />
-									</td>
-                                </tr>
-                                <tr>
-                                    <td>Weekend:<input type="text" name="wkEndTime" id="wkEndTime" size="10" />
-                                    </td>
-									<td><input type="checkbox" name="disableEnd" value="true" />
-									</td>
-                                </tr>
+                                #parse("deliverytimes.vm")
                                 <tr>
                                     <td>
                                         <input type="submit" value="Set Delivery Times" />
