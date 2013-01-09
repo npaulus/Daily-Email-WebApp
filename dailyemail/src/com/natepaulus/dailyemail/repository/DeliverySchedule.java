@@ -14,6 +14,7 @@ import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
+import org.joda.time.LocalTime;
 
 @SuppressWarnings("serial")
 @Entity
@@ -32,11 +33,11 @@ public class DeliverySchedule implements Serializable {
 	private int disabled;
 	
 	@Column
-	@Type(type="org.jadira.usertype.dateandtime.joda.PersistentDateTime")
-	private DateTime time;
+	@Type(type="org.jadira.usertype.dateandtime.joda.PersistentLocalTime")
+	private LocalTime time;
 	
-	@Column
-	private int delivery_day;
+	@Column(name="delivery_day")
+	private int deliveryDay;
 	
 	@Column
 	private String tz;
@@ -64,12 +65,12 @@ public class DeliverySchedule implements Serializable {
 		this.tz = tz;
 	}
 
-	public int getDelivery_day() {
-		return delivery_day;
+	public int getDeliveryDay() {
+		return deliveryDay;
 	}
 
-	public void setDelivery_day(int delivery_day) {
-		this.delivery_day = delivery_day;
+	public void setDeliveryDay(int deliveryDay) {
+		this.deliveryDay = deliveryDay;
 	}
 
 	public Long getId() {
@@ -88,11 +89,11 @@ public class DeliverySchedule implements Serializable {
 		this.disabled = disabled;
 	}
 
-	public DateTime getTime() {
+	public LocalTime getTime() {
 		return time;
 	}
 
-	public void setTime(DateTime time) {
+	public void setTime(LocalTime time) {
 		this.time = time;
 	}
 

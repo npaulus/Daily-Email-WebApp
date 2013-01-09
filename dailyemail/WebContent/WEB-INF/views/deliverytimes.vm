@@ -16,12 +16,12 @@
 	
 	#foreach($day in $user.deliveryTimes)
 		<tr>
-		<td>$deliveryLabel.get($day.delivery_day)			
-			<input type="text" name="$deliveryName.get($day.delivery_day)" id="$deliveryName.get($day.delivery_day)" 
+		<td>$deliveryLabel.get($day.deliveryDay)			
+			<input type="text" name="$deliveryName.get($day.deliveryDay)" id="$deliveryName.get($day.deliveryDay)" 
 				value="$!day.displayTime" size=10 />
 		</td>
 		<td>
-			<input type="checkbox" name="$disable.get($day.delivery_day)" value="1"
+			<input type="checkbox" name="$disable.get($day.deliveryDay)" value="1"
 			#if($day.disabled == 1)
 					checked
 			#end

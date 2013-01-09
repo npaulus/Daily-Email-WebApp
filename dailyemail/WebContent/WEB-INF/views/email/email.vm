@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+	<html>
+		<head>
+			<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		</head>
+		<body>
+			<b>Current Weather Conditions:</b>
+			<br />
+			<br />
+			Location: $data.wxCurCond.cityState<br />
+			Weather Station: $data.wxCurCond.weatherStation<br />
+			Latest Observation: $data.wxCurCond.latestObDateTime<br />
+			<br/>
+			Current Temperature: $data.wxCurCond.currentTemp F<br />
+			Humidity: $data.wxCurCond.humidity %<br />
+			Current Weather: $data.wxCurCond.curWx<br />
+			<br />
+			Wind Speed: $data.wxCurCond.windSpeed MPH<br />
+			Wind Gusts: $data.wxCurCond.windGust MPH<br />
+			<br />
+			Sunrise: $data.wxCurCond.sunRise <br />
+			Sunset: $data.wxCurCond.sunSet<br />
+			<br />
+			<b>Weather Forecast for $data.wxCurCond.cityState:</b> <br />
+			#foreach($weatherPeriod in $data.weatherForecast.periodForecast.keySet())
+				<br/>
+				$weatherPeriod<br />
+				$data.weatherForecast.periodForecast.get($weatherPeriod)<br />				
+			#end
+			<br />
+			<br />
+			#foreach($newsFeed in $data.newsFeeds)
+				<b>$newsFeed.feedTitle</b>
+				<br />
+				#foreach($newsStory in $newsFeed.newsStories)
+					<a href="$newsStory.storyLink">$newsStory.storyTitle</a><br />
+						$newsStory.storyDesc<br />
+						<br />
+				#end				
+				<br />
+			#end
+			
+		</body>
+	</html>

@@ -143,7 +143,7 @@ public class AccountServiceImpl implements AccountService {
 			
 			DateTimeFormatter fmt = DateTimeFormat.forPattern("hh:mm a");
 			
-			DateTime utc = ds.getTime().withZone(DateTimeZone.UTC);
+			DateTime utc = ds.getTime().toDateTimeToday(DateTimeZone.UTC);
 			DateTime userTime = utc.withZone(DateTimeZone.forID(ds.getTz()));
 			
 			ds.setDisplayTime(fmt.print(userTime));
@@ -160,11 +160,11 @@ public class AccountServiceImpl implements AccountService {
 		DateTime dateTimeZone = new DateTime(time.toDateTimeToday(DateTimeZone
 				.forID(tz)));
 		DateTime utc = dateTimeZone.withZone(DateTimeZone.UTC);
-
-		deliverySchedule.setDelivery_day(deliveryDay);
+		LocalTime lt = utc.toLocalTime();
+		deliverySchedule.setDeliveryDay(deliveryDay);
 		deliverySchedule.setDisabled(disabled);
 		deliverySchedule.setIdusers(user.getId());
-		deliverySchedule.setTime(utc);
+		deliverySchedule.setTime(lt);
 		deliverySchedule.setUser(user);
 		deliverySchedule.setTz(tz);
 

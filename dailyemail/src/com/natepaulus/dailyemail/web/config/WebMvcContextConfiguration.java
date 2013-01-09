@@ -5,12 +5,17 @@ import java.util.Properties;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.ImportResource;
 import org.springframework.context.support.ReloadableResourceBundleMessageSource;
+import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.ui.velocity.VelocityEngineFactoryBean;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import org.springframework.web.servlet.HandlerMapping;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
@@ -23,10 +28,14 @@ import org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMap
 
 @Configuration
 @EnableWebMvc
+@EnableAsync
+@EnableScheduling
 @ImportResource("WEB-INF/lib/applicationContext.xml")
 @ComponentScan(basePackages = "com.natepaulus.dailyemail")
 public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 
+	final Logger logger = LoggerFactory.getLogger(WebMvcContextConfiguration.class);
+	
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/resources/**")
@@ -80,6 +89,28 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 		InterceptorRegistration registration = registry
 				.addInterceptor(new SecurityHandlerInterceptor())
 				.addPathPatterns("/account", "/account/*");
+	}
+	
+/*	@Bean
+	public JavaMailSender mailSender(){
+		JavaMailSenderImpl sender = new JavaMailSenderImpl();
+		Properties javaMailProperties = new Properties();
+		
+		
+		
+		sender.setJavaMailProperties(javaMailProperties);
+		
+		return sender;
+	}*/
+	
+	@Bean
+	public VelocityEngineFactoryBean velocityEngine(){
+		VelocityEngineFactoryBean velocityFactoryBean = new VelocityEngineFactoryBean();
+		Properties velocityProperties = new Properties();
+		velocityProperties.put("resource.loader", "class");
+		velocityProperties.put("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+		velocityFactoryBean.setVelocityProperties(velocityProperties);
+		return velocityFactoryBean;
 	}
 
 }

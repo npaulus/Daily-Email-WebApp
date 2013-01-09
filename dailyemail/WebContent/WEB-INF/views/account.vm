@@ -117,19 +117,22 @@
                 <div class="newsDelivery">
 					<h5>Set Included News Information</h5>
 					 #if(!$user.newsLink.isEmpty())
-                    <form name="news" action="/dailyemail/account/news" method="post">
-                       
+						<form name="news" action="/dailyemail/account/news" method="post">
+							<ul>
 							#foreach($link in $user.newsLink)
+								<li>
 								<input type="checkbox" name="news" value="$link.id"
 								#if($link.deliver == 1)
 									checked="checked"
 								#end
 								/>
 								$link.source_name <a href="javascript:;" onclick="doDelete($!link.id)"><img src=#springUrl("/resources/images/delete.png") /></a>
+								</li>
 							#end
 							
-						
-                        <input type="submit" value="Save" />						
+						<li><br /></li>
+                        <li><input type="submit" value="Save" /></li>
+							</ul>
                     </form>
 					#else
 						<p>Add some RSS links below to setup news options to include in your daily email.</p>

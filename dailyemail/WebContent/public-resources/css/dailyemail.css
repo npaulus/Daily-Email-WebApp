@@ -58,6 +58,12 @@
     border-style: solid;
     border-width: 1px;
     padding: 5px;
+    
+}
+
+.newsDelivery ul
+{
+	list-style-type: none;
 }
 
 .addLinks
