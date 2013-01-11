@@ -13,7 +13,6 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
-import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 
 @SuppressWarnings("serial")

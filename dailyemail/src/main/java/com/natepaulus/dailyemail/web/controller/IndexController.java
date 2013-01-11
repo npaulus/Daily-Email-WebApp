@@ -10,4 +10,9 @@ public class IndexController {
 	public String displayIndex() {
 		return "index";
 	}
+	
+	@RequestMapping(value = "/index*")
+	public String catchAllDisplayIndex(){
+		return "index";
+	}
 }

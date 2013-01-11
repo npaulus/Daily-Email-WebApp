@@ -43,10 +43,7 @@
                         </li>
                         <li>
                             <a id="yourhere" href="account">Account</a>
-                        </li>
-                        <li>
-                            <a href="about">About</a>
-                        </li>
+                        </li>                        
                         <li>
                             <a href="logout">Logout</a>
                         </li>

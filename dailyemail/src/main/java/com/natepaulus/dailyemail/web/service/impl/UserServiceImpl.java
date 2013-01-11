@@ -2,6 +2,8 @@ package com.natepaulus.dailyemail.web.service.impl;
 
 import javax.annotation.Resource;
 
+import org.joda.time.LocalTime;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -11,6 +13,7 @@ import com.natepaulus.dailyemail.repository.Weather;
 import com.natepaulus.dailyemail.web.domain.AccountSignUp;
 import com.natepaulus.dailyemail.web.exceptions.AuthenticationException;
 import com.natepaulus.dailyemail.web.service.PasswordEncryption;
+import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 import com.natepaulus.dailyemail.web.service.interfaces.UserService;
 
 @Service
@@ -18,6 +21,9 @@ public class UserServiceImpl implements UserService {
 	
 	@Resource
 	private UserRepository userRepository;
+	
+	@Autowired
+	private AccountService accountService;
 
 	/*
 	 * @Transactional(readOnly = true) public List<User> findAll() { List<User>
@@ -44,8 +50,13 @@ public class UserServiceImpl implements UserService {
 
 		newUser.setWeather(weather);
 		weather.setUser(newUser);
-
+		
 		userRepository.save(newUser);
+		
+		LocalTime day = new LocalTime();
+		day = LocalTime.MIDNIGHT;
+		accountService.updateDeliverySchedule(day, day, 1, 1, "America/New_York", newUser);
+		
 
 	}
 

@@ -4,7 +4,6 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -34,14 +33,9 @@ public class LoginController {
 		session.setAttribute("user", user);
 		String url = (String) session.getAttribute(REQUESTED_URL);
 		session.removeAttribute(REQUESTED_URL);
-		if(StringUtils.hasText(url) && !url.contains("login")){
-			redirect.addFlashAttribute("user", user);
-			return "redirect:" + url;			
-		} else {
-			redirect.addFlashAttribute("user", user);
-			return "redirect:/account";
-		}
 		
+		redirect.addFlashAttribute("user", user);
+		return "redirect:/account";
 		
 	}
 

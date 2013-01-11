@@ -24,7 +24,7 @@
 					#springMessageText($exception.code $exception.message)
 				#end					
 			</div>
-			<form name="login" action="/dailyemail/login" method="post">
+			<form name="login" action="/dailyemail/login/signin" method="post">
 				<table class="center">
 					<tr>
 						<td>E-Mail Address: </td>

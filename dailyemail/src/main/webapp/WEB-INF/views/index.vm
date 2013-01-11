@@ -11,10 +11,10 @@
             <div class="grid_2">
                 <nav>
                     <ul>
-                        <li id="yourhere"><a href="index">Home</a></li>
-                        <li><a href="login">Login</a></li>
-                        <li><a href=#springUrl("register")>Register</a></li>                        
-                        <li><a href="about">About</a></li>
+                        <li id="yourhere"><a href=#springUrl("/index")>Home</a></li>
+                        <li><a href=#springUrl("/login")>Login</a></li>
+                        <li><a href=#springUrl("/register")>Register</a></li>                        
+                        
                     </ul>
                 </nav>
             </div>
