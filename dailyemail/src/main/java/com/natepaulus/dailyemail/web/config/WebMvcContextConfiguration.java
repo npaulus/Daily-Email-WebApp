@@ -70,12 +70,14 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 		Properties mappings = new Properties();
 		mappings.setProperty("AuthenticationException", "login");
 		mappings.setProperty("AuthenticationException", "index");
+		
 
 		Properties statusCodes = new Properties();
 		statusCodes.setProperty("login",
 				String.valueOf(HttpServletResponse.SC_UNAUTHORIZED));
 		statusCodes.setProperty("index",
 				String.valueOf(HttpServletResponse.SC_UNAUTHORIZED));
+		
 
 		exceptionResolver.setExceptionMappings(mappings);
 		exceptionResolver.setStatusCodes(statusCodes);
@@ -89,6 +91,7 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 		InterceptorRegistration registration = registry
 				.addInterceptor(new SecurityHandlerInterceptor())
 				.addPathPatterns("/account", "/account/*");
+		
 	}
 	
 /*	@Bean

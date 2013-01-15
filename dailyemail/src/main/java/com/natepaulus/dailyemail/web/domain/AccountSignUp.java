@@ -34,10 +34,10 @@ public class AccountSignUp {
 	@Email
 	private String confirm_email;
 	
-	@NotNull
+	@NotEmpty
 	private String password;
 	
-	@NotNull	
+	@NotEmpty	
 	private String confirm_password;
 	
 	public String getFirst_name() {

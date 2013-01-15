@@ -39,8 +39,13 @@ public class UserServiceImpl implements UserService {
 	 */
 
 	@Transactional
-	public void addNewUser(AccountSignUp acctSignUp, Weather weather) {
-
+	public boolean addNewUser(AccountSignUp acctSignUp, Weather weather) {
+		
+		User existingUser = userRepository.findByEmail(acctSignUp.getEmail());
+		if(existingUser != null){
+			return false;
+		}
+		
 		User newUser = new User();
 		newUser.setFirstName(acctSignUp.getFirst_name());
 		newUser.setLastName(acctSignUp.getLast_name());
@@ -57,7 +62,8 @@ public class UserServiceImpl implements UserService {
 		day = LocalTime.MIDNIGHT;
 		accountService.updateDeliverySchedule(day, day, 1, 1, "America/New_York", newUser);
 		
-
+		return true;
+		
 	}
 
 	@Override

@@ -14,27 +14,27 @@ import javax.persistence.Table;
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "news_links")
-public class NewsLink implements Serializable{
-	
+public class NewsLink implements Serializable {
+
 	@Id
 	@Column
-	@GeneratedValue(strategy = GenerationType.AUTO)	
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	
-	@Column(insertable=false, updatable=false)
+
+	@Column(insertable = false, updatable = false)
 	private Long idusers;
-	
+
 	@Column
 	private String source_name;
-	
+
 	@Column
 	private String url;
-	
+
 	@Column
 	private int deliver;
-	
+
 	@ManyToOne
-	@JoinColumn(name="idusers")
+	@JoinColumn(name = "idusers")
 	private User user;
 
 	public Long getId() {

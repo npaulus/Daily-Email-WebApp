@@ -29,6 +29,9 @@
                 </nav>
             </div>
 			<div class="grid_10">
+				#if($userExists)
+					$userExists
+				#end
 				#if($status.errors.hasErrors())
 					## Global error messages
 					#foreach($e in $status.errorMessages)

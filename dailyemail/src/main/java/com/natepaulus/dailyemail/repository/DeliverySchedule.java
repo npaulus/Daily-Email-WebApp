@@ -19,33 +19,33 @@ import org.joda.time.LocalTime;
 @Entity
 @Table(name = "delivery_schedule")
 public class DeliverySchedule implements Serializable {
-	
+
 	@Id
 	@Column
-	@GeneratedValue(strategy = GenerationType.AUTO)	
+	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
-	
-	@Column(insertable=false, updatable=false)
+
+	@Column(insertable = false, updatable = false)
 	private Long idusers;
-	
+
 	@Column
 	private int disabled;
-	
+
 	@Column
-	@Type(type="org.jadira.usertype.dateandtime.joda.PersistentLocalTime")
+	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalTime")
 	private LocalTime time;
-	
-	@Column(name="delivery_day")
+
+	@Column(name = "delivery_day")
 	private int deliveryDay;
-	
+
 	@Column
 	private String tz;
-	
+
 	@Transient
 	private String displayTime;
-	
+
 	@ManyToOne
-	@JoinColumn(name="idusers")
+	@JoinColumn(name = "idusers")
 	private User user;
 
 	public String getDisplayTime() {
@@ -111,6 +111,5 @@ public class DeliverySchedule implements Serializable {
 	public void setIdusers(Long idusers) {
 		this.idusers = idusers;
 	}
-	
-	
+
 }

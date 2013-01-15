@@ -1,5 +1,6 @@
 package com.natepaulus.dailyemail.web.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,19 +34,23 @@ public class RegisterController {
 	}
 
 	@RequestMapping(value = "/register", method = RequestMethod.POST)
-	public String processSignUp(
+	public String processSignUp  (
 			@Valid @ModelAttribute("accountSignUp") AccountSignUp accountSignUp,
-			BindingResult result, RedirectAttributes redirect) {
+			BindingResult result, RedirectAttributes redirect, Model model) {
 
 		if (result.hasErrors()) {
 			return "register";
 		}
+		
 		Weather weather = weatherService.setInitialWeatherLocation(accountSignUp.getZipcode());		
 		
-		userService.addNewUser(accountSignUp, weather);
-
-		redirect.addFlashAttribute("accountSignUp", accountSignUp);
-		return "redirect:/registerSuccess";
+		if(userService.addNewUser(accountSignUp, weather)){
+			redirect.addFlashAttribute("accountSignUp", accountSignUp);
+			return "redirect:/registerSuccess";
+		} else {
+			model.addAttribute("userExists", "Email already exists. Try again.");			
+			return "register";
+		}
 	}
 
 }

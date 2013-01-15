@@ -31,7 +31,6 @@ public class LoginController {
 			@RequestParam String pwd, HttpSession session, RedirectAttributes redirect) throws AuthenticationException {
 		User user = this.userService.login(emailAddress, pwd);
 		session.setAttribute("user", user);
-		String url = (String) session.getAttribute(REQUESTED_URL);
 		session.removeAttribute(REQUESTED_URL);
 		
 		redirect.addFlashAttribute("user", user);
