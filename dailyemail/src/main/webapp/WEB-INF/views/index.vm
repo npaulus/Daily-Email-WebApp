@@ -31,7 +31,7 @@
 					#springMessageText($exception.code $exception.message)
 				#end					
 				</div>
-				<form name="login" action="/dailyemail/login/index" method="post">
+				<form name="login" action=#springUrl("/login/index") method="post">
 					<label>E-Mail Address:</label>
 					<input type="text" name="emailAddress" />
 					<label>Password:</label> 

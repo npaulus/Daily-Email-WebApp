@@ -29,7 +29,7 @@
                     <div class="wxDelivery">
                         <h5>Set Included Weather Information</h5>
 						
-                        <form name="setWeatherPref" action="/dailyemail/account/weather" method="post">
+                        <form name="setWeatherPref" action=#springUrl("/account/weather") method="post">
 							<ul>
                                 #set( $weatherOptLabels = {0 : "No Weather Information", 1 : "Current Conditions", 2 : "Forecast", 3 : "Current Conditions & Forecast"})
                                 #foreach($option in $weatherOptLabels.keySet())
@@ -48,7 +48,7 @@
                     <div class="zipcode">
                         <h5>Update Zipcode</h5>
                         Current Location (Zipcode): $user.weather.location_name ($user.zipcode)
-                        <form name="changeZip" action="/dailyemail/account/changezip" method="post">
+                        <form name="changeZip" action=#springUrl("/account/changezip") method="post">
                             <label>Change Zipcode:</label>
                             <input type="text" name="zipCode" size="7" />
                             <input type="submit" value="Update Zipcode" />
@@ -65,7 +65,7 @@
                 <div class="newsDelivery">
 					<h5>Set Included News Information</h5>
 					 #if(!$user.newsLink.isEmpty())
-						<form name="news" action="/dailyemail/account/news" method="post">
+						<form name="news" action=#springUrl("/account/news") method="post">
 							<ul>
 							#foreach($link in $user.newsLink)
 								<li>
@@ -89,7 +89,7 @@
                 </div>
                 <div class="addLinks">
 					<h5>Add News Sources</h5>
-                    <form name="addNews" action="/dailyemail/account/addNews" method="post">
+                    <form name="addNews" action=#springUrl("/account/addNews") method="post">
                         <label>RSS Feed Name</label>
                         <input type="text" name="name" />
                         <br />

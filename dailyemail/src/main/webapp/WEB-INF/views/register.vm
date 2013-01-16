@@ -12,7 +12,7 @@
   				}
 			}
 		</script>
-		<link href="./resources/css/register.css" rel="stylesheet" type="text/css" />
+		<link href=#springUrl("/resources/css/register.css") rel="stylesheet" type="text/css" />
 	</head>
 	<body>
 		<div class="container_12">
@@ -38,7 +38,7 @@
 						<p>${e}</p>
 					#end
 				#end
-				<form name="register" action="/dailyemail/register" method="post">
+				<form name="register" action=#springUrl("/register") method="post">
 					<label>First Name:</label>
 					#springBind("accountSignUp.first_name")
 					#springShowErrors("<br />", "")

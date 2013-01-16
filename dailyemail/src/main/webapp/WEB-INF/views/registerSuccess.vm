@@ -11,16 +11,14 @@
             <div class="grid_2">
                 <nav>
                     <ul>
-                        <li><a href="index.jsp">Home</a></li>
-                        <li><a href="login.jsp">Login</a></li>
-                        <li id="yourhere"><a href="signup.jsp">Sign Up</a></li>                        
-                        <li><a href="about.jsp">About</a></li>
+                        <li><a href=#springUrl("/") >Home</a></li>
+                        <li><a href=#springUrl("/login")>Login</a></li>
                     </ul>
                 </nav>
             </div>
 			<div class="grid_10">
 				
-				<p style="text-align: center;">Thanks for signing up!  Login <a href="/dailyemail/login">here!</a></p>
+				<p style="text-align: center;">Thanks for signing up!  Login <a href=#springUrl("/login")>here!</a></p>
 				
 			</div>
 			<div class="grid_12">

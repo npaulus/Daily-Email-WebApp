@@ -23,7 +23,7 @@
 	
 	 
                     <div class="delivery">
-                        <form name="news" action="/dailyemail/account/delivery" method="post">
+                        <form name="news" action=#springUrl("/account/delivery") method="post">
                             <table>
                                 <tr>
                                     <td>Time Zone:										

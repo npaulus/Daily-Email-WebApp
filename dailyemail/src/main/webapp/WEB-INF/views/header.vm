@@ -6,4 +6,3 @@
 <link rel="stylesheet" type="text/css" media="all" href=#springUrl("/resources/css/dailyemail.css") />
 
 <script src=#springUrl("/resources/js/jquery-1.8.3.min.js")></script>
-<script src=#springUrl("/resources/js/jquery.timePicker.min.js")></script>
