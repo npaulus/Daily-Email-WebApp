@@ -1,7 +1,14 @@
 <!DOCTYPE html>
 <html>
     <head>
-        #parse("header.vm")        
+        #parse("header.vm")
+		<script>
+		function doDelete(theNum) {
+	          if (confirm("Are you sure you want to remove this news link?")){
+    		   window.location="#springUrl("/account/deleteNewsLink/")" + theNum;  
+            	 }
+          }
+		</script>
     </head>
     <body>
         <div class="container_12">
