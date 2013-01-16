@@ -3,6 +3,8 @@ package com.natepaulus.dailyemail.web.service.impl;
 import javax.annotation.Resource;
 
 import org.joda.time.LocalTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,6 +13,7 @@ import com.natepaulus.dailyemail.repository.User;
 import com.natepaulus.dailyemail.repository.UserRepository;
 import com.natepaulus.dailyemail.repository.Weather;
 import com.natepaulus.dailyemail.web.domain.AccountSignUp;
+import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
 import com.natepaulus.dailyemail.web.exceptions.AuthenticationException;
 import com.natepaulus.dailyemail.web.service.PasswordEncryption;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
@@ -60,7 +63,18 @@ public class UserServiceImpl implements UserService {
 		
 		LocalTime day = new LocalTime();
 		day = LocalTime.MIDNIGHT;
-		accountService.updateDeliverySchedule(day, day, 1, 1, "America/New_York", newUser);
+		
+		DateTimeFormatter fmt = DateTimeFormat.forPattern("hh:mm a");
+		String initialDeliveryTime = fmt.print(day);
+		
+		DeliveryTimeEntryForm dtef = new DeliveryTimeEntryForm();
+		dtef.setTimezone("America/New_York");
+		dtef.setWeekDayDisabled(true);
+		dtef.setWeekEndDisabled(true);
+		dtef.setWeekDayTime(initialDeliveryTime);
+		dtef.setWeekEndTime(initialDeliveryTime);
+		
+		accountService.updateDeliverySchedule(dtef, newUser);
 		
 		return true;
 		

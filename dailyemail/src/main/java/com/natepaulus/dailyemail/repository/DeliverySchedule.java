@@ -29,7 +29,7 @@ public class DeliverySchedule implements Serializable {
 	private Long idusers;
 
 	@Column
-	private int disabled;
+	private boolean disabled;
 
 	@Column
 	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentLocalTime")
@@ -80,11 +80,11 @@ public class DeliverySchedule implements Serializable {
 		this.id = id;
 	}
 
-	public int getDisabled() {
+	public boolean isDisabled() {
 		return disabled;
 	}
 
-	public void setDisabled(int disabled) {
+	public void setDisabled(boolean disabled) {
 		this.disabled = disabled;
 	}
 

@@ -1,13 +1,16 @@
 package com.natepaulus.dailyemail.web.controller;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.validation.Valid;
 
-import org.joda.time.LocalTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,7 +20,9 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
+import com.natepaulus.dailyemail.repository.DeliverySchedule;
 import com.natepaulus.dailyemail.repository.User;
+import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 
 /**
@@ -31,18 +36,55 @@ public class AccountController {
 	AccountService accountService;
 
 	@RequestMapping(value = "/account", method = RequestMethod.GET)
-	public ModelAndView displayAccountPage(@ModelAttribute("user") User user,
+	public ModelAndView displayAccountPage(@ModelAttribute("user") User user, @ModelAttribute("delTimeEntry") DeliveryTimeEntryForm delTimeEntry,
 			HttpSession session, HttpServletRequest request) {
 		Map<String, ?> map = RequestContextUtils.getInputFlashMap(request);
-
+		Map<String, Object> model = new HashMap<String, Object>();
+		
+		
 		if (map != null) {
 			user = accountService.calculateUserDisplayTime(user);
+			
+			for (DeliverySchedule ds : user.getDeliveryTimes()) {
+				if (ds.getDeliveryDay() == 0) {
+					delTimeEntry.setTimezone(ds.getTz());
+					delTimeEntry.setWeekDayDisabled(ds.isDisabled());
+					delTimeEntry.setWeekDayTime(ds.getDisplayTime());
+				} else {
+					delTimeEntry.setTimezone(ds.getTz());
+					delTimeEntry.setWeekEndDisabled(ds.isDisabled());
+					delTimeEntry.setWeekEndTime(ds.getDisplayTime());
+				}
+			}
+			
 			session.setAttribute("user", user);
-			return new ModelAndView("account", "user", user);
+			session.setAttribute("deliveryTimeEntry", delTimeEntry);
+			
+			model.put("user", user);
+			model.put("deliveryTimeEntry", delTimeEntry);			
+			
+			return new ModelAndView("account", model);
 		} else {
 			User loggedInUser = (User) session.getAttribute("user");
-			loggedInUser = accountService.calculateUserDisplayTime(loggedInUser);
-			return new ModelAndView("account", "user", loggedInUser);
+			loggedInUser = accountService
+					.calculateUserDisplayTime(loggedInUser);
+			
+
+			for (DeliverySchedule ds : user.getDeliveryTimes()) {
+				if (ds.getDeliveryDay() == 0) {
+					delTimeEntry.setTimezone(ds.getTz());
+					delTimeEntry.setWeekDayDisabled(ds.isDisabled());
+					delTimeEntry.setWeekDayTime(ds.getDisplayTime());
+				} else {
+					delTimeEntry.setTimezone(ds.getTz());
+					delTimeEntry.setWeekEndDisabled(ds.isDisabled());
+					delTimeEntry.setWeekEndTime(ds.getDisplayTime());
+				}
+			}
+			model.put("user", loggedInUser);
+			model.put("deliveryTimeEntry", delTimeEntry);
+
+			return new ModelAndView("account", model);
 		}
 
 	}
@@ -107,33 +149,20 @@ public class AccountController {
 
 	@RequestMapping(value = "/account/delivery", method = RequestMethod.POST)
 	public String updateDeliverySchedule(
-			@RequestParam(required = false) LocalTime wkDayTime,
-			@RequestParam(required = false) LocalTime wkEndTime,
-			@RequestParam(required = false) Integer disableDay,
-			@RequestParam(required = false) Integer disableEnd,
-			@RequestParam String tz, HttpSession session,
-			RedirectAttributes redirect) {
-		boolean noError = true;
+			@Valid @ModelAttribute("deliveryTimeEntry") DeliveryTimeEntryForm deliveryTimeEntry,
+			BindingResult result, RedirectAttributes redirect, HttpSession session, Model model) {
 		User user = (User) session.getAttribute("user");
-		
-		if(disableDay == null){
-			disableDay = 0;
-		}
-		if(disableEnd == null){
-			disableEnd = 0;
+		if(result.hasErrors()){
+			session.setAttribute("user", user);
+			model.addAttribute("user", user);			
+			return "account";
 		}
 		
-		try {
-			wkDayTime.toString();
-			wkEndTime.toString();
-		} catch (NullPointerException e){
-			noError = false;
-		}
 		
-		if(noError){
-			user = accountService.updateDeliverySchedule(wkDayTime, wkEndTime, disableEnd, disableDay, tz, user);
-		}
+		user = accountService.updateDeliverySchedule(deliveryTimeEntry, user);
+		
 		redirect.addFlashAttribute("user", user);
+		redirect.addFlashAttribute("deliveryTimeEntry", deliveryTimeEntry);
 		return "redirect:/account";
 	}
 

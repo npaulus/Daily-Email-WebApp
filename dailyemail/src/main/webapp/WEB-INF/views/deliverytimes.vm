@@ -14,21 +14,59 @@
 		1 : "disableEnd"
 	})
 	
-	#foreach($day in $user.deliveryTimes)
-		<tr>
-		<td>$deliveryLabel.get($day.deliveryDay)			
-			<input type="text" name="$deliveryName.get($day.deliveryDay)" id="$deliveryName.get($day.deliveryDay)" 
-				value="$!day.displayTime" size=10 />
-		</td>
-		<td>
-			<input type="checkbox" name="$disable.get($day.deliveryDay)" value="1"
-			#if($day.disabled == 1)
-					checked
-			#end
-			
-				/>
-		</td>
-		</tr>
-	#end
+	#set( $tzNameValue = { 
+		"America/New_York" : "Eastern", 
+		"America/Chicago" : "Central",
+		"America/Denver" : "Mountain",
+		"America/Los_Angeles" : "Pacific"
+	})
 	
-	
+	 
+                    <div class="delivery">
+                        <form name="news" action="/dailyemail/account/delivery" method="post">
+                            <table>
+                                <tr>
+                                    <td>Time Zone:										
+										#springFormSingleSelect("deliveryTimeEntry.timezone" $tzNameValue)
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>Delivery Times</td>
+									<td>Disable Delivery</td>
+                                </tr>
+								<tr>
+									<td colspan="2">
+										#springBind("deliveryTimeEntry.weekDayTime")
+										#springShowErrors("","")
+									</td>
+								</tr>
+                                <tr>									
+									<td>Weekday: #springFormInput("deliveryTimeEntry.weekDayTime" "size=10")</td>
+									#if($deliveryTimeEntry.weekDayDisabled == 1)										
+										<td>#springFormCheckbox("deliveryTimeEntry.weekDayDisabled" "checked")</td>
+									#else
+										<td>#springFormCheckbox("deliveryTimeEntry.weekDayDisabled")</td>
+									#end	
+								</tr>
+								<tr>
+									<td colspan="2">
+										#springBind("deliveryTimeEntry.weekEndTime")
+										#springShowErrors("","")
+									</td>
+								</tr>
+								<tr>
+									<td>Weekend: #springFormInput("deliveryTimeEntry.weekEndTime" "size=10")</td>
+									#if($deliveryTimeEntry.weekEndDisabled == 1)										
+										<td>#springFormCheckbox("deliveryTimeEntry.weekEndDisabled" "checked")</td>
+									#else
+										<td>#springFormCheckbox("deliveryTimeEntry.weekEndDisabled")</td>
+									#end									
+								</tr>
+                                <tr>
+                                    <td>
+                                        <input type="submit" value="Set Delivery Times" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </form>
+                    </div>	

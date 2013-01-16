@@ -1,34 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        #parse("header.vm")
-        <link rel="stylesheet" type="text/css" media="all" href=#springUrl("/resources/css/timePicker.css") />
-        <script>
-            $(document).ready(function() {
-            // 02.00 AM - 03.30 PM, 15 minutes steps.
-            $("#wkDayTime").timePicker({
-            startTime: "00:00", // Using string. Can take string or Date object.
-            endTime: "23:55", // Using Date object here.
-            show24Hours: false,
-            separator: ':',
-            step: 5});
-			
-            $("#wkEndTime").timePicker({
-            startTime: "00:00", // Using string. Can take string or Date object.
-            endTime: "23:55", // Using Date object here.
-            show24Hours: false,
-            separator: ':',
-            step: 5});		
-				
-            });
-			
-			function doDelete(theNum) {
-
-				if (confirm("Are you sure you want to remove this news link?")){
-					window.location="#springUrl("/account/deleteNewsLink/")" + theNum;  
-				}
-			}
-        </script>
+        #parse("header.vm")        
     </head>
     <body>
         <div class="container_12">
@@ -84,29 +57,7 @@
                 </div>
                 <div class="deliverySettings">
                     <h3>Delivery Settings</h3>
-                    <div class="delivery">
-                        <form name="news" action="/dailyemail/account/delivery" method="post">
-                            <table>
-                                <tr>
-                                    <td>Time Zone: 
-										<select name="tz">
-											#parse("tz.vm")
-										</select>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Delivery Times</td>
-									<td>Disable Delivery</td>
-                                </tr>
-                                #parse("deliverytimes.vm")
-                                <tr>
-                                    <td>
-                                        <input type="submit" value="Set Delivery Times" />
-                                    </td>
-                                </tr>
-                            </table>
-                        </form>
-                    </div>
+                    #parse("deliverytimes.vm")
                 </div>
             </div>
             <div class="grid_5">

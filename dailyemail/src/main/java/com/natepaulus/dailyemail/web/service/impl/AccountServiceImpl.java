@@ -8,6 +8,7 @@ import javax.annotation.Resource;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -22,6 +23,7 @@ import com.natepaulus.dailyemail.repository.User;
 import com.natepaulus.dailyemail.repository.UserRepository;
 import com.natepaulus.dailyemail.repository.Weather;
 import com.natepaulus.dailyemail.repository.WeatherRepository;
+import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 import com.natepaulus.dailyemail.web.service.interfaces.WeatherService;
 
@@ -123,14 +125,12 @@ public class AccountServiceImpl implements AccountService {
 
 	@Override
 	@Transactional
-	public User updateDeliverySchedule(LocalTime wkDayTime,
-			LocalTime wkEndTime, int disableEnd, int disableDay, String tz,
-			User user) {
+	public User updateDeliverySchedule(DeliveryTimeEntryForm delTimeEntry, User user) {
 
 		Set<DeliverySchedule> ds = new HashSet<DeliverySchedule>();
 
-		ds.add(createNewDeliverySchedule(wkDayTime, tz, 0, user, disableDay));
-		ds.add(createNewDeliverySchedule(wkEndTime, tz, 1, user, disableEnd));
+		ds.add(createNewDeliverySchedule(delTimeEntry.getWeekDayTime(), delTimeEntry.getTimezone(), 0, user, delTimeEntry.isWeekDayDisabled()));
+		ds.add(createNewDeliverySchedule(delTimeEntry.getWeekEndTime(), delTimeEntry.getTimezone(), 1, user, delTimeEntry.isWeekEndDisabled()));
 
 		user.setDeliveryTimes(ds);
 
@@ -153,11 +153,15 @@ public class AccountServiceImpl implements AccountService {
 		return user;
 	}
 	
-	private DeliverySchedule createNewDeliverySchedule(LocalTime time,
-			String tz, int deliveryDay, User user, int disabled) {
+	private DeliverySchedule createNewDeliverySchedule(String time,
+			String tz, int deliveryDay, User user, boolean disabled) {
 		DeliverySchedule deliverySchedule = new DeliverySchedule();
-
-		DateTime dateTimeZone = new DateTime(time.toDateTimeToday(DateTimeZone
+		DateTimeFormatter fmt = DateTimeFormat.forPattern("hh:mm a");
+		
+		LocalDateTime userEnteredTime = fmt.parseLocalDateTime(time);
+		LocalTime userLocalTime = userEnteredTime.toLocalTime();
+		
+		DateTime dateTimeZone = new DateTime(userLocalTime.toDateTimeToday(DateTimeZone
 				.forID(tz)));
 		DateTime utc = dateTimeZone.withZone(DateTimeZone.UTC);
 		LocalTime lt = utc.toLocalTime();
