@@ -70,7 +70,7 @@ public class AccountController {
 					.calculateUserDisplayTime(loggedInUser);
 			
 
-			for (DeliverySchedule ds : user.getDeliveryTimes()) {
+			for (DeliverySchedule ds : loggedInUser.getDeliveryTimes()) {
 				if (ds.getDeliveryDay() == 0) {
 					delTimeEntry.setTimezone(ds.getTz());
 					delTimeEntry.setWeekDayDisabled(ds.isDisabled());
