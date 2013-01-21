@@ -1,5 +1,6 @@
 package com.natepaulus.dailyemail.web.service.impl;
 
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ import org.springframework.social.oauth2.GrantType;
 import org.springframework.social.oauth2.OAuth2Operations;
 import org.springframework.social.oauth2.OAuth2Parameters;
 import org.springframework.stereotype.Service;
+import org.xml.sax.InputSource;
 
 import com.natepaulus.dailyemail.repository.NewsLink;
 import com.natepaulus.dailyemail.repository.SocialNetworkData;
@@ -36,7 +38,6 @@ import com.natepaulus.dailyemail.web.service.interfaces.SocialService;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
-import com.sun.syndication.io.XmlReader;
 
 @Service
 public class SocialServiceImpl implements SocialService {
@@ -164,9 +165,17 @@ public class SocialServiceImpl implements SocialService {
 				NewsFeed newsFeed = new NewsFeed();
 				newsFeed.setFeedTitle(n.getSource_name());
 				try {
-	                URL xmlUrl = new URL(n.getUrl());
+					
+	                /*URL xmlUrl = new URL(n.getUrl());
 	                XmlReader reader = new XmlReader(xmlUrl);
-	                SyndFeed feed = new SyndFeedInput().build(reader);
+	                SyndFeed feed = new SyndFeedInput().build(reader);*/
+					
+					String url = n.getUrl();
+					InputStream is = new URL(url).openConnection().getInputStream();
+					InputSource source = new InputSource(is);
+					SyndFeedInput input = new SyndFeedInput();
+					SyndFeed feed = input.build(source);
+					
 	                @SuppressWarnings("rawtypes")
 					Iterator iFeed = feed.getEntries().iterator();
 	                int count = 0;
@@ -176,6 +185,7 @@ public class SocialServiceImpl implements SocialService {
 	                    
 	                	SyndEntry entry = (SyndEntry) iFeed.next();
 	                    String title = entry.getTitle();
+	                    logger.info("Article Title: " + title);
 	                    String link = entry.getLink();
 	                    String desc = entry.getDescription().getValue().replaceAll("\\<.*?>", "");
 	                    NewsStory newsStory = new NewsStory(title, link, desc);

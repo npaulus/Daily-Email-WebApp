@@ -26,7 +26,9 @@
 			<div class="grid_5">
                 <h3>RSS Feeds</h3>
 				<div class="rssfeeds">
+
 					#parse("rss.vm")
+
 				</div>
 				
             </div>
@@ -44,7 +46,7 @@
 				</form>
 				#else
 					<h4>Facebook</h4>
-						#parse("facebook.vm")						
+						#parse("facebook.vm") 						
 				#end
 				</div>				
             </div>
