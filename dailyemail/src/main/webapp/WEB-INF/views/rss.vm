@@ -1,0 +1,7 @@
+#foreach($feed in $news)
+	<h4>$feed.feedTitle</h4>
+	#foreach($stories in $feed.newsStories)
+		<b><a href="$stories.storyLink">$stories.storyTitle</a></b><br/>
+		$stories.storyDesc <br /><br />
+	#end
+#end

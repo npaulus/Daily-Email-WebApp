@@ -19,13 +19,13 @@
                 <nav>
                     <ul>
                         <li>
-                            <a href="index">Home</a>
+                            <a href=#springUrl("/index")>Home</a>
                         </li>
                         <li>
-                            <a id="yourhere" href="account">Account</a>
+                            <a id="yourhere" href=#springUrl("/account")>Account</a>
                         </li>                        
                         <li>
-                            <a href="logout">Logout</a>
+                            <a href=#springUrl("/logout")>Logout</a>
                         </li>
                     </ul>
                 </nav>
@@ -106,6 +106,9 @@
                         <input type="submit" value="Add" />
                     </form>
                 </div>
+				<div>
+					<a href=#springUrl("/reader")>Reader</a>
+				</div>
             </div>
         </div>
 </div>
