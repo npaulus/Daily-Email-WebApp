@@ -1,6 +1,6 @@
 package com.natepaulus.dailyemail.web.domain;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class WeatherForecast {
@@ -10,7 +10,7 @@ public class WeatherForecast {
 	private Map<String, String> periodForecast;
 
 	public WeatherForecast(){
-		this.periodForecast = new HashMap<String, String>();
+		this.periodForecast = new LinkedHashMap<String, String>();
 	}
 	
 	public String getWeatherStationName() {
