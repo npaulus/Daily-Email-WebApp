@@ -71,11 +71,18 @@ public class EmailServiceImpl implements EmailService {
 		logger.info("Retrieving List of users to email");
 		int dayOfWeek = -1;
 		DateTime currentTime = new DateTime();
-		if(currentTime.getDayOfWeek() != 7 || currentTime.getDayOfWeek() != 6){
-			dayOfWeek = 0;			
+		logger.info("Day of Week: " + currentTime.getDayOfWeek());
+		
+		int currentDayOfWeek = currentTime.getDayOfWeek();
+		
+		if(currentDayOfWeek == 7 || currentDayOfWeek == 6){
+			dayOfWeek = 1;			
 		} else {
-			dayOfWeek = 1;
+			dayOfWeek = 0;
 		}
+		
+		logger.info("Selected dayOfWeek: " + dayOfWeek);
+		
 		LocalTime currentLocalTime = currentTime.toLocalTime();
 		LocalTime lt = currentLocalTime.withSecondOfMinute(0).withMillisOfSecond(0);		
 		
