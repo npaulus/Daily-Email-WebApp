@@ -30,6 +30,7 @@ public class ReaderController {
 	@Autowired
 	SocialService socialService;
 
+	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "reader", method = RequestMethod.GET)
 	public ModelAndView displayReader(@ModelAttribute("user") User user,
 			HttpSession session, HttpServletRequest request) {
