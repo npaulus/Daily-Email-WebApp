@@ -26,6 +26,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
 import org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping;
 
+/**
+ * The Class WebMvcContextConfiguration configures the settings for Spring Web
+ * MVC.
+ */
 @Configuration
 @EnableWebMvc
 @EnableAsync
@@ -34,8 +38,18 @@ import org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMap
 @ComponentScan(basePackages = "com.natepaulus.dailyemail")
 public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 
-	final Logger logger = LoggerFactory.getLogger(WebMvcContextConfiguration.class);
-	
+	/** The logger. */
+	final Logger logger = LoggerFactory
+			.getLogger(WebMvcContextConfiguration.class);
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
+	 * #addResourceHandlers(org.springframework.web.servlet.config.annotation.
+	 * ResourceHandlerRegistry)
+	 */
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/resources/**")
@@ -43,6 +57,11 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 				.setCachePeriod(31556926);
 	}
 
+	/**
+	 * Message source.
+	 * 
+	 * @return the message source
+	 */
 	@Bean
 	public MessageSource messageSource() {
 		ReloadableResourceBundleMessageSource messageSource;
@@ -52,17 +71,34 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 		return messageSource;
 	}
 
+	/**
+	 * Controller class name handler mapping.
+	 * 
+	 * @return the handler mapping
+	 */
 	@Bean
 	public HandlerMapping controllerClassNameHandlerMapping() {
 		return new ControllerClassNameHandlerMapping();
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
+	 * #configureHandlerExceptionResolvers(java.util.List)
+	 */
 	@Override
 	public void configureHandlerExceptionResolvers(
 			List<HandlerExceptionResolver> exceptionResolvers) {
 		exceptionResolvers.add(simpleMappingExceptionResolver());
 	}
 
+	/**
+	 * Simple mapping exception resolver.
+	 * 
+	 * @return the simple mapping exception resolver
+	 */
 	@Bean
 	public SimpleMappingExceptionResolver simpleMappingExceptionResolver() {
 		SimpleMappingExceptionResolver exceptionResolver;
@@ -70,14 +106,12 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 		Properties mappings = new Properties();
 		mappings.setProperty("AuthenticationException", "login");
 		mappings.setProperty("AuthenticationException", "index");
-		
 
 		Properties statusCodes = new Properties();
 		statusCodes.setProperty("login",
 				String.valueOf(HttpServletResponse.SC_UNAUTHORIZED));
 		statusCodes.setProperty("index",
 				String.valueOf(HttpServletResponse.SC_UNAUTHORIZED));
-		
 
 		exceptionResolver.setExceptionMappings(mappings);
 		exceptionResolver.setStatusCodes(statusCodes);
@@ -85,33 +119,36 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 		return exceptionResolver;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
+	 * #addInterceptors(org.springframework.web.servlet.config.annotation.
+	 * InterceptorRegistry)
+	 */
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		@SuppressWarnings("unused")
-		InterceptorRegistration registration = registry
-				.addInterceptor(new SecurityHandlerInterceptor())
-				.addPathPatterns("/account", "/account/*", "/reader", "/reader/*");
-		
+		InterceptorRegistration registration = registry.addInterceptor(
+				new SecurityHandlerInterceptor()).addPathPatterns("/account",
+				"/account/*", "/reader", "/reader/*");
+
 	}
-	
-/*	@Bean
-	public JavaMailSender mailSender(){
-		JavaMailSenderImpl sender = new JavaMailSenderImpl();
-		Properties javaMailProperties = new Properties();
-		
-		
-		
-		sender.setJavaMailProperties(javaMailProperties);
-		
-		return sender;
-	}*/
-	
+
+	/**
+	 * Velocity engine.
+	 * 
+	 * @return the velocity engine factory bean
+	 */
 	@Bean
-	public VelocityEngineFactoryBean velocityEngine(){
+	public VelocityEngineFactoryBean velocityEngine() {
 		VelocityEngineFactoryBean velocityFactoryBean = new VelocityEngineFactoryBean();
 		Properties velocityProperties = new Properties();
 		velocityProperties.put("resource.loader", "class");
-		velocityProperties.put("class.resource.loader.class", "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+		velocityProperties
+				.put("class.resource.loader.class",
+						"org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
 		velocityFactoryBean.setVelocityProperties(velocityProperties);
 		return velocityFactoryBean;
 	}

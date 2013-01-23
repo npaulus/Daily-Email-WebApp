@@ -22,14 +22,31 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 import com.natepaulus.dailyemail.repository.User;
 import com.natepaulus.dailyemail.web.service.interfaces.SocialService;
 
+/**
+ * The Class ReaderController handles getting user RSS feeds and social media to
+ * display.
+ */
 @Controller
 public class ReaderController {
 
+	/** The logger. */
 	final Logger logger = LoggerFactory.getLogger(ReaderController.class);
 
+	/** The social service. */
 	@Autowired
 	SocialService socialService;
 
+	/**
+	 * Display reader.
+	 * 
+	 * @param user
+	 *            the user
+	 * @param session
+	 *            the session
+	 * @param request
+	 *            the http request
+	 * @return the model and view
+	 */
 	@SuppressWarnings("unchecked")
 	@RequestMapping(value = "reader", method = RequestMethod.GET)
 	public ModelAndView displayReader(@ModelAttribute("user") User user,
@@ -40,11 +57,11 @@ public class ReaderController {
 		if (map != null) {
 
 			model.put("user", user);
-			
+
 			model.putAll(socialService.getDataForDisplay(user));
 			model.put("news", socialService.getRssNewsForReader(user));
 			logger.info("Model Data (if): " + model.toString());
-			
+
 			return new ModelAndView("reader", model);
 		} else {
 			User loggedInUser = (User) session.getAttribute("user");
@@ -57,6 +74,18 @@ public class ReaderController {
 
 	}
 
+	/**
+	 * This is the first phase of connecting a user from this app to their
+	 * facebook account.
+	 * 
+	 * @param request
+	 *            the http request
+	 * @param response
+	 *            the http response
+	 * @return the string which is the view to display
+	 * @throws IOException
+	 *             Signals that an I/O exception has occurred.
+	 */
 	@RequestMapping(value = "/connect/facebook", method = RequestMethod.POST)
 	public String connectToFacebook(HttpServletRequest request,
 			HttpServletResponse response) throws IOException {
@@ -69,6 +98,18 @@ public class ReaderController {
 
 	}
 
+	/**
+	 * This handles the callback from facebook that contains the code to use for
+	 * getting the current user's facebook information
+	 * 
+	 * @param request
+	 *            the http request
+	 * @param response
+	 *            the http response
+	 * @param redirect
+	 *            the redirect to add flashmap attributes too
+	 * @return the string which is the view to display
+	 */
 	@RequestMapping(value = "/social/facebook/connect", method = RequestMethod.GET)
 	public String completeConnectionToFacebook(HttpServletRequest request,
 			HttpServletResponse response, RedirectAttributes redirect) {

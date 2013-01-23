@@ -19,9 +19,15 @@ import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 
+/**
+ * The Class WeatherServiceImpl.
+ */
 @Service
 public class WeatherServiceImpl implements WeatherService {
 
+	/* (non-Javadoc)
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.WeatherService#setInitialWeatherLocation(java.lang.String)
+	 */
 	@Override
 	public Weather setInitialWeatherLocation(String zip) {
 
@@ -37,6 +43,9 @@ public class WeatherServiceImpl implements WeatherService {
 		return weather;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.WeatherService#updateWeatherLocation(java.lang.String, com.natepaulus.dailyemail.repository.Weather)
+	 */
 	public Weather updateWeatherLocation(String zipCode, Weather weather){
 		Map<String, String> map = new HashMap<String, String>();
 		String del = weather.getDeliver_pref() + "";
@@ -50,6 +59,13 @@ public class WeatherServiceImpl implements WeatherService {
 		return weather;
 	}
 	
+	/**
+	 * Gets the weather location data based on a zip code and stores persists it in the database.
+	 *
+	 * @param zip the zipcode
+	 * @param deliveryPref the delivery preference the user selected
+	 * @return the weather location data
+	 */
 	private Map<String, String> getWeatherLocationData(String zip,
 			String deliveryPref) {
 		Client zipCode = Client.create();

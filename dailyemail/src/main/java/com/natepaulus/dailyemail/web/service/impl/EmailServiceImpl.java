@@ -52,93 +52,130 @@ import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
 import com.sun.syndication.io.XmlReader;
 
+
+/**
+ * The Class EmailServiceImpl checks every minute to see if any users have
+ * requested their email at that time. If it finds any users it then builds and
+ * sends them an email with their requested data.
+ */
 @Service
 public class EmailServiceImpl implements EmailService {
-	
+
+	/** The logger. */
 	final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
-	
+
+	/** The delivery schedule repository. */
 	@Resource
 	DeliveryScheduleRepository deliveryScheduleRepository;
-	
+
+	/** The java mail sender for sending email. */
 	@Autowired
 	private JavaMailSender sender;
-	
+
+	/** The velocity engine. */
 	@Autowired
 	private VelocityEngine velocityEngine;
-	
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.EmailService#
+	 * retrieveUserListForEmails()
+	 */
 	@Scheduled(cron = "0 0/1 * * * ?")
-	public void retrieveUserListForEmails(){
+	public void retrieveUserListForEmails() {
 		logger.info("Retrieving List of users to email");
 		int dayOfWeek = -1;
 		DateTime currentTime = new DateTime();
 		logger.info("Day of Week: " + currentTime.getDayOfWeek());
-		
+
 		int currentDayOfWeek = currentTime.getDayOfWeek();
-		
-		if(currentDayOfWeek == 7 || currentDayOfWeek == 6){
-			dayOfWeek = 1;			
+
+		if (currentDayOfWeek == 7 || currentDayOfWeek == 6) {
+			dayOfWeek = 1;
 		} else {
 			dayOfWeek = 0;
 		}
-		
+
 		logger.info("Selected dayOfWeek: " + dayOfWeek);
-		
+
 		LocalTime currentLocalTime = currentTime.toLocalTime();
-		LocalTime lt = currentLocalTime.withSecondOfMinute(0).withMillisOfSecond(0);		
-		
-		List<DeliverySchedule> ds = deliveryScheduleRepository.findByTimeAndDeliveryDay(lt, dayOfWeek);
+		LocalTime lt = currentLocalTime.withSecondOfMinute(0)
+				.withMillisOfSecond(0);
+
+		List<DeliverySchedule> ds = deliveryScheduleRepository
+				.findByTimeAndDeliveryDay(lt, dayOfWeek);
 		List<User> users = new ArrayList<User>();
-		for(DeliverySchedule d : ds){
+		for (DeliverySchedule d : ds) {
 			users.add(d.getUser());
 			logger.info("Found a user");
 		}
-		
+
 		Iterator<User> userIterator = users.iterator();
-		while(userIterator.hasNext()){
+		while (userIterator.hasNext()) {
 			User user = userIterator.next();
-			sendEmail(user);			
-		}		
+			sendEmail(user);
+		}
 	}
-	
-	private void sendEmail(User user){
-		
+
+	/**
+	 * Send email to the user with the data they have requested.
+	 * 
+	 * @param user
+	 *            the user
+	 */
+	private void sendEmail(User user) {
+
 		EmailData emailData = new EmailData();
 		emailData.setToAddress(user.getEmail());
 		emailData.setToName(user.getFirstName() + " " + user.getLastName());
-		
+
 		emailData = getWeatherConditions(emailData, user);
 		emailData = getNewsStoriesForEmail(emailData, user);
 		final EmailData data = emailData;
-		
-		MimeMessagePreparator preparator = new MimeMessagePreparator(){
-			
+
+		MimeMessagePreparator preparator = new MimeMessagePreparator() {
+
 			@Override
 			public void prepare(MimeMessage mimeMessage) throws Exception {
-				MimeMessageHelper message = new MimeMessageHelper(mimeMessage, "UTF-8");
+				MimeMessageHelper message = new MimeMessageHelper(mimeMessage,
+						"UTF-8");
 				message.setTo(data.getToAddress());
 				message.setFrom("dailyemail@natepaulus.com");
 				message.setSubject("Daily News & Weather");
 				Map<String, Object> model = new HashMap<String, Object>();
 				model.put("data", data);
-				String messageText = VelocityEngineUtils.mergeTemplateIntoString(velocityEngine, "email.vm", model);				
-				message.setText(messageText, true);				
+				String messageText = VelocityEngineUtils
+						.mergeTemplateIntoString(velocityEngine, "email.vm",
+								model);
+				message.setText(messageText, true);
 			}
 		};
-		
+
 		this.sender.send(preparator);
 		logger.info("Message sent to: " + data.getToAddress());
 	}
-	
-	private EmailData getWeatherConditions(EmailData data, User user){
+
+	/**
+	 * Gets the weather conditions from the National Weather Service experimental forecast feed.
+	 * 
+	 * @param data
+	 *            the EmailData object to add the weather conditions to
+	 * @param user
+	 *            the user
+	 * @return the weather conditions
+	 */
+	private EmailData getWeatherConditions(EmailData data, User user) {
 		Set<DeliverySchedule> ds = user.getDeliveryTimes();
 		Iterator<DeliverySchedule> dsI = ds.iterator();
 		String tz = dsI.next().getTz();
 		try {
 
 			URL curCond_ForecastURL = new URL(
-					"http://forecast.weather.gov/MapClick.php?lat=" + user.getWeather().getLatitude()
-							+ "&lon=" + user.getWeather().getLongitude()
-							+ "&unit=0&lg=english&FcstType=dwml");					
+					"http://forecast.weather.gov/MapClick.php?lat="
+							+ user.getWeather().getLatitude() + "&lon="
+							+ user.getWeather().getLongitude()
+							+ "&unit=0&lg=english&FcstType=dwml");
 			InputStream inCC_Fx = curCond_ForecastURL.openStream();
 			DocumentBuilderFactory factoryCurCond_Fx = DocumentBuilderFactory
 					.newInstance();
@@ -150,7 +187,8 @@ public class EmailServiceImpl implements EmailService {
 			XPath xpathCCFX = xPathfactoryCCFX.newXPath();
 			XPathExpression exprCCFX = null;
 
-			if (user.getWeather().getDeliver_pref() == 1 || user.getWeather().getDeliver_pref() == 3) {
+			if (user.getWeather().getDeliver_pref() == 1
+					|| user.getWeather().getDeliver_pref() == 3) {
 				exprCCFX = xpathCCFX
 						.compile("/dwml/data[@type = 'current observations']/time-layout/start-valid-time[@period-name = 'current']/text()");
 				String temp = (String) exprCCFX.evaluate(docCFX,
@@ -163,17 +201,21 @@ public class EmailServiceImpl implements EmailService {
 				DateTime localTime = xmlTime.withZone(DateTimeZone
 						.forID("America/New_York"));
 				logger.info("TZ: " + tz);
-				logger.info("Localtime: "+ localTime.toString());
+				logger.info("Localtime: " + localTime.toString());
 				DateTimeFormatter outFmt = DateTimeFormat
 						.forPattern("MMM dd',' yyyy h:mm a");
-				logger.info("Printing Local Time with printer: " + outFmt.print(localTime));
-				data.getWxCurCond().setLatestObDateTime(outFmt.print(localTime));
-				data.getWxCurCond().setCityState(user.getWeather().getLocation_name());
-				
+				logger.info("Printing Local Time with printer: "
+						+ outFmt.print(localTime));
+				data.getWxCurCond()
+						.setLatestObDateTime(outFmt.print(localTime));
+				data.getWxCurCond().setCityState(
+						user.getWeather().getLocation_name());
+
 				exprCCFX = xpathCCFX
 						.compile("/dwml/data[@type = 'current observations']/location/area-description/text()");
-				data.getWxCurCond().setWeatherStation((String) exprCCFX.evaluate(docCFX,
-						XPathConstants.STRING));
+				data.getWxCurCond().setWeatherStation(
+						(String) exprCCFX.evaluate(docCFX,
+								XPathConstants.STRING));
 				exprCCFX = xpathCCFX
 						.compile("/dwml/data[@type = 'current observations']/parameters/wind-speed[@type = 'sustained']/value/text()");
 				double mphWindSpeed = 0;
@@ -210,18 +252,22 @@ public class EmailServiceImpl implements EmailService {
 				}
 				exprCCFX = xpathCCFX
 						.compile("/dwml/data[@type = 'current observations']/parameters/humidity[@type = 'relative']/value/text()");
-				data.getWxCurCond().setHumidity((String) exprCCFX.evaluate(docCFX,
-						XPathConstants.STRING));
+				data.getWxCurCond().setHumidity(
+						(String) exprCCFX.evaluate(docCFX,
+								XPathConstants.STRING));
 				exprCCFX = xpathCCFX
 						.compile("/dwml/data[@type = 'current observations']/parameters/temperature[@type = 'apparent']/value/text()");
-				data.getWxCurCond().setCurrentTemp((String) exprCCFX.evaluate(docCFX,
-						XPathConstants.STRING));
+				data.getWxCurCond().setCurrentTemp(
+						(String) exprCCFX.evaluate(docCFX,
+								XPathConstants.STRING));
 				exprCCFX = xpathCCFX
 						.compile("/dwml/data[@type = 'current observations']/parameters/weather[@time-layout = 'k-p1h-n1-1']/weather-conditions/@weather-summary");
-				data.getWxCurCond().setCurWx((String) exprCCFX.evaluate(docCFX,
-						XPathConstants.STRING));
+				data.getWxCurCond().setCurWx(
+						(String) exprCCFX.evaluate(docCFX,
+								XPathConstants.STRING));
 
-				Location location = new Location(user.getWeather().getLatitude(), user.getWeather().getLongitude());
+				Location location = new Location(user.getWeather()
+						.getLatitude(), user.getWeather().getLongitude());
 				SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(
 						location, tz);
 				Calendar officialSunrise = calculator
@@ -239,11 +285,14 @@ public class EmailServiceImpl implements EmailService {
 				DateTime dtSunsetLocal = dtSunset.withZone(DateTimeZone
 						.forID(tz));
 
-				data.getWxCurCond().setSunRise(dtfSunriseset.print(dtSunriseLocal));
-				data.getWxCurCond().setSunSet(dtfSunriseset.print(dtSunsetLocal));
-				
+				data.getWxCurCond().setSunRise(
+						dtfSunriseset.print(dtSunriseLocal));
+				data.getWxCurCond().setSunSet(
+						dtfSunriseset.print(dtSunsetLocal));
+
 			}
-			if (user.getWeather().getDeliver_pref() == 2 || user.getWeather().getDeliver_pref() == 3) {
+			if (user.getWeather().getDeliver_pref() == 2
+					|| user.getWeather().getDeliver_pref() == 3) {
 				exprCCFX = xpathCCFX
 						.compile("/dwml/data[@type='forecast']/time-layout[layout-key/text()=/dwml/data[@type='forecast']/parameters[@applicable-location='point1']/wordedForecast/@time-layout]/start-valid-time");
 				NodeList days = (NodeList) exprCCFX.evaluate(docCFX,
@@ -251,59 +300,72 @@ public class EmailServiceImpl implements EmailService {
 				exprCCFX = xpathCCFX
 						.compile("/dwml/data[@type='forecast']/parameters[@applicable-location='point1']/wordedForecast/text");
 				NodeList forecastText = (NodeList) exprCCFX.evaluate(docCFX,
-						XPathConstants.NODESET);				
-				
+						XPathConstants.NODESET);
+
 				for (int i = 0; i < 3; i++) {
 					Element e = (Element) days.item(i);
 					Element e2 = (Element) forecastText.item(i);
-					data.getWeatherForecast().getPeriodForecast().put(e.getAttribute("period-name"), e2.getTextContent());
-					
-				}				
+					data.getWeatherForecast()
+							.getPeriodForecast()
+							.put(e.getAttribute("period-name"),
+									e2.getTextContent());
+
+				}
 			}
 			inCC_Fx.close();
 		} catch (Exception ex) {
 			logger.error("Get Weather Data had an issue.", ex);
 		}
-		
+
 		return data;
-						
+
 	}
-	
-	private EmailData getNewsStoriesForEmail(EmailData data, User user){
-		
-		for(NewsLink n : user.getNewsLink()){
-			if(n.getDeliver() == 1){
+
+	/**
+	 * Gets the news stories for email from the users defined RSS feeds.
+	 * 
+	 * @param data
+	 *            the EmailData object to attach the news story information to
+	 * @param user
+	 *            the user
+	 * @return the news stories for email
+	 */
+	private EmailData getNewsStoriesForEmail(EmailData data, User user) {
+
+		for (NewsLink n : user.getNewsLink()) {
+			if (n.getDeliver() == 1) {
 				NewsFeed newsFeed = new NewsFeed();
 				newsFeed.setFeedTitle(n.getSource_name());
 				try {
-	                URL xmlUrl = new URL(n.getUrl());
-	                XmlReader reader = new XmlReader(xmlUrl);
-	                SyndFeed feed = new SyndFeedInput().build(reader);
-	                @SuppressWarnings("rawtypes")
+					URL xmlUrl = new URL(n.getUrl());
+					XmlReader reader = new XmlReader(xmlUrl);
+					SyndFeed feed = new SyndFeedInput().build(reader);
+					@SuppressWarnings("rawtypes")
 					Iterator iFeed = feed.getEntries().iterator();
-	                int count = 0;
-	                int max = 5;
-	                
-	                while(iFeed.hasNext() && count < max) {
-	                    
-	                	SyndEntry entry = (SyndEntry) iFeed.next();
-	                    String title = entry.getTitle();
-	                    String link = entry.getLink();
-	                    String desc = entry.getDescription().getValue().replaceAll("\\<.*?>", "");
-	                    NewsStory newsStory = new NewsStory(title, link, desc);
-	                    newsFeed.getNewsStories().add(newsStory);
-	                    count++;
-	                    
-	                }              
-	                
-	            } catch (Exception ex) {
-	                ex.printStackTrace();
-	            }
-				
+					int count = 0;
+					int max = 5;
+
+					while (iFeed.hasNext() && count < max) {
+
+						SyndEntry entry = (SyndEntry) iFeed.next();
+						String title = entry.getTitle();
+						String link = entry.getLink();
+						String desc = entry.getDescription().getValue()
+								.replaceAll("\\<.*?>", "");
+						NewsStory newsStory = new NewsStory(title, link, desc);
+						newsFeed.getNewsStories().add(newsStory);
+						count++;
+
+					}
+
+				} catch (Exception ex) {
+					ex.printStackTrace();
+				}
+
 				data.getNewsFeeds().add(newsFeed);
 			}
 		}
-		
+
 		return data;
 	}
 

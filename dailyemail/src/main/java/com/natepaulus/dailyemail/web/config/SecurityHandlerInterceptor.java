@@ -10,17 +10,31 @@ import com.natepaulus.dailyemail.repository.User;
 import com.natepaulus.dailyemail.web.controller.LoginController;
 import com.natepaulus.dailyemail.web.exceptions.AuthenticationException;
 
-public class SecurityHandlerInterceptor extends HandlerInterceptorAdapter{
-	
+/**
+ * The Class SecurityHandlerInterceptor is checking to ensure certain pages are
+ * only accessible if the user has logged into the application.
+ */
+public class SecurityHandlerInterceptor extends HandlerInterceptorAdapter {
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * org.springframework.web.servlet.handler.HandlerInterceptorAdapter#preHandle
+	 * (javax.servlet.http.HttpServletRequest,
+	 * javax.servlet.http.HttpServletResponse, java.lang.Object)
+	 */
 	@Override
-	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+	public boolean preHandle(HttpServletRequest request,
+			HttpServletResponse response, Object handler) throws Exception {
 		User user = (User) WebUtils.getSessionAttribute(request, "user");
-		if(user == null){
+		if (user == null) {
 			String url = request.getRequestURL().toString();
-			WebUtils.setSessionAttribute(request, LoginController.REQUESTED_URL, url);
+			WebUtils.setSessionAttribute(request,
+					LoginController.REQUESTED_URL, url);
 			throw new AuthenticationException("Authentication required.");
 		}
-		
+
 		return true;
 	}
 }

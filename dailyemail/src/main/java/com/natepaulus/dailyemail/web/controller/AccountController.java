@@ -26,15 +26,26 @@ import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 
 /**
+ * The Class AccountController.
+ *
  * @author Nate
- * 
  */
 @Controller
 public class AccountController {
 
+	/** The account service. */
 	@Autowired
 	AccountService accountService;
 
+	/**
+	 * Display account page.
+	 *
+	 * @param user the user
+	 * @param delTimeEntry the del time entry
+	 * @param session the session
+	 * @param request the request
+	 * @return the model and view
+	 */
 	@RequestMapping(value = "/account", method = RequestMethod.GET)
 	public ModelAndView displayAccountPage(@ModelAttribute("user") User user, @ModelAttribute("delTimeEntry") DeliveryTimeEntryForm delTimeEntry,
 			HttpSession session, HttpServletRequest request) {
@@ -89,6 +100,15 @@ public class AccountController {
 
 	}
 
+	/**
+	 * Adds the news link the user just submitted to the database.
+	 *
+	 * @param name the name of the rss feed 
+	 * @param url the url for the rss feed
+	 * @param session the session
+	 * @param redirect to add flashmap attributes
+	 * @return the string which is the view to display
+	 */
 	@RequestMapping(value = "/account/addNews", method = RequestMethod.POST)
 	public String addNewsLink(@RequestParam String name,
 			@RequestParam String url, HttpSession session,
@@ -101,6 +121,14 @@ public class AccountController {
 		return "redirect:/account";
 	}
 
+	/**
+	 * Update weather delivery preference for a user
+	 *
+	 * @param deliver_pref the deliver_pref the user selected
+	 * @param redirect to add flashmap attributes
+	 * @param session the session
+	 * @return the string which is the view to display
+	 */
 	@RequestMapping(value = "/account/weather", method = RequestMethod.POST)
 	public String updateWeatherDeliveryPreference(
 			@RequestParam int deliver_pref, RedirectAttributes redirect,
@@ -113,6 +141,14 @@ public class AccountController {
 		return "redirect:/account";
 	}
 
+	/**
+	 * Update weather zip code for a user.
+	 *
+	 * @param zipCode the zip code
+	 * @param session the session
+	 * @param redirect the redirect to add flashmap attributes
+	 * @return the string which is the view to display
+	 */
 	@RequestMapping(value = "/account/changezip", method = RequestMethod.POST)
 	public String updateWeatherZipCode(@RequestParam String zipCode,
 			HttpSession session, RedirectAttributes redirect) {
@@ -122,6 +158,14 @@ public class AccountController {
 		return "redirect:/account";
 	}
 
+	/**
+	 * Sets the included news information for the daily email.
+	 *
+	 * @param news the news feeds the user selected 
+	 * @param session the session
+	 * @param redirect the redirect to add flashmap attributes
+	 * @return the string which is the view to display
+	 */
 	@RequestMapping(value = "/account/news", method = RequestMethod.POST)
 	public String setIncludedNewsInformation(
 			@RequestParam(required = false) String[] news, HttpSession session,
@@ -137,6 +181,14 @@ public class AccountController {
 		return "redirect:/account";
 	}
 
+	/**
+	 * Delete a news link the user no longer wishes to have
+	 *
+	 * @param id the id of the news link
+	 * @param session the session
+	 * @param redirect the redirect to add flashmap attributes
+	 * @return the string which is the view to display
+	 */
 	@RequestMapping(value = "/account/deleteNewsLink/{id}", method = RequestMethod.GET)
 	public String deleteNewsLink(@PathVariable int id, HttpSession session,
 			RedirectAttributes redirect) {
@@ -147,6 +199,16 @@ public class AccountController {
 		return "redirect:/account";
 	}
 
+	/**
+	 * Update daily email delivery schedule.
+	 *
+	 * @param deliveryTimeEntry the delivery time the user entered in HH:MM A format
+	 * @param result the result of the web binding of the form
+	 * @param redirect the redirect to add flashmap attributes
+	 * @param session the session
+	 * @param model the model 
+	 * @return the string which is the view to display
+	 */
 	@RequestMapping(value = "/account/delivery", method = RequestMethod.POST)
 	public String updateDeliverySchedule(
 			@Valid @ModelAttribute("deliveryTimeEntry") DeliveryTimeEntryForm deliveryTimeEntry,

@@ -27,21 +27,37 @@ import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 import com.natepaulus.dailyemail.web.service.interfaces.WeatherService;
 
+/**
+ * The Class AccountServiceImpl processes user requests to update their delivery
+ * times, rss feeds, weather preferences, and weather location. These updates
+ * are persisted in the database.
+ */
 @Service
 public class AccountServiceImpl implements AccountService {
 
+	/** The user repository. */
 	@Resource
 	private UserRepository userRepository;
 
+	/** The weather repository. */
 	@Resource
 	private WeatherRepository weatherRepository;
 
+	/** The news repository. */
 	@Resource
 	private NewsRepository newsRepository;
 
+	/** The weather service. */
 	@Autowired
 	private WeatherService weatherService;
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.AccountService#
+	 * updateWeatherDeliveryPreference(int,
+	 * com.natepaulus.dailyemail.repository.User)
+	 */
 	@Override
 	@Transactional
 	public Weather updateWeatherDeliveryPreference(int weather, User user) {
@@ -55,6 +71,13 @@ public class AccountServiceImpl implements AccountService {
 		return wx;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.AccountService#
+	 * updateUserZipCode(com.natepaulus.dailyemail.repository.User,
+	 * java.lang.String)
+	 */
 	@Override
 	@Transactional
 	public User updateUserZipCode(User user, String zipCode) {
@@ -75,6 +98,14 @@ public class AccountServiceImpl implements AccountService {
 		return user;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.natepaulus.dailyemail.web.service.interfaces.AccountService#addNewsLink
+	 * (java.lang.String, java.lang.String,
+	 * com.natepaulus.dailyemail.repository.User)
+	 */
 	@Override
 	@Transactional
 	public User addNewsLink(String url, String name, User user) {
@@ -88,6 +119,13 @@ public class AccountServiceImpl implements AccountService {
 		return userRepository.save(user);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.AccountService#
+	 * setIncludedNewsInformation(java.lang.String[],
+	 * com.natepaulus.dailyemail.repository.User)
+	 */
 	@Override
 	@Transactional
 	public User setIncludedNewsInformation(String[] news, User user) {
@@ -105,6 +143,12 @@ public class AccountServiceImpl implements AccountService {
 		return userRepository.save(user);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.AccountService#
+	 * deleteNewsLink(int, com.natepaulus.dailyemail.repository.User)
+	 */
 	@Override
 	@Transactional
 	public User deleteNewsLink(int id, User user) {
@@ -123,46 +167,83 @@ public class AccountServiceImpl implements AccountService {
 		return userRepository.save(user);
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.AccountService#
+	 * updateDeliverySchedule
+	 * (com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm,
+	 * com.natepaulus.dailyemail.repository.User)
+	 */
 	@Override
 	@Transactional
-	public User updateDeliverySchedule(DeliveryTimeEntryForm delTimeEntry, User user) {
+	public User updateDeliverySchedule(DeliveryTimeEntryForm delTimeEntry,
+			User user) {
 
 		Set<DeliverySchedule> ds = new HashSet<DeliverySchedule>();
 
-		ds.add(createNewDeliverySchedule(delTimeEntry.getWeekDayTime(), delTimeEntry.getTimezone(), 0, user, delTimeEntry.isWeekDayDisabled()));
-		ds.add(createNewDeliverySchedule(delTimeEntry.getWeekEndTime(), delTimeEntry.getTimezone(), 1, user, delTimeEntry.isWeekEndDisabled()));
+		ds.add(createNewDeliverySchedule(delTimeEntry.getWeekDayTime(),
+				delTimeEntry.getTimezone(), 0, user,
+				delTimeEntry.isWeekDayDisabled()));
+		ds.add(createNewDeliverySchedule(delTimeEntry.getWeekEndTime(),
+				delTimeEntry.getTimezone(), 1, user,
+				delTimeEntry.isWeekEndDisabled()));
 
 		user.setDeliveryTimes(ds);
 
 		return userRepository.save(user);
 	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.AccountService#
+	 * calculateUserDisplayTime(com.natepaulus.dailyemail.repository.User)
+	 */
 	@Override
 	public User calculateUserDisplayTime(User user) {
-		
-		for(DeliverySchedule ds : user.getDeliveryTimes()){
-			
+
+		for (DeliverySchedule ds : user.getDeliveryTimes()) {
+
 			DateTimeFormatter fmt = DateTimeFormat.forPattern("hh:mm a");
-			
+
 			DateTime utc = ds.getTime().toDateTimeToday(DateTimeZone.UTC);
 			DateTime userTime = utc.withZone(DateTimeZone.forID(ds.getTz()));
-			
+
 			ds.setDisplayTime(fmt.print(userTime));
-			
+
 		}
-		
+
 		return user;
 	}
-	
-	private DeliverySchedule createNewDeliverySchedule(String time,
-			String tz, int deliveryDay, User user, boolean disabled) {
+
+	/**
+	 * Creates the new delivery schedule for the user to receive their daily
+	 * email.
+	 * 
+	 * @param time
+	 *            the delivery time the user wants
+	 * @param tz
+	 *            the timezone selected by the user
+	 * @param deliveryDay
+	 *            the delivery day (weekend 1 or weekday 0)
+	 * @param user
+	 *            the user
+	 * @param disabled
+	 *            the disabled flag, if set don't send anything for the day it
+	 *            is checked
+	 * @return the new delivery schedule
+	 */
+	private DeliverySchedule createNewDeliverySchedule(String time, String tz,
+			int deliveryDay, User user, boolean disabled) {
 		DeliverySchedule deliverySchedule = new DeliverySchedule();
 		DateTimeFormatter fmt = DateTimeFormat.forPattern("hh:mm a");
-		
+
 		LocalDateTime userEnteredTime = fmt.parseLocalDateTime(time);
 		LocalTime userLocalTime = userEnteredTime.toLocalTime();
-		
-		DateTime dateTimeZone = new DateTime(userLocalTime.toDateTimeToday(DateTimeZone
-				.forID(tz)));
+
+		DateTime dateTimeZone = new DateTime(
+				userLocalTime.toDateTimeToday(DateTimeZone.forID(tz)));
 		DateTime utc = dateTimeZone.withZone(DateTimeZone.UTC);
 		LocalTime lt = utc.toLocalTime();
 		deliverySchedule.setDeliveryDay(deliveryDay);

@@ -39,20 +39,30 @@ import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
 
+/**
+ * The Class SocialServiceImpl.
+ */
 @Service
 public class SocialServiceImpl implements SocialService {
 
+	/** The logger. */
 	final Logger logger = LoggerFactory.getLogger(SocialServiceImpl.class);
 
+	/** The user repository. */
 	@Autowired
 	UserRepository userRepository;
 
+	/** The social data repository. */
 	@Autowired
 	SocialNetworkDataRepository socialDataRepository;
 
+	/** The factory locator for finding an appropriate connection. */
 	@Autowired
 	ConnectionFactoryLocator locator;
 
+	/* (non-Javadoc)
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.SocialService#connectToFacebook()
+	 */
 	@Override
 	public String connectToFacebook() {
 
@@ -70,6 +80,9 @@ public class SocialServiceImpl implements SocialService {
 		return authorizeUrl;
 	}
 
+	/* (non-Javadoc)
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.SocialService#saveFacebookInformation(java.lang.String, com.natepaulus.dailyemail.repository.User)
+	 */
 	@Override
 	public User saveFacebookInformation(String authorizationCode, User user) {
 		logger.info("User email in saveFaceBookInformation:" + user.getEmail());
@@ -85,19 +98,6 @@ public class SocialServiceImpl implements SocialService {
 						null);
 		Connection<Facebook> connection = connectionFactory
 				.createConnection(accessGrant);
-
-		/*
-		 * Facebook facebook = connection.getApi(); List<Post> posts =
-		 * facebook.feedOperations().getHomeFeed();
-		 * 
-		 * 
-		 * for (Post p : posts){
-		 * 
-		 * logger.info("Post Name: " + p.getName());
-		 * logger.info("Post Message: " + p.getMessage());
-		 * 
-		 * }
-		 */
 
 		ConnectionData data = connection.createData();
 		SocialNetworkData snd = new SocialNetworkData();
@@ -130,6 +130,9 @@ public class SocialServiceImpl implements SocialService {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.SocialService#getDataForDisplay(com.natepaulus.dailyemail.repository.User)
+	 */
 	@Override
 	public Map<String, Object> getDataForDisplay(User user) {
 		logger.info("Inside SocialService getDataForDisplay");
@@ -156,6 +159,9 @@ public class SocialServiceImpl implements SocialService {
 
 	}
 
+	/* (non-Javadoc)
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.SocialService#getRssNewsForReader(com.natepaulus.dailyemail.repository.User)
+	 */
 	@Override
 	public ArrayList<NewsFeed> getRssNewsForReader(User user) {
 		

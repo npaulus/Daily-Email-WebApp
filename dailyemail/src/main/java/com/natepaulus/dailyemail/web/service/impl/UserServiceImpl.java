@@ -19,28 +19,23 @@ import com.natepaulus.dailyemail.web.service.PasswordEncryption;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 import com.natepaulus.dailyemail.web.service.interfaces.UserService;
 
+/**
+ * The Class UserServiceImpl.
+ */
 @Service
 public class UserServiceImpl implements UserService {
 	
+	/** The user repository. */
 	@Resource
 	private UserRepository userRepository;
 	
+	/** The account service. */
 	@Autowired
 	private AccountService accountService;
 
-	/*
-	 * @Transactional(readOnly = true) public List<User> findAll() { List<User>
-	 * allUsers = (List<User>) userRepository.findAll(); return allUsers; }
+	/* (non-Javadoc)
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.UserService#addNewUser(com.natepaulus.dailyemail.web.domain.AccountSignUp, com.natepaulus.dailyemail.repository.Weather)
 	 */
-
-	/*
-	 * @Transactional(readOnly = true) public String findByEmail(String email) {
-	 * return userRepository.findByEmail(email); }
-	 * 
-	 * @Transactional(readOnly = true) public String findByPassword(String
-	 * password) { return userRepository.findByPassword(password); }
-	 */
-
 	@Transactional
 	public boolean addNewUser(AccountSignUp acctSignUp, Weather weather) {
 		
@@ -80,6 +75,9 @@ public class UserServiceImpl implements UserService {
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.UserService#login(java.lang.String, java.lang.String)
+	 */
 	@Override
 	public User login(String email, String password) throws AuthenticationException{
 		User user = userRepository.findByEmail(email);		
