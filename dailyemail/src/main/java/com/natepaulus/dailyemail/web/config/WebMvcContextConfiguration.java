@@ -90,7 +90,7 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 		@SuppressWarnings("unused")
 		InterceptorRegistration registration = registry
 				.addInterceptor(new SecurityHandlerInterceptor())
-				.addPathPatterns("/account", "/account/*");
+				.addPathPatterns("/account", "/account/*", "/reader", "/reader/*");
 		
 	}
 	

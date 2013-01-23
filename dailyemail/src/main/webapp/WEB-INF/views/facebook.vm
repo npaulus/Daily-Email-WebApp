@@ -1,0 +1,33 @@
+
+
+<ul>
+#foreach($f in $facebook)
+    
+	
+	
+	
+	
+        <li>
+            <img src="$!f.getIcon()"> <b>$f.getFrom().getName()</b> <br/>
+                $!f.getMessage() <br />
+				Likes: $!f.getLikeCount()
+				<a href="$!f.getLink()"><img src="$!f.getPicture()" /></a><br />
+				<br />
+		</li>
+
+
+#end
+</ul>
+#*	
+<p>Date: $f.getCreatedTime()</p>
+<p>Caption: $f.getCaption()</p>
+<p>Description: $f.getDescription()</p>
+<p>From: $f.getFrom().getName()</p>
+<p>Icon: $f.getIcon()</p>
+<p>Id: $f.getId()</p>
+<p>Like Count: $f.getLikeCount()</p>
+<p>Link: $f.getLink()</p>
+<p>Message: $f.getMessage()</p>
+<p>Name: $f.getName()</p>
+<p>Pictures: $f.getPicture()</p>
+<p>Type: $f.getType()<p> *#

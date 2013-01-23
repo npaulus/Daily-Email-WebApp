@@ -47,7 +47,10 @@ public class User implements Serializable {
 
 	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<DeliverySchedule> deliveryTimes;
-
+	
+	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<SocialNetworkData> socialNetworkData;
+	
 	public Set<DeliverySchedule> getDeliveryTimes() {
 		return deliveryTimes;
 	}
@@ -119,6 +122,16 @@ public class User implements Serializable {
 	public void setWeather(Weather weather) {
 		this.weather = weather;
 	}
+	
+	
+	public Set<SocialNetworkData> getSocialNetworkData() {
+		return socialNetworkData;
+	}
+
+	public void setSocialNetworkData(Set<SocialNetworkData> socialNetworkData) {
+		this.socialNetworkData = socialNetworkData;
+	}
+
 
 	@Override
 	public String toString() {

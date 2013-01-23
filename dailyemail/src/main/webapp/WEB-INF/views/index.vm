@@ -20,10 +20,9 @@
             </div>
 
             <div class="grid_7 content">
-                <p>This daily email service allows you to choose various weather
-                    and news options.  Specifically, you can receive current 
-                    temperature information and weather forecast data.  Currently,
-                    you can get 5 articles from WSJ, NYT, and/or Richmond TD.</p>
+                <p>This site will allow you to receive weather and RSS feed information in a daily email. You can set as many RSS feeds as you would like. 
+				  This is a new service and still considered in alpha since I haven't finished the look and feel on the front end.  Check back often for new features!
+				</p>
             </div>
 			<div class="grid_3">
 				<div class="error">

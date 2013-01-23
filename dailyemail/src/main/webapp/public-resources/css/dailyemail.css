@@ -74,3 +74,19 @@
     border-width: 1px;
     padding: 5px;	
 }
+
+.social
+{
+	overflow: auto;
+	height: 680px;
+	padding: 5px;
+	border: solid thin black;
+}
+
+.rssfeeds
+{
+	overflow: auto;
+	height: 680px;
+	padding: 5px;
+	border: solid thin black;
+} 
