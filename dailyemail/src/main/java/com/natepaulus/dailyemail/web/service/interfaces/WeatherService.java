@@ -1,6 +1,6 @@
 package com.natepaulus.dailyemail.web.service.interfaces;
 
-import com.natepaulus.dailyemail.repository.Weather;
+import com.natepaulus.dailyemail.repository.entity.Weather;
 
 /**
  * The Interface WeatherService.

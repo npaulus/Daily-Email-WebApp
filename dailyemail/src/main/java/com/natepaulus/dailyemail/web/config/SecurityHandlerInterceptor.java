@@ -6,7 +6,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 import org.springframework.web.util.WebUtils;
 
-import com.natepaulus.dailyemail.repository.User;
+import com.natepaulus.dailyemail.repository.entity.User;
 import com.natepaulus.dailyemail.web.controller.LoginController;
 import com.natepaulus.dailyemail.web.exceptions.AuthenticationException;
 

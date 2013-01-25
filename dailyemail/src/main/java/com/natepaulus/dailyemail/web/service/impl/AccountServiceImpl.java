@@ -16,13 +16,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.natepaulus.dailyemail.repository.DeliverySchedule;
-import com.natepaulus.dailyemail.repository.NewsLink;
 import com.natepaulus.dailyemail.repository.NewsRepository;
-import com.natepaulus.dailyemail.repository.User;
 import com.natepaulus.dailyemail.repository.UserRepository;
-import com.natepaulus.dailyemail.repository.Weather;
 import com.natepaulus.dailyemail.repository.WeatherRepository;
+import com.natepaulus.dailyemail.repository.entity.DeliverySchedule;
+import com.natepaulus.dailyemail.repository.entity.NewsLink;
+import com.natepaulus.dailyemail.repository.entity.User;
+import com.natepaulus.dailyemail.repository.entity.Weather;
 import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 import com.natepaulus.dailyemail.web.service.interfaces.WeatherService;

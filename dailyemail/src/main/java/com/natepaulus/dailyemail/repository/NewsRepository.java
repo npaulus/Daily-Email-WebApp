@@ -2,6 +2,8 @@ package com.natepaulus.dailyemail.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.natepaulus.dailyemail.repository.entity.NewsLink;
+
 /**
  * The Interface NewsRepository that extends JpaRepository for using Spring Data
  * JPA to make database queries easier.

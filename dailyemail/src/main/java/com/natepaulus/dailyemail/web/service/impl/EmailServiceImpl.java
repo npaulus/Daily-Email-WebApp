@@ -39,10 +39,10 @@ import org.w3c.dom.NodeList;
 
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
-import com.natepaulus.dailyemail.repository.DeliverySchedule;
 import com.natepaulus.dailyemail.repository.DeliveryScheduleRepository;
-import com.natepaulus.dailyemail.repository.NewsLink;
-import com.natepaulus.dailyemail.repository.User;
+import com.natepaulus.dailyemail.repository.entity.DeliverySchedule;
+import com.natepaulus.dailyemail.repository.entity.NewsLink;
+import com.natepaulus.dailyemail.repository.entity.User;
 import com.natepaulus.dailyemail.web.domain.EmailData;
 import com.natepaulus.dailyemail.web.domain.NewsFeed;
 import com.natepaulus.dailyemail.web.domain.NewsStory;

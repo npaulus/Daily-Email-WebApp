@@ -27,11 +27,11 @@ import org.springframework.social.oauth2.OAuth2Parameters;
 import org.springframework.stereotype.Service;
 import org.xml.sax.InputSource;
 
-import com.natepaulus.dailyemail.repository.NewsLink;
-import com.natepaulus.dailyemail.repository.SocialNetworkData;
 import com.natepaulus.dailyemail.repository.SocialNetworkDataRepository;
-import com.natepaulus.dailyemail.repository.User;
 import com.natepaulus.dailyemail.repository.UserRepository;
+import com.natepaulus.dailyemail.repository.entity.NewsLink;
+import com.natepaulus.dailyemail.repository.entity.SocialNetworkData;
+import com.natepaulus.dailyemail.repository.entity.User;
 import com.natepaulus.dailyemail.web.domain.NewsFeed;
 import com.natepaulus.dailyemail.web.domain.NewsStory;
 import com.natepaulus.dailyemail.web.service.interfaces.SocialService;

@@ -5,6 +5,8 @@ import java.util.List;
 import org.joda.time.LocalTime;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.natepaulus.dailyemail.repository.entity.DeliverySchedule;
+
 /**
  * The Interface DeliveryScheduleRepository extends JpaRepository to use Spring
  * Data JPA for easy query building.

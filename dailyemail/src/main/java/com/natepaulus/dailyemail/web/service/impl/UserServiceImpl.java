@@ -9,9 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.natepaulus.dailyemail.repository.User;
 import com.natepaulus.dailyemail.repository.UserRepository;
-import com.natepaulus.dailyemail.repository.Weather;
+import com.natepaulus.dailyemail.repository.entity.User;
+import com.natepaulus.dailyemail.repository.entity.Weather;
 import com.natepaulus.dailyemail.web.domain.AccountSignUp;
 import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
 import com.natepaulus.dailyemail.web.exceptions.AuthenticationException;

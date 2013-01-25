@@ -10,7 +10,7 @@ import javax.ws.rs.core.MultivaluedMap;
 
 import org.springframework.stereotype.Service;
 
-import com.natepaulus.dailyemail.repository.Weather;
+import com.natepaulus.dailyemail.repository.entity.Weather;
 import com.natepaulus.dailyemail.web.service.interfaces.WeatherService;
 import com.natepaulus.nws.DataType;
 import com.natepaulus.nws.Dwml;

@@ -20,8 +20,8 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
-import com.natepaulus.dailyemail.repository.DeliverySchedule;
-import com.natepaulus.dailyemail.repository.User;
+import com.natepaulus.dailyemail.repository.entity.DeliverySchedule;
+import com.natepaulus.dailyemail.repository.entity.User;
 import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 
