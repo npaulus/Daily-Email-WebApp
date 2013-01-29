@@ -2,9 +2,12 @@ package com.natepaulus.dailyemail.web.service.impl;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +31,8 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -36,13 +41,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
 import com.natepaulus.dailyemail.repository.DeliveryScheduleRepository;
+import com.natepaulus.dailyemail.repository.RssFeedsRepository;
+import com.natepaulus.dailyemail.repository.RssNewsLinksRepository;
 import com.natepaulus.dailyemail.repository.entity.DeliverySchedule;
-import com.natepaulus.dailyemail.repository.entity.NewsLink;
+import com.natepaulus.dailyemail.repository.entity.RssFeeds;
+import com.natepaulus.dailyemail.repository.entity.RssNewsLinks;
 import com.natepaulus.dailyemail.repository.entity.User;
+import com.natepaulus.dailyemail.repository.entity.UserRssFeeds;
 import com.natepaulus.dailyemail.web.domain.EmailData;
 import com.natepaulus.dailyemail.web.domain.NewsFeed;
 import com.natepaulus.dailyemail.web.domain.NewsStory;
@@ -50,7 +60,6 @@ import com.natepaulus.dailyemail.web.service.interfaces.EmailService;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
-import com.sun.syndication.io.XmlReader;
 
 
 /**
@@ -67,6 +76,14 @@ public class EmailServiceImpl implements EmailService {
 	/** The delivery schedule repository. */
 	@Resource
 	DeliveryScheduleRepository deliveryScheduleRepository;
+	
+	/** The Rss Feeds Repository */
+	@Resource
+	RssFeedsRepository rssFeedsRepository;
+	
+	/** The User Rss Feeds Repository */
+	@Resource
+	RssNewsLinksRepository rssNewsLinksRepository;
 
 	/** The java mail sender for sending email. */
 	@Autowired
@@ -117,7 +134,92 @@ public class EmailServiceImpl implements EmailService {
 			sendEmail(user);
 		}
 	}
+	
+	@Scheduled(cron = "0 0/1 * * * ?")
+	public void updateRssFeedLinks(){
+		List<RssFeeds> rssFeeds = rssFeedsRepository.findByDisabled(false);
+		logger.info("Processing rss feeds");
+		for(RssFeeds rssFeed : rssFeeds){
+			
+			Set<RssNewsLinks> rssLinks = new HashSet<RssNewsLinks>();
+			
+			try {
 
+				URLConnection connection = new URL(rssFeed.getUrl()).openConnection();
+				connection
+						.setRequestProperty(
+								"User-Agent",
+								"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+				connection.connect();
+				InputStream is = connection.getInputStream();
+				InputSource source = new InputSource(is);
+				SyndFeedInput input = new SyndFeedInput();
+				SyndFeed feed = input.build(source);
+
+				@SuppressWarnings("rawtypes")
+				Iterator iFeed = feed.getEntries().iterator();
+
+				while (iFeed.hasNext()) {
+					RssNewsLinks link = new RssNewsLinks();
+					link.setFeedId(rssFeed.getId());
+					link.setRssFeed(rssFeed);
+					SyndEntry entry = (SyndEntry) iFeed.next();
+					link.setTitle(entry.getTitle());
+					link.setLink(entry.getLink());
+					link.setDescription(entry.getDescription().getValue()
+							.replaceAll("\\<.*?>", ""));
+					
+					Date publicationDate = entry.getPublishedDate();
+					if(publicationDate == null){ // feed doesn't have published date
+						publicationDate = new Date();
+					}
+					DateTime publishedDate = new DateTime(publicationDate);
+					link.setPubDate(publishedDate);
+
+					rssLinks.add(link);
+
+				}
+				Set<RssNewsLinks> currentLinksInFeed = rssFeed.getRssNewsLinks();
+				currentLinksInFeed.addAll(rssLinks);
+				rssFeed.setRssNewsLinks(currentLinksInFeed);
+				rssFeedsRepository.save(rssFeed);
+				logger.info("Saved " + rssFeed.getId());
+				
+			} catch (Exception ex) {
+				int rssFeedConnectFailures = rssFeed.getConnectFailures();
+				rssFeedConnectFailures += 1;
+				rssFeed.setConnectFailures(rssFeedConnectFailures);
+				if(rssFeed.getConnectFailures() >= 3){
+					rssFeed.setDisabled(true);
+					logger.info("The following feed ID was just disabled for too many failed connect attempts: " + rssFeed.getId());
+					sendErrorEmail("The following feed ID was just disabled for too many failed connect attempts: " + rssFeed.getId());
+				}
+				logger.error("There was a parsing issue for: " + rssFeed.getId(), ex);				
+			}
+			
+		}
+		
+	}
+
+	private void sendErrorEmail(final String errorMessage){
+		
+		MimeMessagePreparator preparator = new MimeMessagePreparator() {
+
+			@Override
+			public void prepare(MimeMessage mimeMessage) throws Exception {
+				MimeMessageHelper message = new MimeMessageHelper(mimeMessage,
+						"UTF-8");
+				message.setTo("nate@natepaulus.com");
+				message.setFrom("dailyemail@natepaulus.com");
+				message.setSubject("Error - Daily News & Weather");
+								
+				message.setText(errorMessage, true);
+			}
+		};
+		this.sender.send(preparator);
+		logger.info("Error Message sent!");
+	}
+	
 	/**
 	 * Send email to the user with the data they have requested.
 	 * 
@@ -331,36 +433,19 @@ public class EmailServiceImpl implements EmailService {
 	 * @return the news stories for email
 	 */
 	private EmailData getNewsStoriesForEmail(EmailData data, User user) {
-
-		for (NewsLink n : user.getNewsLink()) {
-			if (n.getDeliver() == 1) {
+		
+		Set<UserRssFeeds> userRssFeeds = user.getUserRssFeeds();
+		Pageable topFiveArticlesByDate = new PageRequest(0, 5);
+		
+		for (UserRssFeeds userRssFeed : userRssFeeds) {
+			if (userRssFeed.getDeliver() == 1) {
 				NewsFeed newsFeed = new NewsFeed();
-				newsFeed.setFeedTitle(n.getSource_name());
-				try {
-					URL xmlUrl = new URL(n.getUrl());
-					XmlReader reader = new XmlReader(xmlUrl);
-					SyndFeed feed = new SyndFeedInput().build(reader);
-					@SuppressWarnings("rawtypes")
-					Iterator iFeed = feed.getEntries().iterator();
-					int count = 0;
-					int max = 5;
-
-					while (iFeed.hasNext() && count < max) {
-
-						SyndEntry entry = (SyndEntry) iFeed.next();
-						String title = entry.getTitle();
-						String link = entry.getLink();
-						String desc = entry.getDescription().getValue()
-								.replaceAll("\\<.*?>", "");
-						NewsStory newsStory = new NewsStory(title, link, desc);
-						newsFeed.getNewsStories().add(newsStory);
-						count++;
-
-					}
-
-				} catch (Exception ex) {
-					ex.printStackTrace();
-				}
+				newsFeed.setFeedTitle(userRssFeed.getFeedName());
+				List<RssNewsLinks> articles =  rssNewsLinksRepository.findByFeedIdOrderByPubDateDesc(userRssFeed.getFeedId(), topFiveArticlesByDate);
+				for(RssNewsLinks r : articles){
+					NewsStory newsStory = new NewsStory(r.getTitle(), r.getLink(), r.getDescription());
+					newsFeed.getNewsStories().add(newsStory);
+				}				
 
 				data.getNewsFeeds().add(newsFeed);
 			}

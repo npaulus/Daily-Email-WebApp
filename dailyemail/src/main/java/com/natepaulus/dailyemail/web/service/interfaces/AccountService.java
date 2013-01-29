@@ -3,6 +3,7 @@ package com.natepaulus.dailyemail.web.service.interfaces;
 import com.natepaulus.dailyemail.repository.entity.User;
 import com.natepaulus.dailyemail.repository.entity.Weather;
 import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
+import com.natepaulus.dailyemail.web.exceptions.RssFeedException;
 
 /**
  * The Interface AccountService.
@@ -42,8 +43,9 @@ public interface AccountService {
 	 * @param user
 	 *            the user
 	 * @return the user
+	 * @throws RssFeedException 
 	 */
-	public User addNewsLink(String url, String name, User user);
+	public User addNewsLink(String url, String name, User user) throws RssFeedException;
 
 	/**
 	 * Sets the included news information for the users daily email.

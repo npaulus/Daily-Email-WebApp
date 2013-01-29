@@ -24,6 +24,7 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
 import org.springframework.web.servlet.handler.SimpleMappingExceptionResolver;
+import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 import org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMapping;
 
 /**
@@ -92,6 +93,7 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 	public void configureHandlerExceptionResolvers(
 			List<HandlerExceptionResolver> exceptionResolvers) {
 		exceptionResolvers.add(simpleMappingExceptionResolver());
+		exceptionResolvers.add(exceptionHandlerExceptionResolver());
 	}
 
 	/**
@@ -115,8 +117,24 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 
 		exceptionResolver.setExceptionMappings(mappings);
 		exceptionResolver.setStatusCodes(statusCodes);
+		exceptionResolver.setOrder(2);
 
 		return exceptionResolver;
+	}
+
+	/**
+	 * Exception handler exception resolver. Set the order to 1 to handle custom
+	 * business exceptions
+	 * 
+	 * @return the exception handler exception resolver
+	 */
+	@Bean
+	public ExceptionHandlerExceptionResolver exceptionHandlerExceptionResolver() {
+		ExceptionHandlerExceptionResolver exceptionHandlerExceptionResolver = new ExceptionHandlerExceptionResolver();
+
+		exceptionHandlerExceptionResolver.setOrder(1);
+
+		return exceptionHandlerExceptionResolver;
 	}
 
 	/*

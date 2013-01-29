@@ -1,5 +1,9 @@
 package com.natepaulus.dailyemail.web.service.impl;
 
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
@@ -12,20 +16,31 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.xml.sax.InputSource;
 
 import com.natepaulus.dailyemail.repository.NewsRepository;
+import com.natepaulus.dailyemail.repository.RssFeedsRepository;
 import com.natepaulus.dailyemail.repository.UserRepository;
+import com.natepaulus.dailyemail.repository.UserRssFeedsRepository;
 import com.natepaulus.dailyemail.repository.WeatherRepository;
 import com.natepaulus.dailyemail.repository.entity.DeliverySchedule;
-import com.natepaulus.dailyemail.repository.entity.NewsLink;
+import com.natepaulus.dailyemail.repository.entity.RssFeeds;
+import com.natepaulus.dailyemail.repository.entity.RssNewsLinks;
 import com.natepaulus.dailyemail.repository.entity.User;
+import com.natepaulus.dailyemail.repository.entity.UserRssFeeds;
 import com.natepaulus.dailyemail.repository.entity.Weather;
 import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
+import com.natepaulus.dailyemail.web.exceptions.RssFeedException;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 import com.natepaulus.dailyemail.web.service.interfaces.WeatherService;
+import com.sun.syndication.feed.synd.SyndEntry;
+import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.io.SyndFeedInput;
 
 /**
  * The Class AccountServiceImpl processes user requests to update their delivery
@@ -35,6 +50,9 @@ import com.natepaulus.dailyemail.web.service.interfaces.WeatherService;
 @Service
 public class AccountServiceImpl implements AccountService {
 
+	private final Logger logger = LoggerFactory
+			.getLogger(AccountServiceImpl.class);
+
 	/** The user repository. */
 	@Resource
 	private UserRepository userRepository;
@@ -42,6 +60,14 @@ public class AccountServiceImpl implements AccountService {
 	/** The weather repository. */
 	@Resource
 	private WeatherRepository weatherRepository;
+	
+	/** The Rss Feeds Repository */
+	@Resource
+	private RssFeedsRepository rssFeedsRepository;
+	
+	/** The User Rss Feeds repository */
+	@Resource
+	private UserRssFeedsRepository userRssFeedsRepository;
 
 	/** The news repository. */
 	@Resource
@@ -50,6 +76,8 @@ public class AccountServiceImpl implements AccountService {
 	/** The weather service. */
 	@Autowired
 	private WeatherService weatherService;
+
+	
 
 	/*
 	 * (non-Javadoc)
@@ -108,14 +136,95 @@ public class AccountServiceImpl implements AccountService {
 	 */
 	@Override
 	@Transactional
-	public User addNewsLink(String url, String name, User user) {
+	public User addNewsLink(String url, String name, User user) throws RssFeedException {
 
-		NewsLink newLink = new NewsLink();
-		newLink.setSource_name(name);
-		newLink.setUrl(url);
-		newLink.setDeliver(0);
-		newLink.setUser(user);
-		user.getNewsLink().add(newLink);
+		RssFeeds rssFeed = rssFeedsRepository.findByUrl(url);
+		DateTime dt = new DateTime().withZone(DateTimeZone.UTC);
+		if (rssFeed == null) {
+			rssFeed = new RssFeeds();
+			rssFeed.setDateAdded(dt);
+			rssFeed.setDisabled(false);
+			rssFeed.setRssNewsLinks(new HashSet<RssNewsLinks>());
+			rssFeed.setUserRssFeeds(new HashSet<UserRssFeeds>());
+			rssFeed.setUrl(url);
+						
+			Set<RssNewsLinks> rssLinks = new HashSet<RssNewsLinks>();
+							
+			try {
+
+				URLConnection connection = new URL(url).openConnection();
+				connection
+						.setRequestProperty(
+								"User-Agent",
+								"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+				connection.connect();
+				InputStream is = connection.getInputStream();
+				InputSource source = new InputSource(is);
+				SyndFeedInput input = new SyndFeedInput();
+				SyndFeed feed = input.build(source);
+
+				@SuppressWarnings("rawtypes")
+				Iterator iFeed = feed.getEntries().iterator();
+
+				while (iFeed.hasNext()) {
+					RssNewsLinks link = new RssNewsLinks();
+					link.setFeedId(rssFeed.getId());
+					link.setRssFeed(rssFeed);
+					SyndEntry entry = (SyndEntry) iFeed.next();
+					link.setTitle(entry.getTitle());
+					link.setLink(entry.getLink());
+					link.setDescription(entry.getDescription().getValue()
+							.replaceAll("\\<.*?>", ""));
+					
+					Date publicationDate = entry.getPublishedDate();
+					DateTime publishedDate = new DateTime(publicationDate);
+					link.setPubDate(publishedDate);
+
+					rssLinks.add(link);
+
+				}
+				rssFeed.setRssNewsLinks(rssLinks);
+				rssFeedsRepository.save(rssFeed);
+				
+			} catch (Exception ex) {
+				throw new RssFeedException("The feed appears to be invalid");				
+			}
+			
+			UserRssFeeds userRssFeed = new UserRssFeeds();
+			userRssFeed.setFeedId(rssFeed.getId());
+			userRssFeed.setFeedName(name);
+			userRssFeed.setDeliver(1);
+			userRssFeed.setUserId(user.getId());
+			userRssFeed.setRssFeed(rssFeed);
+			userRssFeed.setUser(user);
+			
+			rssFeed.getUserRssFeeds().add(userRssFeed);		
+			user.getUserRssFeeds().add(userRssFeed);
+			
+		} else {
+			
+			//check for existing association
+			UserRssFeeds userNewFeed = userRssFeedsRepository.findByUserIdAndFeedId(user.getId(), rssFeed.getId());
+			if(userNewFeed == null){
+				//user doesn't have this feed
+				userNewFeed = new UserRssFeeds();
+				userNewFeed.setFeedName(name);
+				userNewFeed.setFeedId(rssFeed.getId());
+				userNewFeed.setRssFeed(rssFeed);
+				userNewFeed.setDeliver(1);
+				userNewFeed.setUserId(user.getId());
+				userNewFeed.setUser(user);
+				
+				rssFeed.getUserRssFeeds().add(userNewFeed);
+				user.getUserRssFeeds().add(userNewFeed);
+				
+				userRssFeedsRepository.save(userNewFeed);
+			} else {
+				throw new RssFeedException("You've already added this feed to your list.");
+			}
+			
+		}
+		
 		return userRepository.save(user);
 	}
 
@@ -129,12 +238,12 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	@Transactional
 	public User setIncludedNewsInformation(String[] news, User user) {
-		Iterator<NewsLink> links = user.getNewsLink().iterator();
+		Iterator<UserRssFeeds> links = user.getUserRssFeeds().iterator();
 		while (links.hasNext()) {
-			NewsLink link = links.next();
+			UserRssFeeds link = links.next();
 			link.setDeliver(0);
 			for (String s : news) {
-				if (link.getId() == Integer.parseInt(s)) {
+				if (link.getFeedId() == Integer.parseInt(s)) {
 					link.setDeliver(1);
 				}
 			}
@@ -152,13 +261,13 @@ public class AccountServiceImpl implements AccountService {
 	@Override
 	@Transactional
 	public User deleteNewsLink(int id, User user) {
-
-		Iterator<NewsLink> links = user.getNewsLink().iterator();
+		
+		Iterator<UserRssFeeds> links = user.getUserRssFeeds().iterator();
 
 		while (links.hasNext()) {
-			NewsLink link = links.next();
+			UserRssFeeds link = links.next();
 
-			if (link.getId() == id) {
+			if (link.getFeedId() == id) {
 				links.remove();
 			}
 

@@ -71,17 +71,17 @@
                 <h3>News Sources</h3>
                 <div class="newsDelivery">
 					<h5>Set Included News Information</h5>
-					 #if(!$user.newsLink.isEmpty())
+					 #if(!$user.userRssFeeds.isEmpty())
 						<form name="news" action=#springUrl("/account/news") method="post">
 							<ul>
-							#foreach($link in $user.newsLink)
+							#foreach($link in $user.userRssFeeds)
 								<li>
-								<input type="checkbox" name="news" value="$link.id"
+								<input type="checkbox" name="news" value="$link.feedId"
 								#if($link.deliver == 1)
 									checked="checked"
 								#end
 								/>
-								$link.source_name <a href="javascript:;" onclick="doDelete($!link.id)"><img src=#springUrl("/resources/images/delete.png") /></a>
+								$link.feedName <a href="javascript:;" onclick="doDelete($!link.feedId)"><img src=#springUrl("/resources/images/delete.png") /></a>
 								</li>
 							#end
 							
@@ -96,6 +96,9 @@
                 </div>
                 <div class="addLinks">
 					<h5>Add News Sources</h5>
+					#if($exception)
+						#springMessageText($exception.code $exception.message)
+					#end					
                     <form name="addNews" action=#springUrl("/account/addNews") method="post">
                         <label>RSS Feed Name</label>
                         <input type="text" name="name" />

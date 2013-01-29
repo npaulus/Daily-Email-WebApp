@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,11 +24,13 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 import com.natepaulus.dailyemail.repository.entity.DeliverySchedule;
 import com.natepaulus.dailyemail.repository.entity.User;
 import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
+import com.natepaulus.dailyemail.web.exceptions.RssFeedException;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class AccountController.
- *
+ * 
  * @author Nate
  */
 @Controller
@@ -39,23 +42,27 @@ public class AccountController {
 
 	/**
 	 * Display account page.
-	 *
-	 * @param user the user
-	 * @param delTimeEntry the del time entry
-	 * @param session the session
-	 * @param request the request
+	 * 
+	 * @param user
+	 *            the user
+	 * @param delTimeEntry
+	 *            the del time entry
+	 * @param session
+	 *            the session
+	 * @param request
+	 *            the request
 	 * @return the model and view
 	 */
 	@RequestMapping(value = "/account", method = RequestMethod.GET)
-	public ModelAndView displayAccountPage(@ModelAttribute("user") User user, @ModelAttribute("delTimeEntry") DeliveryTimeEntryForm delTimeEntry,
+	public ModelAndView displayAccountPage(@ModelAttribute("user") User user,
+			@ModelAttribute("delTimeEntry") DeliveryTimeEntryForm delTimeEntry,
 			HttpSession session, HttpServletRequest request) {
 		Map<String, ?> map = RequestContextUtils.getInputFlashMap(request);
 		Map<String, Object> model = new HashMap<String, Object>();
-		
-		
+
 		if (map != null) {
 			user = accountService.calculateUserDisplayTime(user);
-			
+
 			for (DeliverySchedule ds : user.getDeliveryTimes()) {
 				if (ds.getDeliveryDay() == 0) {
 					delTimeEntry.setTimezone(ds.getTz());
@@ -67,19 +74,18 @@ public class AccountController {
 					delTimeEntry.setWeekEndTime(ds.getDisplayTime());
 				}
 			}
-			
+
 			session.setAttribute("user", user);
 			session.setAttribute("deliveryTimeEntry", delTimeEntry);
-			
+
 			model.put("user", user);
-			model.put("deliveryTimeEntry", delTimeEntry);			
-			
+			model.put("deliveryTimeEntry", delTimeEntry);
+
 			return new ModelAndView("account", model);
 		} else {
 			User loggedInUser = (User) session.getAttribute("user");
 			loggedInUser = accountService
 					.calculateUserDisplayTime(loggedInUser);
-			
 
 			for (DeliverySchedule ds : loggedInUser.getDeliveryTimes()) {
 				if (ds.getDeliveryDay() == 0) {
@@ -101,18 +107,25 @@ public class AccountController {
 	}
 
 	/**
-	 * Adds the news link the user just submitted to the database.
-	 *
-	 * @param name the name of the rss feed 
-	 * @param url the url for the rss feed
-	 * @param session the session
-	 * @param redirect to add flashmap attributes
+	 * Adds the news link to the database.
+	 * 
+	 * @param name
+	 *            the name
+	 * @param url
+	 *            the url to add
+	 * @param session
+	 *            the session
+	 * @param redirect
+	 *            the redirect
 	 * @return the string which is the view to display
+	 * @throws RssFeedException
+	 *             the rss feed exception (feed url invalid or user already has
+	 *             this link in their list)
 	 */
 	@RequestMapping(value = "/account/addNews", method = RequestMethod.POST)
 	public String addNewsLink(@RequestParam String name,
 			@RequestParam String url, HttpSession session,
-			RedirectAttributes redirect) {
+			RedirectAttributes redirect) throws RssFeedException {
 		User user = (User) session.getAttribute("user");
 
 		user = accountService.addNewsLink(url, name, user);
@@ -122,11 +135,14 @@ public class AccountController {
 	}
 
 	/**
-	 * Update weather delivery preference for a user
-	 *
-	 * @param deliver_pref the deliver_pref the user selected
-	 * @param redirect to add flashmap attributes
-	 * @param session the session
+	 * Update weather delivery preference for a user.
+	 * 
+	 * @param deliver_pref
+	 *            the deliver_pref the user selected
+	 * @param redirect
+	 *            to add flashmap attributes
+	 * @param session
+	 *            the session
 	 * @return the string which is the view to display
 	 */
 	@RequestMapping(value = "/account/weather", method = RequestMethod.POST)
@@ -143,10 +159,13 @@ public class AccountController {
 
 	/**
 	 * Update weather zip code for a user.
-	 *
-	 * @param zipCode the zip code
-	 * @param session the session
-	 * @param redirect the redirect to add flashmap attributes
+	 * 
+	 * @param zipCode
+	 *            the zip code
+	 * @param session
+	 *            the session
+	 * @param redirect
+	 *            the redirect to add flashmap attributes
 	 * @return the string which is the view to display
 	 */
 	@RequestMapping(value = "/account/changezip", method = RequestMethod.POST)
@@ -160,10 +179,13 @@ public class AccountController {
 
 	/**
 	 * Sets the included news information for the daily email.
-	 *
-	 * @param news the news feeds the user selected 
-	 * @param session the session
-	 * @param redirect the redirect to add flashmap attributes
+	 * 
+	 * @param news
+	 *            the news feeds the user selected
+	 * @param session
+	 *            the session
+	 * @param redirect
+	 *            the redirect to add flashmap attributes
 	 * @return the string which is the view to display
 	 */
 	@RequestMapping(value = "/account/news", method = RequestMethod.POST)
@@ -182,11 +204,14 @@ public class AccountController {
 	}
 
 	/**
-	 * Delete a news link the user no longer wishes to have
-	 *
-	 * @param id the id of the news link
-	 * @param session the session
-	 * @param redirect the redirect to add flashmap attributes
+	 * Delete a news link the user no longer wishes to have.
+	 * 
+	 * @param id
+	 *            the id of the news link
+	 * @param session
+	 *            the session
+	 * @param redirect
+	 *            the redirect to add flashmap attributes
 	 * @return the string which is the view to display
 	 */
 	@RequestMapping(value = "/account/deleteNewsLink/{id}", method = RequestMethod.GET)
@@ -201,31 +226,62 @@ public class AccountController {
 
 	/**
 	 * Update daily email delivery schedule.
-	 *
-	 * @param deliveryTimeEntry the delivery time the user entered in HH:MM A format
-	 * @param result the result of the web binding of the form
-	 * @param redirect the redirect to add flashmap attributes
-	 * @param session the session
-	 * @param model the model 
+	 * 
+	 * @param deliveryTimeEntry
+	 *            the delivery time the user entered in HH:MM A format
+	 * @param result
+	 *            the result of the web binding of the form
+	 * @param redirect
+	 *            the redirect to add flashmap attributes
+	 * @param session
+	 *            the session
+	 * @param model
+	 *            the model
 	 * @return the string which is the view to display
 	 */
 	@RequestMapping(value = "/account/delivery", method = RequestMethod.POST)
 	public String updateDeliverySchedule(
 			@Valid @ModelAttribute("deliveryTimeEntry") DeliveryTimeEntryForm deliveryTimeEntry,
-			BindingResult result, RedirectAttributes redirect, HttpSession session, Model model) {
+			BindingResult result, RedirectAttributes redirect,
+			HttpSession session, Model model) {
 		User user = (User) session.getAttribute("user");
-		if(result.hasErrors()){
+		if (result.hasErrors()) {
 			session.setAttribute("user", user);
-			model.addAttribute("user", user);			
+			model.addAttribute("user", user);
 			return "account";
 		}
-		
-		
+
 		user = accountService.updateDeliverySchedule(deliveryTimeEntry, user);
-		
+
 		redirect.addFlashAttribute("user", user);
 		redirect.addFlashAttribute("deliveryTimeEntry", deliveryTimeEntry);
 		return "redirect:/account";
+	}
+
+	/**
+	 * Handle rss feed exception.
+	 * 
+	 * @param ex
+	 *            the exception
+	 * @param request
+	 *            the http request
+	 * @return the model and view
+	 */
+	@ExceptionHandler(RssFeedException.class)
+	public ModelAndView handleRssFeedException(RssFeedException ex,
+			HttpServletRequest request) {
+
+		HttpSession session = request.getSession();
+		User user = (User) session.getAttribute("user");
+		DeliveryTimeEntryForm delTimeEntry = (DeliveryTimeEntryForm) session
+				.getAttribute("deliveryTimeEntry");
+
+		Map<String, Object> model = new HashMap<String, Object>();
+		model.put("user", user);
+		model.put("deliveryTimeEntry", delTimeEntry);
+		model.put("exception", ex);
+
+		return new ModelAndView("account", model);
 	}
 
 }

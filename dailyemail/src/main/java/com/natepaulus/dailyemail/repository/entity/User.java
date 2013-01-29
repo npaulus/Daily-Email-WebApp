@@ -65,6 +65,11 @@ public class User implements Serializable {
 	/** The social network data the user has set for facebook and/or twitter. */
 	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<SocialNetworkData> socialNetworkData;
+	
+	/** The user's rss feeds. */
+	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+	private Set<UserRssFeeds> userRssFeeds;
+	
 
 	/**
 	 * Gets the delivery times.
@@ -254,6 +259,25 @@ public class User implements Serializable {
 	 */
 	public void setSocialNetworkData(Set<SocialNetworkData> socialNetworkData) {
 		this.socialNetworkData = socialNetworkData;
+	}
+	
+	
+	/**
+	 * Gets the user's rss feeds.
+	 *
+	 * @return the user rss feeds
+	 */
+	public Set<UserRssFeeds> getUserRssFeeds() {
+		return userRssFeeds;
+	}
+
+	/**
+	 * Sets the user's rss feeds.
+	 *
+	 * @param userRssFeeds the new user rss feeds
+	 */
+	public void setUserRssFeeds(Set<UserRssFeeds> userRssFeeds) {
+		this.userRssFeeds = userRssFeeds;
 	}
 
 	/*
