@@ -1,0 +1,33 @@
+<div class="newsDelivery">
+	
+	 #if(!$user.userRssFeeds.isEmpty())
+			<form name="news" action=#springUrl("/account/news") method="post" class="custom">
+				<fieldset>
+					<legend style="padding-bottom:5px;">Set Included News Information</legend>
+					#if($confirmSave == "rssLinkDeleted") 
+						<div name="rssLinkDeleted" id="rssLinkDeleted" class="alert-box success saved">RSS Link Deleted!</div>
+					#end
+					#if($confirmSave == "newsDeliverySaved") 
+						<div name="newsDeliverySaved" id="newsDeliverySaved" class="alert-box success saved">News Email Preferences Saved!</div>
+					#end
+					<div class="row">
+						<div class="twelve mobile-four columns">
+					#foreach($link in $user.userRssFeeds)
+						<label style="padding: 3px;">
+						<input type="checkbox" name="news" value="$link.feedId"
+						#if($link.deliver == 1)
+							checked="checked"
+						#end
+							/>
+						$link.feedName <a href="javascript:;" onclick="doDelete($!link.feedId)"><img src=#springUrl("/resources/images/delete.png") /></a></label>
+					#end
+						</div>
+					</div>
+                    <input type="submit" class="button" value="Save" style="padding: 5px;"/>
+				</fieldset>
+			</form>
+	#else
+		<p>Add some RSS links below to setup news options to include in your daily email.</p>
+	 #end
+					 
+</div>

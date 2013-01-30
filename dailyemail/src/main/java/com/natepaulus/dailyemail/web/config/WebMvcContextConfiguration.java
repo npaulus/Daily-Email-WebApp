@@ -56,6 +56,10 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 		registry.addResourceHandler("/resources/**")
 				.addResourceLocations("/public-resources/")
 				.setCachePeriod(31556926);
+		registry.addResourceHandler("/robots.txt")
+				.addResourceLocations("/robots.txt")
+				.setCachePeriod(31556926);
+		
 	}
 
 	/**

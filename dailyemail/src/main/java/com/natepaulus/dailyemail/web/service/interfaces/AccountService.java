@@ -4,6 +4,7 @@ import com.natepaulus.dailyemail.repository.entity.User;
 import com.natepaulus.dailyemail.repository.entity.Weather;
 import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
 import com.natepaulus.dailyemail.web.exceptions.RssFeedException;
+import com.natepaulus.dailyemail.web.exceptions.ZipCodeException;
 
 /**
  * The Interface AccountService.
@@ -22,16 +23,16 @@ public interface AccountService {
 	 */
 	public Weather updateWeatherDeliveryPreference(int weather, User user);
 
+
 	/**
 	 * Update user zip code.
-	 * 
-	 * @param user
-	 *            the user
-	 * @param zipCode
-	 *            the zip code
+	 *
+	 * @param user the user
+	 * @param zipCode the zip code
 	 * @return the user
+	 * @throws ZipCodeException the zip code exception
 	 */
-	public User updateUserZipCode(User user, String zipCode);
+	public User updateUserZipCode(User user, String zipCode) throws ZipCodeException;
 
 	/**
 	 * Adds the news link.

@@ -135,7 +135,7 @@ public class EmailServiceImpl implements EmailService {
 		}
 	}
 	
-	@Scheduled(cron = "0 0/1 * * * ?")
+	// @Scheduled(cron = "0 0/30 * * * ?")
 	public void updateRssFeedLinks(){
 		List<RssFeeds> rssFeeds = rssFeedsRepository.findByDisabled(false);
 		logger.info("Processing rss feeds");

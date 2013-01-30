@@ -1,0 +1,12 @@
+  <!-- Latest version of jQuery -->
+  <script src=#springUrl("/resources/javascripts/jquery.js")></script>
+
+  <!-- Included JS Files (Unminified) -->
+  <!-- [JS Files] -->
+  <!-- We include all the unminified JS as well. Uncomment to use them instead -->
+
+  <!-- Included JS Files (Minified) -->
+  <script src=#springUrl("/resources/javascripts/foundation.min.js")></script>
+ 
+  <!-- Initialize JS Plugins -->
+  <script src=#springUrl("/resources/javascripts/app.js")></script>

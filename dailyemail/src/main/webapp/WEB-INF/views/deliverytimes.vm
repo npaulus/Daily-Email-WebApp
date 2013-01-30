@@ -23,50 +23,68 @@
 	
 	 
                     <div class="delivery">
-                        <form name="news" action=#springUrl("/account/delivery") method="post">
-                            <table>
-                                <tr>
-                                    <td>Time Zone:										
-										#springFormSingleSelect("deliveryTimeEntry.timezone" $tzNameValue)
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>Delivery Times</td>
-									<td>Disable Delivery</td>
-                                </tr>
-								<tr>
-									<td colspan="2">
-										#springBind("deliveryTimeEntry.weekDayTime")
-										#springShowErrors("","")
-									</td>
-								</tr>
-                                <tr>									
-									<td>Weekday: #springFormInput("deliveryTimeEntry.weekDayTime" "size=10")</td>
-									#if($deliveryTimeEntry.weekDayDisabled == 1)										
-										<td>#springFormCheckbox("deliveryTimeEntry.weekDayDisabled" "checked")</td>
-									#else
-										<td>#springFormCheckbox("deliveryTimeEntry.weekDayDisabled")</td>
-									#end	
-								</tr>
-								<tr>
-									<td colspan="2">
+						<form name="news" action=#springUrl("/account/delivery") method="post" class="custom" >
+							<fieldset>
+								<legend style="padding-bottom: 5px;">Time Zone & Delivery Times</legend>
+								#if($confirmSave == "deliveryTimesSaved") 
+									<div name="deliveryTimesSaved" id="deliveryTimesSaved" class="alert-box success saved">Delivery Schedule Saved!</div>
+								#end
+								<div class="row">
+                                    <div class="four mobile-two columns">
+										<label for="timezone" class="right inline">Time Zone:</label>
+																				
+									</div>
+									<div class="eight mobile-two columns">
+										#springFormSingleSelect("deliveryTimeEntry.timezone" $tzNameValue "id='customDropdown' class=''")
+									</div>
+								</div>
+								<hr />
+								
+								<div class="row">									
+										<div class="three mobile-one columns">
+											<label for="weekDayTime" class="right inline">Weekday: </label>											
+										</div>
+										<div class="five mobile-two columns">
+											#springBind("deliveryTimeEntry.weekDayTime")
+											#if($status.error)
+												#springFormInput("deliveryTimeEntry.weekDayTime" "class='error'")
+											#else
+												#springFormInput("deliveryTimeEntry.weekDayTime" "class=''")
+											#end											
+											#foreach($error in $status.errorMessages) <small class="error">$error</small>#end
+											
+										</div>
+										<div class="four mobile-one columns">
+											#if($deliveryTimeEntry.weekDayDisabled == 1)												
+												<label for="weekDayDisabled">#springFormCheckbox("deliveryTimeEntry.weekDayDisabled" "checked") Disable?</label>											
+											#else												
+												 <label for="weekDayDisabled">#springFormCheckbox("deliveryTimeEntry.weekDayDisabled") Disable?</label> 
+											#end
+										</div>
+								</div>
+								
+								<div class="row">
+									<div class="three mobile-one columns">
+										<label for="weekEndTime" class="right inline">Weekend: </label>											
+									</div>
+									<div class="five mobile-two columns">
 										#springBind("deliveryTimeEntry.weekEndTime")
-										#springShowErrors("","")
-									</td>
-								</tr>
-								<tr>
-									<td>Weekend: #springFormInput("deliveryTimeEntry.weekEndTime" "size=10")</td>
-									#if($deliveryTimeEntry.weekEndDisabled == 1)										
-										<td>#springFormCheckbox("deliveryTimeEntry.weekEndDisabled" "checked")</td>
-									#else
-										<td>#springFormCheckbox("deliveryTimeEntry.weekEndDisabled")</td>
-									#end									
-								</tr>
-                                <tr>
-                                    <td>
-                                        <input type="submit" value="Set Delivery Times" />
-                                    </td>
-                                </tr>
-                            </table>
+										#if($status.error)
+											#springFormInput("deliveryTimeEntry.weekEndTime" "class='error'")
+										#else										
+											#springFormInput("deliveryTimeEntry.weekEndTime" "class=''")
+										#end
+										#foreach($error in $status.errorMessages) <small class="error">$error</small>#end
+									</div>
+									<div class="four mobile-one columns">
+										#if($deliveryTimeEntry.weekEndDisabled == 1)										
+											<label for="weekEndDisabled">#springFormCheckbox("deliveryTimeEntry.weekEndDisabled" "checked") Disable?</label>
+										#else
+											<label for="weekEndDisabled">#springFormCheckbox("deliveryTimeEntry.weekEndDisabled") Disable?</label>
+										#end
+									</div>
+								</div>	 
+								<input type="submit" class="small button" value="Set Delivery Times" />
+							</fieldset>       
                         </form>
                     </div>	

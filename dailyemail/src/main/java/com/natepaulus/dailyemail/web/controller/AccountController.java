@@ -25,6 +25,7 @@ import com.natepaulus.dailyemail.repository.entity.DeliverySchedule;
 import com.natepaulus.dailyemail.repository.entity.User;
 import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
 import com.natepaulus.dailyemail.web.exceptions.RssFeedException;
+import com.natepaulus.dailyemail.web.exceptions.ZipCodeException;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 
 // TODO: Auto-generated Javadoc
@@ -62,6 +63,7 @@ public class AccountController {
 
 		if (map != null) {
 			user = accountService.calculateUserDisplayTime(user);
+			String confirmSave = (String) map.get("confirmSave");
 
 			for (DeliverySchedule ds : user.getDeliveryTimes()) {
 				if (ds.getDeliveryDay() == 0) {
@@ -77,7 +79,8 @@ public class AccountController {
 
 			session.setAttribute("user", user);
 			session.setAttribute("deliveryTimeEntry", delTimeEntry);
-
+			
+			model.put("confirmSave", confirmSave);			
 			model.put("user", user);
 			model.put("deliveryTimeEntry", delTimeEntry);
 
@@ -129,7 +132,8 @@ public class AccountController {
 		User user = (User) session.getAttribute("user");
 
 		user = accountService.addNewsLink(url, name, user);
-
+		
+		redirect.addFlashAttribute("confirmSave", "rssLinkSaved");
 		redirect.addFlashAttribute("user", user);
 		return "redirect:/account";
 	}
@@ -154,6 +158,7 @@ public class AccountController {
 		accountService.updateWeatherDeliveryPreference(deliver_pref, user);
 
 		redirect.addFlashAttribute("user", user);
+		redirect.addFlashAttribute("confirmSave", "weatherDeliveryPreferenceSaved");
 		return "redirect:/account";
 	}
 
@@ -170,10 +175,11 @@ public class AccountController {
 	 */
 	@RequestMapping(value = "/account/changezip", method = RequestMethod.POST)
 	public String updateWeatherZipCode(@RequestParam String zipCode,
-			HttpSession session, RedirectAttributes redirect) {
+			HttpSession session, RedirectAttributes redirect) throws ZipCodeException {
 		User user = (User) session.getAttribute("user");
 		accountService.updateUserZipCode(user, zipCode);
 		redirect.addFlashAttribute("user", user);
+		redirect.addFlashAttribute("confirmSave", "zipCodeSaved");
 		return "redirect:/account";
 	}
 
@@ -200,6 +206,7 @@ public class AccountController {
 		user = accountService.setIncludedNewsInformation(news, user);
 
 		redirect.addFlashAttribute("user", user);
+		redirect.addFlashAttribute("confirmSave", "newsDeliverySaved");
 		return "redirect:/account";
 	}
 
@@ -221,6 +228,7 @@ public class AccountController {
 		user = accountService.deleteNewsLink(id, user);
 
 		redirect.addFlashAttribute("user", user);
+		redirect.addFlashAttribute("confirmSave", "rssLinkDeleted");
 		return "redirect:/account";
 	}
 
@@ -255,6 +263,7 @@ public class AccountController {
 
 		redirect.addFlashAttribute("user", user);
 		redirect.addFlashAttribute("deliveryTimeEntry", deliveryTimeEntry);
+		redirect.addFlashAttribute("confirmSave", "deliveryTimesSaved");
 		return "redirect:/account";
 	}
 
@@ -279,7 +288,29 @@ public class AccountController {
 		Map<String, Object> model = new HashMap<String, Object>();
 		model.put("user", user);
 		model.put("deliveryTimeEntry", delTimeEntry);
-		model.put("exception", ex);
+		model.put("rssException", ex);
+
+		return new ModelAndView("account", model);
+	}
+	
+	/**
+	 * Handle zip code exception.
+	 *
+	 * @param ex the ex
+	 * @param request the http request
+	 * @return the model and view
+	 */
+	@ExceptionHandler(ZipCodeException.class)
+	public ModelAndView handleZipCodeException(ZipCodeException ex, HttpServletRequest request){
+		HttpSession session = request.getSession();
+		User user = (User) session.getAttribute("user");
+		DeliveryTimeEntryForm delTimeEntry = (DeliveryTimeEntryForm) session
+				.getAttribute("deliveryTimeEntry");
+
+		Map<String, Object> model = new HashMap<String, Object>();
+		model.put("user", user);
+		model.put("deliveryTimeEntry", delTimeEntry);
+		model.put("zipCodeException", ex);
 
 		return new ModelAndView("account", model);
 	}

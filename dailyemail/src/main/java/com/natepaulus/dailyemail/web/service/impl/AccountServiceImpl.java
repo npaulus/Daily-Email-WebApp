@@ -36,6 +36,7 @@ import com.natepaulus.dailyemail.repository.entity.UserRssFeeds;
 import com.natepaulus.dailyemail.repository.entity.Weather;
 import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
 import com.natepaulus.dailyemail.web.exceptions.RssFeedException;
+import com.natepaulus.dailyemail.web.exceptions.ZipCodeException;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 import com.natepaulus.dailyemail.web.service.interfaces.WeatherService;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -108,7 +109,7 @@ public class AccountServiceImpl implements AccountService {
 	 */
 	@Override
 	@Transactional
-	public User updateUserZipCode(User user, String zipCode) {
+	public User updateUserZipCode(User user, String zipCode) throws ZipCodeException {
 		String zipCodeExp = "\\d{5}(-\\d{4})?";
 		boolean zipIsGood = zipCode.matches(zipCodeExp);
 
@@ -120,7 +121,7 @@ public class AccountServiceImpl implements AccountService {
 			userRepository.save(user);
 
 		} else {
-			// handle error here
+			throw new ZipCodeException("Zip Code is Invalid");
 		}
 
 		return user;

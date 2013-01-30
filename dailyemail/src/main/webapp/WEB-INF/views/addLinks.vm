@@ -1,0 +1,21 @@
+<div class="addLinks">
+	<form name="addNews" action=#springUrl("/account/addNews") method="post">
+		<fieldset>
+			<legend style="padding-bottom:5px;">Add News Sources</legend>
+			<div class="row">
+				<div class="twelve mobile-four columns">
+					#if($confirmSave == "rssLinkSaved") 
+						<div name="rssLinkSaved" id="rssLinkSaved" class="alert-box success saved">RSS Link Added!</div>
+					#end
+					#if($rssException)
+						<small class="error">#springMessageText($rssException.code $rssException.message)</small>
+					#end
+					<label>RSS Feed Information</label>
+					<input type="text" name="name" placeholder="RSS Feed Name" />					
+					<input type="text" name="url" placeholder="RSS Feed URL" />
+				</div>
+			</div>
+			<input type="submit" class="small button" value="Add" />
+		</fieldset>
+	</form>
+</div>

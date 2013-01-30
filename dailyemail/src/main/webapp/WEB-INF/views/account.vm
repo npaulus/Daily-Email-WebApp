@@ -1,119 +1,65 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        #parse("header.vm")
-		<script>
+
+ #parse("header.vm")
+	
+    <body>
+         <div class="row">
+			<div class="twelve columns">
+				<h1>Daily Email Service</h1>
+			</div>    
+		 </div>
+		 
+		 <div class="row">
+            
+            <div class="eleven columns push-one">
+				<div class="row">
+					<div class="five columns">
+						#parse("weatherPreferences.vm")
+						<div class="deliverySettings">
+							<h3>Delivery Settings</h3>
+							#parse("deliverytimes.vm")
+						</div>
+					</div>				
+					<div class="six columns">
+						<h3>News Sources</h3>
+						#parse("newsDelivery.vm")
+						#parse("addLinks.vm")
+					</div>
+				</div>
+			</div>
+			
+			<!-- Nav Sidebar -->
+			<!-- This is source ordered to be pulled to the left on larger screens -->
+			<div class="one columns pull-eleven">
+        
+				<ul class="side-nav">
+					<li><a href=#springUrl("/index")>Home</a></li>
+					<li><a href=#springUrl("/account")>Account</a></li>
+					<li><a href=#springUrl("/logout")>Logout</a></li>
+					<li><a href=#springUrl("/reader")>Reader</a></li>
+				</ul>
+              
+			</div>
+			
+		 </div>
+		  
+					
+			
+		 
+#parse("javascript.vm")
+	<script>
 		function doDelete(theNum) {
 	          if (confirm("Are you sure you want to remove this news link?")){
     		   window.location="#springUrl("/account/deleteNewsLink/")" + theNum;  
             	 }
           }
-		</script>
-    </head>
-    <body>
-        <div class="container_12">
-            <div class="grid_12 header">
-                <h2>Account Settings</h2>
-            </div>
-            <div class="grid_2">
-                <nav>
-                    <ul>
-                        <li>
-                            <a href=#springUrl("/index")>Home</a>
-                        </li>
-                        <li>
-                            <a id="yourhere" href=#springUrl("/account")>Account</a>
-                        </li>                        
-                        <li>
-                            <a href=#springUrl("/logout")>Logout</a>
-                        </li>
-                    </ul>
-                </nav>
-            </div>
-            <div class="grid_5">
-                <div class="weather">
-                    <h3>Weather Settings</h3>
-                    <div class="wxDelivery">
-                        <h5>Set Included Weather Information</h5>
-						
-                        <form name="setWeatherPref" action=#springUrl("/account/weather") method="post">
-							<ul>
-                                #set( $weatherOptLabels = {0 : "No Weather Information", 1 : "Current Conditions", 2 : "Forecast", 3 : "Current Conditions & Forecast"})
-                                #foreach($option in $weatherOptLabels.keySet())
-									<li>
-									<input type="radio" name="deliver_pref" value="$option"
-										#if($user.weather.deliver_pref == $option)
-											checked="checked"
-										#end
-										/>$weatherOptLabels.get($option)
-									</li>
-								#end
-                            </ul>
-                            <input type="submit" value="Set Weather" />
-                        </form>
-                    </div>
-                    <div class="zipcode">
-                        <h5>Update Zipcode</h5>
-                        Current Location (Zipcode): $user.weather.location_name ($user.zipcode)
-                        <form name="changeZip" action=#springUrl("/account/changezip") method="post">
-                            <label>Change Zipcode:</label>
-                            <input type="text" name="zipCode" size="7" />
-                            <input type="submit" value="Update Zipcode" />
-                        </form>
-                    </div>
-                </div>
-                <div class="deliverySettings">
-                    <h3>Delivery Settings</h3>
-                    #parse("deliverytimes.vm")
-                </div>
-            </div>
-            <div class="grid_5">
-                <h3>News Sources</h3>
-                <div class="newsDelivery">
-					<h5>Set Included News Information</h5>
-					 #if(!$user.userRssFeeds.isEmpty())
-						<form name="news" action=#springUrl("/account/news") method="post">
-							<ul>
-							#foreach($link in $user.userRssFeeds)
-								<li>
-								<input type="checkbox" name="news" value="$link.feedId"
-								#if($link.deliver == 1)
-									checked="checked"
-								#end
-								/>
-								$link.feedName <a href="javascript:;" onclick="doDelete($!link.feedId)"><img src=#springUrl("/resources/images/delete.png") /></a>
-								</li>
-							#end
-							
-						<li><br /></li>
-                        <li><input type="submit" value="Save" /></li>
-							</ul>
-                    </form>
-					#else
-						<p>Add some RSS links below to setup news options to include in your daily email.</p>
-					#end
-					 
-                </div>
-                <div class="addLinks">
-					<h5>Add News Sources</h5>
-					#if($exception)
-						#springMessageText($exception.code $exception.message)
-					#end					
-                    <form name="addNews" action=#springUrl("/account/addNews") method="post">
-                        <label>RSS Feed Name</label>
-                        <input type="text" name="name" />
-                        <br />
-                        <label>RSS Feed URL</label>
-                        <input type="text" name="url" />
-                        <br />
-                        <input type="submit" value="Add" />
-                    </form>
-                </div>
-				<div>
-					<a href=#springUrl("/reader")>Reader</a>
-				</div>
-            </div>
-        </div>
-</div>
+	</script>
+	<script>
+		$(document).ready(function() {
+			
+			$(".saved").delay(5000).hide(1000);
+		});
+	</script>
+	
 </body>
 </html>
