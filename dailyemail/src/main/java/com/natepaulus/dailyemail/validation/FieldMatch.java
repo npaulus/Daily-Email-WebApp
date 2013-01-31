@@ -1,7 +1,5 @@
 package com.natepaulus.dailyemail.validation;
 
-import com.natepaulus.dailyemail.validation.FieldMatchValidator;
-
 import javax.validation.Constraint;
 import javax.validation.Payload;
 import java.lang.annotation.Documented;

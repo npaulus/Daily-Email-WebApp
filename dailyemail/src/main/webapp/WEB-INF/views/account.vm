@@ -14,16 +14,16 @@
             <div class="eleven columns push-one">
 				<div class="row">
 					<div class="five columns">
-						#parse("weatherPreferences.vm")
+						#parse("accountTemplates/weatherPreferences.vm")
 						<div class="deliverySettings">
 							<h3>Delivery Settings</h3>
-							#parse("deliverytimes.vm")
+							#parse("accountTemplates/deliverytimes.vm")
 						</div>
 					</div>				
 					<div class="six columns">
 						<h3>News Sources</h3>
-						#parse("newsDelivery.vm")
-						#parse("addLinks.vm")
+						#parse("accountTemplates/newsDelivery.vm")
+						#parse("accountTemplates/addLinks.vm")
 					</div>
 				</div>
 			</div>

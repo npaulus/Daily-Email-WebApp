@@ -16,8 +16,6 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -51,8 +49,8 @@ import com.sun.syndication.io.SyndFeedInput;
 @Service
 public class AccountServiceImpl implements AccountService {
 
-	private final Logger logger = LoggerFactory
-			.getLogger(AccountServiceImpl.class);
+	/*private final Logger logger = LoggerFactory
+			.getLogger(AccountServiceImpl.class);*/
 
 	/** The user repository. */
 	@Resource

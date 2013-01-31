@@ -1,59 +1,7 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		#parse("header.vm")		
-	</head>
+#parse("header.vm")
 	<body>
-		<div class="container_12">
-			<div class="grid_12 header">
-				<h2>Daily Email News Reader</h2>
-			</div>
-			<div class="grid_2">
-                <nav>
-                    <ul>                        
-                       <li>
-                            <a href=#springUrl("/index")>Home</a>
-                        </li>
-                        <li>
-                            <a id="yourhere" href=#springUrl("/account")>Account</a>
-                        </li>                        
-                        <li>
-                            <a href=#springUrl("/logout")>Logout</a>
-                        </li>   
-                    </ul>
-                </nav>
-            </div>
-			<div class="grid_5">
-                <h3>RSS Feeds</h3>
-				<div class="rssfeeds">
-
-					#parse("rss.vm")
-
-				</div>
-				
-            </div>
-			<div class="grid_5">
-				<h3>Social Network Updates</h3>
-				<div class="social">
-                
-				#if(!$facebook)
-				<form action=#springUrl("/connect/facebook") method="POST">
-					
-					<p>You have not created any connections with Facebook yet. Connect to Facebook by clicking on the button.</p>
-					
-					<p><input type="submit" value="Connect to Facebook" /></p>
-					
-				</form>
-				#else
-					<h4>Facebook</h4>
-						#parse("facebook.vm") 						
-				#end
-				</div>				
-            </div>
-			<div class="grid_12 footer">
-				Nate Paulus Copyright &copy; 2012
-            </div>
-		</div>
+		
 	</body>
 </html>
 			

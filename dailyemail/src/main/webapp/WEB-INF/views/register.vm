@@ -1,87 +1,118 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		#parse("header.vm")
-		<script>
-			function check(input) {
-  				if (input.value != document.getElementById('email_addr').value) {
-    				input.setCustomValidity('The two email addresses must match.');
-  				} else {
-    			// input is valid -- reset the error message
-    				input.setCustomValidity('');
-  				}
-			}
-		</script>
-		<link href=#springUrl("/resources/css/register.css") rel="stylesheet" type="text/css" />
-	</head>
-	<body>
-		<div class="container_12">
-			<div class="grid_12">
-				<h2>Sign Up</h2>
-			</div>
-            <div class="grid_2">
-                <nav>
-                    <ul>
-                        <li><a href=#springUrl("/")>Home</a></li>
-                        <li><a href=#springUrl("/login")>Login</a></li>
-                        <li id="yourhere"><a href="#">Sign Up</a></li>
-                    </ul>
-                </nav>
+#parse("header.vm")
+<body>
+    <!-- Page Layout HTML here -->
+    <!-- Header and Nav -->
+    <div class="row">
+        <div class="twelve mobile-four columns">
+            <h1>Daily Email Service</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div class="ten columns push-two">
+            <div class="row">
+                <div class="twelve columns" >					
+                    <div class="row">
+						<div class="six columns offset-by-two">
+					<h3>Register</h3>
+                    #if($userExists)
+                        <small class="error">$userExists</small>
+                    #end
+                    #if($status.errors.hasErrors())
+                        ## Global error messages
+                        #foreach($e in $status.errorMessages)
+                            <p>${e}</p>
+                        #end
+                    #end
+                    <form name="register" action=#springUrl("/register") method="post">
+                        <label for="first_name">First Name:</label>
+                        #springBind("accountSignUp.first_name")
+                        #if($status.error)
+                            #springFormInput("accountSignUp.first_name" " placeholder='First Name' class='error'")
+                            #else
+                                #springFormInput("accountSignUp.first_name" "placeholder='First Name'")
+                        #end
+                        #foreach($error in $status.errorMessages) <small class="error">$error</small>
+                        #end
+                        <!-- <input type="text" id="first_name" name="first_name" required />
+                        -->
+                        <label for="last_name">Last Name:</label>
+                        #springBind("accountSignUp.last_name")
+                        #if($status.error)
+                            #springFormInput("accountSignUp.last_name"  "class='error' placeholder='Last Name'")
+                            #else
+                                #springFormInput("accountSignUp.last_name" "placeholder='Last Name'")
+                        #end
+                        #foreach($error in $status.errorMessages) <small class="error">$error</small>
+						#end
+						
+                        <label for="zipcode">Zip Code:</label>
+                        #springBind("accountSignUp.zipcode")
+                        #if($status.error)
+                            #springFormInput("accountSignUp.zipcode" "class='error' placeholder='Zip Code'")
+                            #else
+                                #springFormInput("accountSignUp.zipcode" "placeholder='Zip Code'")
+                        #end
+                        #foreach($error in $status.errorMessages) <small class="error">$error</small>
+                        #end
+                        <label for="email">Email:</label>
+                        #springBind("accountSignUp.email")
+                        #if($status.error)
+                            #springFormInput("accountSignUp.email" "class='error' placeholder='Email'" )
+                            #else
+                                #springFormInput("accountSignUp.email" "placeholder='Email'")
+                        #end
+                        #foreach($error in $status.errorMessages) <small class="error">$error</small>
+                        #end
+                        <label for="confirm_email">Confirm Email:</label>
+                        #springBind("accountSignUp.confirm_email")
+                        #if($status.error)
+                            #springFormInput("accountSignUp.confirm_email" "class='error' placeholder='Confirm Email'")
+                            #else
+                                #springFormInput("accountSignUp.confirm_email" "placeholder='Confirm Email'")
+                        #end
+                        #foreach($error in $status.errorMessages) <small class="error">$error</small>
+                        #end
+                        <label for="password">Password:</label>
+                        #springBind("accountSignUp.password")
+                        #if($status.error)
+                            #springFormPasswordInput("accountSignUp.password" "class='error' placeholder='Password'")
+                            #else
+                                #springFormPasswordInput("accountSignUp.password" "placeholder='Password'")
+                        #end
+                        #foreach($error in $status.errorMessages) <small class="error">$error</small>
+                        #end
+                        <label for="confirm_password">Confirm Password:</label>
+                        #springBind("accountSignUp.confirm_password")
+                        #if($status.error)
+                            #springFormPasswordInput("accountSignUp.confirm_password" "class='error' placeholder='Confirm Password'")
+                            #else
+                                #springFormPasswordInput("accountSignUp.confirm_password" "placeholder='Confirm Password'")
+                        #end
+                        #foreach($error in $status.errorMessages) <small class="error">$error</small>
+                        #end
+                        <input type="submit" class="small button" value="Register" />
+                    </form>
+						</div>
+					</div>
+                </div>
             </div>
-			<div class="grid_10">
-				#if($userExists)
-					$userExists
-				#end
-				#if($status.errors.hasErrors())
-					## Global error messages
-					#foreach($e in $status.errorMessages)
-						<p>${e}</p>
-					#end
-				#end
-				<form name="register" action=#springUrl("/register") method="post">
-					<label>First Name:</label>
-					#springBind("accountSignUp.first_name")
-					#springShowErrors("<br />", "")
-					#springFormInput("accountSignUp.first_name" )
-					<!-- <input type="text" id="first_name" name="first_name" required /> -->
-					
-					<label>Last Name:</label>
-					#springBind("accountSignUp.last_name")
-					#springShowErrors("<br />", "")
-					#springFormInput("accountSignUp.last_name" )					
-					
-					<label>Zip Code:</label>
-					#springBind("accountSignUp.zipcode")
-					#springShowErrors("<br />", "")
-					#springFormInput("accountSignUp.zipcode" )					
-					
-					<label>Email:</label>
-					#springBind("accountSignUp.email")
-					#springShowErrors("<br />", "")
-					#springFormInput("accountSignUp.email" )					
-					
-					<label>Confirm Email:</label>
-					#springBind("accountSignUp.confirm_email")
-					#springShowErrors("<br />", "")
-					#springFormInput("accountSignUp.confirm_email" )					
-					
-					<label>Password:</label>
-					#springBind("accountSignUp.password")
-					#springShowErrors("<br />", "")
-					#springFormPasswordInput("accountSignUp.password")	
-										
-					<label>Confirm Password:</label>
-					#springBind("accountSignUp.confirm_password")
-					#springShowErrors("<br />", "")
-					#springFormPasswordInput("accountSignUp.confirm_password")	
-										
-					<input type="submit" value="Register" />
-				</form>
-			</div>
-			<div class="grid_12">
-			#include("footer.vm")
-			</div>
-		</div>
-	</body>
-	
-</html>	
+        </div>
+        <div class="two columns pull-ten">
+            <nav>
+                <ul class="side-nav">
+                    <li>
+                        <a href=#springUrl("/index")>Home</a>
+                    </li>
+                    <li>
+                        <a href=#springUrl("/login")>Login</a>
+                    </li>
+                    <li>
+                        <a href=#springUrl("/register")>Register</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</body>
+</html>

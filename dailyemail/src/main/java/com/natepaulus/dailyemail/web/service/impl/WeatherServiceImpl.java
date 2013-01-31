@@ -8,6 +8,7 @@ import java.util.Map;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.springframework.stereotype.Service;
 
 import com.natepaulus.dailyemail.repository.entity.Weather;
@@ -72,14 +73,14 @@ public class WeatherServiceImpl implements WeatherService {
 		zipCode.setFollowRedirects(true);
 		WebResource r = zipCode
 				.resource("http://graphical.weather.gov/xml/sample_products/browser_interface/ndfdXMLclient.php");
-		MultivaluedMap queryParams = new MultivaluedMapImpl();
+		MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
 		queryParams.add("listZipCodeList", zip);
 		r.accept(MediaType.APPLICATION_XML);
 
 		Dwml dwml = r.queryParams(queryParams).get(Dwml.class);
 
 		String result = "";
-		if (!dwml.getLatLonList().equals(null)) {
+		if (StringUtils.isNotBlank(dwml.getLatLonList())) {
 			String[] locationCoordinates = dwml.getLatLonList().split("/s");
 			String[] latLong = locationCoordinates[0].split(",");
 
@@ -88,7 +89,7 @@ public class WeatherServiceImpl implements WeatherService {
 			Client locName = Client.create();
 			WebResource locationName = locName
 					.resource("http://forecast.weather.gov/MapClick.php");
-			MultivaluedMap locationNameParams = new MultivaluedMapImpl();
+			MultivaluedMap<String, String> locationNameParams = new MultivaluedMapImpl();
 			locationNameParams.add("lat", latLong[0]);
 			locationNameParams.add("lon", latLong[1]);
 			locationNameParams.add("unit", "0");

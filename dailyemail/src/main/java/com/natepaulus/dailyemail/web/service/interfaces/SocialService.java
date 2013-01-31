@@ -39,7 +39,7 @@ public interface SocialService {
 	 *            the user
 	 * @return the data for display
 	 */
-	public Map getDataForDisplay(User user);
+	public Map<String, Object> getDataForDisplay(User user);
 
 	/**
 	 * Gets news items from the users RSS feeds and returns them for display

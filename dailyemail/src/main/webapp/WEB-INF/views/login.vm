@@ -1,51 +1,59 @@
 <!DOCTYPE html>
-<html>
-	<head>
-		#parse("header.vm")		
-	</head>
-	<body>
-		<div class="container_12">
-			<div class="grid_12">
-			<h2>Login</h2>
-			</div>
-		<div class="grid_2">
-			<nav>
-				<ul>
-					<li><a href=#springUrl("index")>Home</a></li>
-					<li id="yourhere"><a href=#springUrl("login")>Login</a></li>
-					<li><a href=#springUrl("register")>Register</a></li>                        
-					<li><a href=#springUrl("about")>About</a></li>
-				</ul>
-			</nav>
-		</div>
-		<div class="grid_10">
+#parse("header.vm")		
+<body>
+    <div class="row">
+        <div class="twelve mobile-four columns">
+            <h1>Daily Email Service</h1>
+        </div>
+    </div>
+    <div class="row">        
+        <div class="ten columns push-two">
+            <div class="row">
+				<div class="six columns">
 			<div class="error">
-				#if($exception)
-					#springMessageText($exception.code $exception.message)
-				#end					
+                #if($exception)
+                    #springMessageText($exception.code $exception.message)
+                #end					
+            </div>
+            #if($exception)
+                <small class="error">#springMessageText($exception.code $exception.message)</small>
+            #end
+            <form name="login" action=#springUrl("/login/signin") method="post">
+                <fieldset>
+                    <legend>Login</legend>
+                    <label for="emailAddress">E-Mail Address:</label>
+                    <input type="text" name="emailAddress" class="" />
+                    <label for="pwd">Password:</label>
+                    <input type="password" name="pwd" class="" />
+                    <input type="submit" class="button" value="Login" />
+                </fieldset>
+            </form>
+				</div>
+				<div class="four columns">
+				</div>
 			</div>
-			<form name="login" action=#springUrl("/login/signin") method="post">
-				<table class="center">
-					<tr>
-						<td>E-Mail Address: </td>
-						<td><input type="text" name="emailAddress" /></td>
-					</tr>
-					<tr>
-						<td>Password: </td>
-						<td><input type="password" name="pwd" /></td>
-					</tr>
-					<tr>
-						<td colspan="2" style="text-align:right;">
-							<input type="submit" value="Login" />
-							<input type="label" value="login" name="action" style="display:none" />
-						</td>
-					</tr>
-				</table>
-			</form>
-		</div>
-		<div class="grid_12">
-		#include("footer.vm")
-		</div>
-		</div>
-	</body>
+        </div>
+		<div class="two columns pull-ten">
+            <nav>
+                <ul class="side-nav">
+                    <li>
+                        <a href=#springUrl("/index")>Home</a>
+                    </li>
+                    <li id="yourhere">
+                        <a href=#springUrl("/login")>Login</a>
+                    </li>
+                    <li>
+                        <a href=#springUrl("/register")>Register</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <div class="row">
+        <div class="twelve columns">
+            #include("footer.vm")
+        </div>
+    </div>
+</div>
+</body>
 </html>

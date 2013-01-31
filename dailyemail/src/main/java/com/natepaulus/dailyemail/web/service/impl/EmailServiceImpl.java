@@ -247,6 +247,7 @@ public class EmailServiceImpl implements EmailService {
 				message.setSubject("Daily News & Weather");
 				Map<String, Object> model = new HashMap<String, Object>();
 				model.put("data", data);
+				@SuppressWarnings("deprecation")
 				String messageText = VelocityEngineUtils
 						.mergeTemplateIntoString(velocityEngine, "email.vm",
 								model);

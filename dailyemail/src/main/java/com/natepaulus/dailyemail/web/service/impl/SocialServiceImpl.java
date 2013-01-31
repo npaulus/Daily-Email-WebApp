@@ -172,10 +172,6 @@ public class SocialServiceImpl implements SocialService {
 				newsFeed.setFeedTitle(n.getSource_name());
 				try {
 					
-	                /*URL xmlUrl = new URL(n.getUrl());
-	                XmlReader reader = new XmlReader(xmlUrl);
-	                SyndFeed feed = new SyndFeedInput().build(reader);*/
-					
 					String url = n.getUrl();
 					InputStream is = new URL(url).openConnection().getInputStream();
 					InputSource source = new InputSource(is);

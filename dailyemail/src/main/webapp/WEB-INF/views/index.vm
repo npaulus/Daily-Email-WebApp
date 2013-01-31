@@ -1,46 +1,62 @@
 <!DOCTYPE html>
-<html>
+
+#parse("header.vm")
+
 	<head>
 		#parse("header.vm")		
 	</head>
 	<body>
-		<div class="container_12">
-			<div class="grid_12 header">
-				<h2>Daily Email Service</h2>
-			</div>
-            <div class="grid_2">
+		<!-- Page Layout HTML here -->
+  
+		<!-- Header and Nav -->
+  
+		<div class="row">
+			<div class="twelve mobile-four columns">
+				<h1>Daily Email Service</h1>
+			</div>    
+		</div>
+		
+		<div class="row">
+            
+            <div class="ten columns push-two">
+                <div class="row">
+					<div class="eight columns">
+						<p>This site will allow you to receive weather and RSS feed information in a daily email. You can set as many RSS feeds as you would like. 
+							This is a new service and still considered in alpha since I haven't finished the look and feel on the front end.  Check back often for new features!
+						</p>
+					</div>            	
+					<div class="four columns">				
+						#if($exception)
+							<small class="error">#springMessageText($exception.code $exception.message)</small>
+						#end
+						<form name="login" action=#springUrl("/login/index") method="post">
+							<fieldset>
+								<legend>Login</legend>
+								<label>E-Mail Address:</label>
+								<input type="text" name="emailAddress" />
+								<label>Password:</label> 
+								<input type="password" name="pwd" />
+								<input type="submit" class="button" value="Login" />
+							</fieldset>
+						</form>
+					</div>
+				</div>
+            </div>
+			<div class="two columns pull-ten">
                 <nav>
-                    <ul>
-                        <li id="yourhere"><a href=#springUrl("/index")>Home</a></li>
+                    <ul class="side-nav">
+                        <li><a href=#springUrl("/index")>Home</a></li>
                         <li><a href=#springUrl("/login")>Login</a></li>
-                        <li><a href=#springUrl("/register")>Register</a></li>                        
-                        
+                        <li><a href=#springUrl("/register")>Register</a></li>
                     </ul>
                 </nav>
             </div>
-
-            <div class="grid_7 content">
-                <p>This site will allow you to receive weather and RSS feed information in a daily email. You can set as many RSS feeds as you would like. 
-				  This is a new service and still considered in alpha since I haven't finished the look and feel on the front end.  Check back often for new features!
-				</p>
-            </div>
-			<div class="grid_3">
-				<div class="error">
-				#if($exception)
-					#springMessageText($exception.code $exception.message)
-				#end					
-				</div>
-				<form name="login" action=#springUrl("/login/index") method="post">
-					<label>E-Mail Address:</label>
-					<input type="text" name="emailAddress" />
-					<label>Password:</label> 
-					<input type="password" name="pwd" />
-					<input type="submit" value="Login" />
-				</form>
-            </div>
-             <div class="grid_12 footer">
-            Nate Paulus Copyright &copy; 2012
+			</div>
+			<div class="row">
+            <div class="twelve columns">
+				Nate Paulus Copyright &copy; 2012
             </div>
         </div>
+		#parse("javascript.vm")
     </body>
 </html>
