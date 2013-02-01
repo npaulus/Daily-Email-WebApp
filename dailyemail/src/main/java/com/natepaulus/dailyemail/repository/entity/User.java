@@ -45,7 +45,7 @@ public class User implements Serializable {
 	/** The password. */
 	@Column(name = "password")
 	private String password;
-
+ 
 	/** The zipcode. */
 	@Column
 	private String zipcode;

@@ -100,6 +100,14 @@ public class RssFeeds implements Serializable {
 	public void setUserRssFeeds(Set<UserRssFeeds> userRssFeeds) {
 		this.userRssFeeds = userRssFeeds;
 	}
+
+	@Override
+	public String toString() {
+		return "RssFeeds [id=" + id + ", url=" + url + ", connectFailures="
+				+ connectFailures + ", disabled=" + disabled + ", dateAdded="
+				+ dateAdded + ", rssNewsLinks=" + rssNewsLinks
+				+ ", userRssFeeds=" + userRssFeeds + "]";
+	}
 	
 	
 	

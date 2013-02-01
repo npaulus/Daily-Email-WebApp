@@ -10,6 +10,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import org.hibernate.annotations.Type;
 import org.joda.time.DateTime;
@@ -44,6 +45,9 @@ public class RssNewsLinks implements Serializable, Comparable<RssNewsLinks> {
 	@ManyToOne
 	@JoinColumn(name = "feed_id")
 	private RssFeeds rssFeed;
+	
+	@Transient
+	private String pubDateToDisplay;
 
 	public Long getId() {
 		return id;
@@ -162,5 +166,15 @@ public class RssNewsLinks implements Serializable, Comparable<RssNewsLinks> {
 				+ title + ", link=" + link + ", description=" + description
 				+ ", pubDate=" + pubDate + ", rssFeed=" + rssFeed + "]";
 	}
+
+	public String getPubDateToDisplay() {
+		return pubDateToDisplay;
+	}
+
+	public void setPubDateToDisplay(String pubDateToDisplay) {
+		this.pubDateToDisplay = pubDateToDisplay;
+	}
+
+
 	
 }

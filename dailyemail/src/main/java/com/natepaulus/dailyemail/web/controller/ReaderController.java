@@ -2,6 +2,7 @@ package com.natepaulus.dailyemail.web.controller;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +20,10 @@ import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
+import com.natepaulus.dailyemail.repository.entity.RssFeeds;
+import com.natepaulus.dailyemail.repository.entity.RssNewsLinks;
 import com.natepaulus.dailyemail.repository.entity.User;
+import com.natepaulus.dailyemail.web.service.interfaces.ReaderService;
 import com.natepaulus.dailyemail.web.service.interfaces.SocialService;
 
 /**
@@ -35,6 +39,10 @@ public class ReaderController {
 	/** The social service. */
 	@Autowired
 	SocialService socialService;
+	
+	/** The reader service */
+	@Autowired
+	ReaderService readerService;
 
 	/**
 	 * Display reader.
@@ -56,18 +64,24 @@ public class ReaderController {
 		if (map != null) {
 
 			model.put("user", user);
-
-			model.putAll(socialService.getDataForDisplay(user));
-			model.put("news", socialService.getRssNewsForReader(user));
-			logger.info("Model Data (if): " + model.toString());
+			
+			Map<String, List<RssNewsLinks>> userNewsData = readerService.getNewsForReaderDisplay(user);
+			
+			model.put("userNewsData", userNewsData);
+//			model.putAll(socialService.getDataForDisplay(user));
+//			model.put("news", socialService.getRssNewsForReader(user));
+//			logger.info("Model Data (if): " + model.toString());
 
 			return new ModelAndView("reader", model);
 		} else {
 			User loggedInUser = (User) session.getAttribute("user");
 			model.put("user", loggedInUser);
-			model.putAll(socialService.getDataForDisplay(loggedInUser));
-			model.put("news", socialService.getRssNewsForReader(loggedInUser));
-			logger.info("Model Data (else): " + model.toString());
+			Map<String, List<RssNewsLinks>> userNewsData = readerService.getNewsForReaderDisplay(loggedInUser);
+			
+			model.put("userNewsData", userNewsData);
+//			model.putAll(socialService.getDataForDisplay(loggedInUser));
+//			model.put("news", socialService.getRssNewsForReader(loggedInUser));
+//			logger.info("Model Data (else): " + model.toString());
 			return new ModelAndView("reader", model);
 		}
 

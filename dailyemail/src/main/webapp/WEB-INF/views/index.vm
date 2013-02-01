@@ -1,10 +1,6 @@
 <!DOCTYPE html>
 
 #parse("header.vm")
-
-	<head>
-		#parse("header.vm")		
-	</head>
 	<body>
 		<!-- Page Layout HTML here -->
   

@@ -56,6 +56,7 @@ import com.natepaulus.dailyemail.repository.entity.UserRssFeeds;
 import com.natepaulus.dailyemail.web.domain.EmailData;
 import com.natepaulus.dailyemail.web.domain.NewsFeed;
 import com.natepaulus.dailyemail.web.domain.NewsStory;
+import com.natepaulus.dailyemail.web.service.UserTimeZone;
 import com.natepaulus.dailyemail.web.service.interfaces.EmailService;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
@@ -135,7 +136,7 @@ public class EmailServiceImpl implements EmailService {
 		}
 	}
 	
-	// @Scheduled(cron = "0 0/30 * * * ?")
+	@Scheduled(cron = "0 0/30 * * * ?")
 	public void updateRssFeedLinks(){
 		List<RssFeeds> rssFeeds = rssFeedsRepository.findByDisabled(false);
 		logger.info("Processing rss feeds");
@@ -269,9 +270,8 @@ public class EmailServiceImpl implements EmailService {
 	 * @return the weather conditions
 	 */
 	private EmailData getWeatherConditions(EmailData data, User user) {
-		Set<DeliverySchedule> ds = user.getDeliveryTimes();
-		Iterator<DeliverySchedule> dsI = ds.iterator();
-		String tz = dsI.next().getTz();
+		
+		
 		try {
 
 			URL curCond_ForecastURL = new URL(
@@ -299,18 +299,17 @@ public class EmailServiceImpl implements EmailService {
 
 				DateTimeFormatter fmt = DateTimeFormat
 						.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
-				DateTime xmlTime = fmt.parseDateTime(temp);
+				DateTime xmlTime = fmt.withOffsetParsed().parseDateTime(temp);
 
-				DateTime localTime = xmlTime.withZone(DateTimeZone
-						.forID("America/New_York"));
-				logger.info("TZ: " + tz);
+				DateTime localTime = xmlTime;
+			
 				logger.info("Localtime: " + localTime.toString());
 				DateTimeFormatter outFmt = DateTimeFormat
 						.forPattern("MMM dd',' yyyy h:mm a");
 				logger.info("Printing Local Time with printer: "
-						+ outFmt.print(localTime));
+						+ outFmt.print(xmlTime));
 				data.getWxCurCond()
-						.setLatestObDateTime(outFmt.print(localTime));
+						.setLatestObDateTime(outFmt.print(xmlTime));
 				data.getWxCurCond().setCityState(
 						user.getWeather().getLocation_name());
 
@@ -368,11 +367,12 @@ public class EmailServiceImpl implements EmailService {
 				data.getWxCurCond().setCurWx(
 						(String) exprCCFX.evaluate(docCFX,
 								XPathConstants.STRING));
-
+				DateTimeZone dtz = xmlTime.getZone();
+				logger.info("TimeZone: " + dtz.toString());
 				Location location = new Location(user.getWeather()
 						.getLatitude(), user.getWeather().getLongitude());
 				SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(
-						location, tz);
+						location, dtz.toString());
 				Calendar officialSunrise = calculator
 						.getOfficialSunriseCalendarForDate(Calendar
 								.getInstance());
@@ -384,9 +384,9 @@ public class EmailServiceImpl implements EmailService {
 				DateTime dtSunrise = new DateTime(officialSunrise);
 				DateTime dtSunset = new DateTime(officialSunset);
 				DateTime dtSunriseLocal = dtSunrise.withZone(DateTimeZone
-						.forID(tz));
+						.forID(dtz.toString()));
 				DateTime dtSunsetLocal = dtSunset.withZone(DateTimeZone
-						.forID(tz));
+						.forID(dtz.toString()));
 
 				data.getWxCurCond().setSunRise(
 						dtfSunriseset.print(dtSunriseLocal));

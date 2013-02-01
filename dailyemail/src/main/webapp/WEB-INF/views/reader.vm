@@ -1,7 +1,52 @@
 <!DOCTYPE html>
 #parse("header.vm")
-	<body>
+<body>
+    <div class="row">
+        <div class="twelve columns">
+			<div class="fixed contain-to-grid">
+			<nav class="top-bar">
+				<ul>
+					<li class="name"><h1><a href="#">Reader</a></h1></li>
+					<li class="toggle-topbar"><a href="#"></a></li>
+				</ul>
+				<section>
+					<ul class="left">
+						<li class="divider"></li>
+						<li class="has-dropdown"><a href="#">RSS Feeds</a>
+						<ul class="dropdown">
+							#foreach($feedName in $userNewsData.keySet())
+							<li><a href="#">$feedName</a></li>
+							#end
+						</ul>
+						</li>
+						<li><a href=#springUrl("/index")>Home</a></li>
+						<li><a href=#springUrl("/account")>Account</a></li>
+						<li><a href=#springUrl("/logout")>Logout</a></li>
+					</ul>
+				</section>
+			</nav>
+			</div>
+		</div>
+	</div>
+	<div class="row">
+		<div class="twelve columns">
+				#foreach($feed in $userNewsData.keySet())
+					<div name="$feed" id="$feed" class="news" style="display:block;">
+					<h3>$feed</h3>
+					#set( $feedLinks = $userNewsData.get($feed))
+					#foreach($feedData in $feedLinks)											
+						<p>
+							<a href="$feedData.link">$feedData.title</a> Published: $feedData.pubDateToDisplay<br />
+							$feedData.description
+						</p>					
+					#end
+					</div>					
+				#end
+		</div>
+	</div>
+	#parse("javascript.vm")
+	<script>
 		
-	</body>
+	</script>
+</body>
 </html>
-			

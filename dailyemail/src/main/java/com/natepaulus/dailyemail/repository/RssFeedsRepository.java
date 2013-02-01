@@ -12,4 +12,6 @@ public interface RssFeedsRepository extends JpaRepository<RssFeeds, Long>{
 	
 	List<RssFeeds> findByDisabled(boolean disabled);
 	
+	
+	
 }
