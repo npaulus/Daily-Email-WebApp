@@ -1,10 +1,8 @@
 package com.natepaulus.dailyemail.web.service.interfaces;
 
-import java.util.ArrayList;
 import java.util.Map;
 
 import com.natepaulus.dailyemail.repository.entity.User;
-import com.natepaulus.dailyemail.web.domain.NewsFeed;
 
 /**
  * The Interface SocialService.

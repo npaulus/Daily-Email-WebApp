@@ -56,7 +56,6 @@ import com.natepaulus.dailyemail.repository.entity.UserRssFeeds;
 import com.natepaulus.dailyemail.web.domain.EmailData;
 import com.natepaulus.dailyemail.web.domain.NewsFeed;
 import com.natepaulus.dailyemail.web.domain.NewsStory;
-import com.natepaulus.dailyemail.web.service.UserTimeZone;
 import com.natepaulus.dailyemail.web.service.interfaces.EmailService;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
