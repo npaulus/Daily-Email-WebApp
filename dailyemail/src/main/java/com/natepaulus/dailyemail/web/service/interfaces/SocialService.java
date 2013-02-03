@@ -41,13 +41,5 @@ public interface SocialService {
 	 */
 	public Map<String, Object> getDataForDisplay(User user);
 
-	/**
-	 * Gets news items from the users RSS feeds and returns them for display
-	 * 
-	 * @param user
-	 *            the user
-	 * @return the rss news for the user
-	 */
-	public ArrayList<NewsFeed> getRssNewsForReader(User user);
 
 }

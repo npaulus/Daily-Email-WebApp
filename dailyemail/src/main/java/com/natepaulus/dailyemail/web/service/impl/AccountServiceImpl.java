@@ -21,7 +21,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.xml.sax.InputSource;
 
-import com.natepaulus.dailyemail.repository.NewsRepository;
 import com.natepaulus.dailyemail.repository.RssFeedsRepository;
 import com.natepaulus.dailyemail.repository.UserRepository;
 import com.natepaulus.dailyemail.repository.UserRssFeedsRepository;
@@ -67,10 +66,6 @@ public class AccountServiceImpl implements AccountService {
 	/** The User Rss Feeds repository */
 	@Resource
 	private UserRssFeedsRepository userRssFeedsRepository;
-
-	/** The news repository. */
-	@Resource
-	private NewsRepository newsRepository;
 
 	/** The weather service. */
 	@Autowired

@@ -54,10 +54,6 @@ public class User implements Serializable {
 	@OneToOne(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
 	private Weather weather;
 
-	/** The news links the user has added to their account. */
-	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<NewsLink> newsLink;
-
 	/** The delivery times a user has set to receive their email. */
 	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
 	private Set<DeliverySchedule> deliveryTimes;
@@ -88,25 +84,6 @@ public class User implements Serializable {
 	 */
 	public void setDeliveryTimes(Set<DeliverySchedule> deliveryTimes) {
 		this.deliveryTimes = deliveryTimes;
-	}
-
-	/**
-	 * Gets the news links.
-	 * 
-	 * @return the news links
-	 */
-	public Set<NewsLink> getNewsLink() {
-		return newsLink;
-	}
-
-	/**
-	 * Sets the news links.
-	 * 
-	 * @param newsLink
-	 *            the new news links
-	 */
-	public void setNewsLink(Set<NewsLink> newsLink) {
-		this.newsLink = newsLink;
 	}
 
 	/**

@@ -15,7 +15,11 @@
 						<li class="has-dropdown"><a href="#">RSS Feeds</a>
 						<ul class="dropdown">
 							#foreach($feedName in $userNewsData.keySet())
-							<li><a href="#">$feedName</a></li>
+								#foreach($feed in $userNewsData.get($feedName))
+										#set($feedId = $feed.feedId)
+								#end
+								
+							<li><a href="javascript:;" onclick="displayNewsSource('#a${feedId}')">$feedName</a></li>
 							#end
 						</ul>
 						</li>
@@ -30,8 +34,18 @@
 	</div>
 	<div class="row">
 		<div class="twelve columns">
+			#set($count = 0)
 				#foreach($feed in $userNewsData.keySet())
-					<div name="$feed" id="$feed" class="news" style="display:block;">
+					#set($feedIds = $userNewsData.get($feed))
+								#foreach($feeds in $feedIds)
+									#set( $feedId = $feeds.feedId)
+								#end		
+					#if($count == 0)
+					<div name="a${feedId}" id="a${feedId}" class="news" style="display:block;">
+					#else
+					<div name="a${feedId}" id="a${feedId}" class="news" style="display:none;">
+					#end
+					#set($count = $count + 1)
 					<h3>$feed</h3>
 					#set( $feedLinks = $userNewsData.get($feed))
 					#foreach($feedData in $feedLinks)											
@@ -46,7 +60,15 @@
 	</div>
 	#parse("javascript.vm")
 	<script>
-		
+		$(document).ready(function() {
+			
+			
+		});
+	</script>
+	<script>
+	function displayNewsSource(feedName){
+				$(".news").hide();
+				$(feedName).show();			}
 	</script>
 </body>
 </html>

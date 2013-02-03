@@ -1,11 +1,8 @@
 package com.natepaulus.dailyemail.web.service.impl;
 
-import java.io.InputStream;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,19 +22,12 @@ import org.springframework.social.oauth2.GrantType;
 import org.springframework.social.oauth2.OAuth2Operations;
 import org.springframework.social.oauth2.OAuth2Parameters;
 import org.springframework.stereotype.Service;
-import org.xml.sax.InputSource;
 
 import com.natepaulus.dailyemail.repository.SocialNetworkDataRepository;
 import com.natepaulus.dailyemail.repository.UserRepository;
-import com.natepaulus.dailyemail.repository.entity.NewsLink;
 import com.natepaulus.dailyemail.repository.entity.SocialNetworkData;
 import com.natepaulus.dailyemail.repository.entity.User;
-import com.natepaulus.dailyemail.web.domain.NewsFeed;
-import com.natepaulus.dailyemail.web.domain.NewsStory;
 import com.natepaulus.dailyemail.web.service.interfaces.SocialService;
-import com.sun.syndication.feed.synd.SyndEntry;
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.io.SyndFeedInput;
 
 /**
  * The Class SocialServiceImpl.
@@ -159,52 +149,4 @@ public class SocialServiceImpl implements SocialService {
 
 	}
 
-	/* (non-Javadoc)
-	 * @see com.natepaulus.dailyemail.web.service.interfaces.SocialService#getRssNewsForReader(com.natepaulus.dailyemail.repository.User)
-	 */
-	@Override
-	public ArrayList<NewsFeed> getRssNewsForReader(User user) {
-		
-		ArrayList<NewsFeed> newsFeeds = new ArrayList<NewsFeed>();
-		for(NewsLink n : user.getNewsLink()){
-			
-				NewsFeed newsFeed = new NewsFeed();
-				newsFeed.setFeedTitle(n.getSource_name());
-				try {
-					
-					String url = n.getUrl();
-					InputStream is = new URL(url).openConnection().getInputStream();
-					InputSource source = new InputSource(is);
-					SyndFeedInput input = new SyndFeedInput();
-					SyndFeed feed = input.build(source);
-					
-	                @SuppressWarnings("rawtypes")
-					Iterator iFeed = feed.getEntries().iterator();
-	                int count = 0;
-	                int max = 5;
-	                
-	                while(iFeed.hasNext() && count < max) {
-	                    
-	                	SyndEntry entry = (SyndEntry) iFeed.next();
-	                    String title = entry.getTitle();
-	                    logger.info("Article Title: " + title);
-	                    String link = entry.getLink();
-	                    String desc = entry.getDescription().getValue().replaceAll("\\<.*?>", "");
-	                    NewsStory newsStory = new NewsStory(title, link, desc);
-	                    newsFeed.getNewsStories().add(newsStory);
-	                    count++;
-	                    
-	                }              
-	                
-	            } catch (Exception ex) {
-	                ex.printStackTrace();
-	            }
-				
-				newsFeeds.add(newsFeed);
-			
-		}
-		
-		
-		return newsFeeds;
-	}
 }
