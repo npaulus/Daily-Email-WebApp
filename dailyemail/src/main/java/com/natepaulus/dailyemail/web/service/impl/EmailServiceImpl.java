@@ -61,7 +61,6 @@ import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
 
-
 /**
  * The Class EmailServiceImpl checks every minute to see if any users have
  * requested their email at that time. If it finds any users it then builds and
@@ -76,11 +75,11 @@ public class EmailServiceImpl implements EmailService {
 	/** The delivery schedule repository. */
 	@Resource
 	DeliveryScheduleRepository deliveryScheduleRepository;
-	
+
 	/** The Rss Feeds Repository */
 	@Resource
 	RssFeedsRepository rssFeedsRepository;
-	
+
 	/** The User Rss Feeds Repository */
 	@Resource
 	RssNewsLinksRepository rssNewsLinksRepository;
@@ -104,28 +103,47 @@ public class EmailServiceImpl implements EmailService {
 		logger.info("Retrieving List of users to email");
 		int dayOfWeek = -1;
 		DateTime currentTime = new DateTime();
-		logger.info("Day of Week: " + currentTime.getDayOfWeek());
 
-		int currentDayOfWeek = currentTime.getDayOfWeek();
-
-		if (currentDayOfWeek == 7 || currentDayOfWeek == 6) {
-			dayOfWeek = 1;
-		} else {
-			dayOfWeek = 0;
-		}
-
-		logger.info("Selected dayOfWeek: " + dayOfWeek);
-
-		LocalTime currentLocalTime = currentTime.toLocalTime();
-		LocalTime lt = currentLocalTime.withSecondOfMinute(0)
-				.withMillisOfSecond(0);
-
-		List<DeliverySchedule> ds = deliveryScheduleRepository
-				.findByTimeAndDeliveryDay(lt, dayOfWeek);
+		List<DeliverySchedule> allDeliverySchedules = deliveryScheduleRepository
+				.findAll();
 		List<User> users = new ArrayList<User>();
-		for (DeliverySchedule d : ds) {
-			users.add(d.getUser());
-			logger.info("Found a user");
+
+		for (DeliverySchedule d : allDeliverySchedules) {
+			// get current time in user's local date & time
+			DateTime currentLocalTime = currentTime.withSecondOfMinute(0)
+					.withMillisOfSecond(0)					
+					.withZone(DateTimeZone.forID(d.getTz()));
+
+			int currentDayOfWeek = currentLocalTime.getDayOfWeek();
+
+			if (currentDayOfWeek == 7 || currentDayOfWeek == 6) {
+				dayOfWeek = 1;
+			} else {
+				dayOfWeek = 0;
+			}
+
+			LocalTime userSetTime = d.getTime(); // user's set time
+			
+			// convert local time to today's time & date and user's local time &
+			// date
+			DateTime userSetTimeDateTime = userSetTime.toDateTimeToday()
+					.withZone(DateTimeZone.UTC);
+			DateTime userLocalSetTime = userSetTimeDateTime
+					.withZone(DateTimeZone.forID(d.getTz()));
+			
+			logger.info("before IF userLocalSetTime: " + userLocalSetTime.toString());
+			logger.info("before IF currentLocalTime: " + currentLocalTime.toString());
+			
+			// check if current time equals user set time for today's date
+			if (userLocalSetTime.equals(currentLocalTime)) {
+				logger.info("Inside If statement");
+				// if the delivery day (weekend or weekday) equals the delivery
+				// day in the schedule add user to list
+				if (d.getDeliveryDay() == dayOfWeek) {
+					users.add(d.getUser());
+					logger.info("Added user: " + d.getUser().getEmail());
+				}
+			}
 		}
 
 		Iterator<User> userIterator = users.iterator();
@@ -133,19 +151,21 @@ public class EmailServiceImpl implements EmailService {
 			User user = userIterator.next();
 			sendEmail(user);
 		}
+
 	}
-	
+
 	@Scheduled(cron = "0 0/30 * * * ?")
-	public void updateRssFeedLinks(){
+	public void updateRssFeedLinks() {
 		List<RssFeeds> rssFeeds = rssFeedsRepository.findByDisabled(false);
 		logger.info("Processing rss feeds");
-		for(RssFeeds rssFeed : rssFeeds){
-			
+		for (RssFeeds rssFeed : rssFeeds) {
+
 			Set<RssNewsLinks> rssLinks = new HashSet<RssNewsLinks>();
-			
+
 			try {
 
-				URLConnection connection = new URL(rssFeed.getUrl()).openConnection();
+				URLConnection connection = new URL(rssFeed.getUrl())
+						.openConnection();
 				connection
 						.setRequestProperty(
 								"User-Agent",
@@ -168,9 +188,10 @@ public class EmailServiceImpl implements EmailService {
 					link.setLink(entry.getLink());
 					link.setDescription(entry.getDescription().getValue()
 							.replaceAll("\\<.*?>", ""));
-					
+
 					Date publicationDate = entry.getPublishedDate();
-					if(publicationDate == null){ // feed doesn't have published date
+					if (publicationDate == null) { // feed doesn't have
+													// published date
 						publicationDate = new Date();
 					}
 					DateTime publishedDate = new DateTime(publicationDate);
@@ -179,30 +200,34 @@ public class EmailServiceImpl implements EmailService {
 					rssLinks.add(link);
 
 				}
-				Set<RssNewsLinks> currentLinksInFeed = rssFeed.getRssNewsLinks();
+				Set<RssNewsLinks> currentLinksInFeed = rssFeed
+						.getRssNewsLinks();
 				currentLinksInFeed.addAll(rssLinks);
 				rssFeed.setRssNewsLinks(currentLinksInFeed);
 				rssFeedsRepository.save(rssFeed);
 				logger.info("Saved " + rssFeed.getId());
-				
+
 			} catch (Exception ex) {
 				int rssFeedConnectFailures = rssFeed.getConnectFailures();
 				rssFeedConnectFailures += 1;
 				rssFeed.setConnectFailures(rssFeedConnectFailures);
-				if(rssFeed.getConnectFailures() >= 3){
+				if (rssFeed.getConnectFailures() >= 3) {
 					rssFeed.setDisabled(true);
-					logger.info("The following feed ID was just disabled for too many failed connect attempts: " + rssFeed.getId());
-					sendErrorEmail("The following feed ID was just disabled for too many failed connect attempts: " + rssFeed.getId());
+					logger.info("The following feed ID was just disabled for too many failed connect attempts: "
+							+ rssFeed.getId());
+					sendErrorEmail("The following feed ID was just disabled for too many failed connect attempts: "
+							+ rssFeed.getId());
 				}
-				logger.error("There was a parsing issue for: " + rssFeed.getId(), ex);				
+				logger.error(
+						"There was a parsing issue for: " + rssFeed.getId(), ex);
 			}
-			
+
 		}
-		
+
 	}
 
-	private void sendErrorEmail(final String errorMessage){
-		
+	private void sendErrorEmail(final String errorMessage) {
+
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
 
 			@Override
@@ -212,14 +237,14 @@ public class EmailServiceImpl implements EmailService {
 				message.setTo("nate@natepaulus.com");
 				message.setFrom("dailyemail@natepaulus.com");
 				message.setSubject("Error - Daily News & Weather");
-								
+
 				message.setText(errorMessage, true);
 			}
 		};
 		this.sender.send(preparator);
 		logger.info("Error Message sent!");
 	}
-	
+
 	/**
 	 * Send email to the user with the data they have requested.
 	 * 
@@ -260,7 +285,8 @@ public class EmailServiceImpl implements EmailService {
 	}
 
 	/**
-	 * Gets the weather conditions from the National Weather Service experimental forecast feed.
+	 * Gets the weather conditions from the National Weather Service
+	 * experimental forecast feed.
 	 * 
 	 * @param data
 	 *            the EmailData object to add the weather conditions to
@@ -269,8 +295,7 @@ public class EmailServiceImpl implements EmailService {
 	 * @return the weather conditions
 	 */
 	private EmailData getWeatherConditions(EmailData data, User user) {
-		
-		
+
 		try {
 
 			URL curCond_ForecastURL = new URL(
@@ -301,14 +326,13 @@ public class EmailServiceImpl implements EmailService {
 				DateTime xmlTime = fmt.withOffsetParsed().parseDateTime(temp);
 
 				DateTime localTime = xmlTime;
-			
+
 				logger.info("Localtime: " + localTime.toString());
 				DateTimeFormatter outFmt = DateTimeFormat
 						.forPattern("MMM dd',' yyyy h:mm a");
 				logger.info("Printing Local Time with printer: "
 						+ outFmt.print(xmlTime));
-				data.getWxCurCond()
-						.setLatestObDateTime(outFmt.print(xmlTime));
+				data.getWxCurCond().setLatestObDateTime(outFmt.print(xmlTime));
 				data.getWxCurCond().setCityState(
 						user.getWeather().getLocation_name());
 
@@ -433,19 +457,22 @@ public class EmailServiceImpl implements EmailService {
 	 * @return the news stories for email
 	 */
 	private EmailData getNewsStoriesForEmail(EmailData data, User user) {
-		
+
 		Set<UserRssFeeds> userRssFeeds = user.getUserRssFeeds();
 		Pageable topFiveArticlesByDate = new PageRequest(0, 5);
-		
+
 		for (UserRssFeeds userRssFeed : userRssFeeds) {
 			if (userRssFeed.getDeliver() == 1) {
 				NewsFeed newsFeed = new NewsFeed();
 				newsFeed.setFeedTitle(userRssFeed.getFeedName());
-				List<RssNewsLinks> articles =  rssNewsLinksRepository.findByFeedIdOrderByPubDateDesc(userRssFeed.getFeedId(), topFiveArticlesByDate);
-				for(RssNewsLinks r : articles){
-					NewsStory newsStory = new NewsStory(r.getTitle(), r.getLink(), r.getDescription());
+				List<RssNewsLinks> articles = rssNewsLinksRepository
+						.findByFeedIdOrderByPubDateDesc(
+								userRssFeed.getFeedId(), topFiveArticlesByDate);
+				for (RssNewsLinks r : articles) {
+					NewsStory newsStory = new NewsStory(r.getTitle(),
+							r.getLink(), r.getDescription());
 					newsFeed.getNewsStories().add(newsStory);
-				}				
+				}
 
 				data.getNewsFeeds().add(newsFeed);
 			}
