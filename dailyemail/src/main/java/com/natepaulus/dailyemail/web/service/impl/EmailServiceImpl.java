@@ -126,17 +126,17 @@ public class EmailServiceImpl implements EmailService {
 			
 			// convert local time to today's time & date and user's local time &
 			// date
-			DateTime userSetTimeDateTime = userSetTime.toDateTimeToday()
+			DateTime userSetTimeDateTime = userSetTime.toDateTimeToday()					
 					.withZone(DateTimeZone.UTC);
 			DateTime userLocalSetTime = userSetTimeDateTime
 					.withZone(DateTimeZone.forID(d.getTz()));
 			
-			logger.info("before IF userLocalSetTime: " + userLocalSetTime.toString());
-			logger.info("before IF currentLocalTime: " + currentLocalTime.toString());
+			/*logger.info("before IF userLocalSetTime: " + userLocalSetTime.toString());
+			logger.info("before IF currentLocalTime: " + currentLocalTime.toString());*/
 			
 			// check if current time equals user set time for today's date
 			if (userLocalSetTime.equals(currentLocalTime)) {
-				logger.info("Inside If statement");
+				logger.info("User's local set time is equal to current local time.");
 				// if the delivery day (weekend or weekday) equals the delivery
 				// day in the schedule add user to list
 				if (d.getDeliveryDay() == dayOfWeek) {
