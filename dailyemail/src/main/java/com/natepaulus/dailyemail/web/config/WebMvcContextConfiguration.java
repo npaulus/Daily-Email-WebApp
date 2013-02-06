@@ -96,8 +96,8 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 	@Override
 	public void configureHandlerExceptionResolvers(
 			List<HandlerExceptionResolver> exceptionResolvers) {
-		exceptionResolvers.add(simpleMappingExceptionResolver());
 		exceptionResolvers.add(exceptionHandlerExceptionResolver());
+		exceptionResolvers.add(simpleMappingExceptionResolver());		
 	}
 
 	/**
