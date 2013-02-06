@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 	<html>
-		<head>
-			<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
-		</head>
+		<header>
+				<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+		</head>	
+			
 		<body>
-			<b>Current Weather Conditions:</b>
-			<br />
+			#if($data.wxCurCond.cityState)
+			<b>Current Weather Conditions:</b><br />
 			<br />
 			Location: $data.wxCurCond.cityState<br />
 			Weather Station: $data.wxCurCond.weatherStation<br />
@@ -29,6 +30,10 @@
 			#end
 			<br />
 			<br />
+			#else
+					<p>We're sorry, but our weather sources are currently unavailable.</p>
+			#end
+			
 			#foreach($newsFeed in $data.newsFeeds)
 				<b>$newsFeed.feedTitle</b>
 				<br />
@@ -39,6 +44,5 @@
 				#end				
 				<br />
 			#end
-			
 		</body>
 	</html>

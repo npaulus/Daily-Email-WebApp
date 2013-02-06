@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.servlet.ModelAndView;
@@ -22,6 +23,8 @@ import org.springframework.web.servlet.support.RequestContextUtils;
 
 import com.natepaulus.dailyemail.repository.entity.RssNewsLinks;
 import com.natepaulus.dailyemail.repository.entity.User;
+import com.natepaulus.dailyemail.web.domain.EmailData;
+import com.natepaulus.dailyemail.web.service.interfaces.EmailService;
 import com.natepaulus.dailyemail.web.service.interfaces.ReaderService;
 import com.natepaulus.dailyemail.web.service.interfaces.SocialService;
 
@@ -42,6 +45,10 @@ public class ReaderController {
 	/** The reader service */
 	@Autowired
 	ReaderService readerService;
+	
+	/** The email service. */
+	@Autowired
+	EmailService emailService;
 
 	/**
 	 * Display reader.
@@ -138,5 +145,7 @@ public class ReaderController {
 		redirect.addFlashAttribute("user", user);
 		return "redirect:/reader";
 	}
+	
+
 
 }

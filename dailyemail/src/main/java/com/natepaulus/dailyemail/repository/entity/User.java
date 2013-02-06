@@ -2,6 +2,7 @@ package com.natepaulus.dailyemail.repository.entity;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -14,7 +15,11 @@ import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.Sort;
+import org.hibernate.annotations.SortType;
 
+
+// TODO: Auto-generated Javadoc
 /**
  * The Class User represents a user of the daily email web application. This is
  * used to persist the user data to the database
@@ -49,6 +54,10 @@ public class User implements Serializable {
 	/** The zipcode. */
 	@Column
 	private String zipcode;
+	
+	/** The url code for quick email access. */
+	@Column(name = "url_code")
+	private String urlCode;
 
 	/** The weather preferences. */
 	@OneToOne(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
@@ -64,7 +73,8 @@ public class User implements Serializable {
 	
 	/** The user's rss feeds. */
 	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-	private Set<UserRssFeeds> userRssFeeds;
+	@Sort(type=SortType.NATURAL)
+	private SortedSet<UserRssFeeds> userRssFeeds;
 	
 
 	/**
@@ -244,7 +254,7 @@ public class User implements Serializable {
 	 *
 	 * @return the user rss feeds
 	 */
-	public Set<UserRssFeeds> getUserRssFeeds() {
+	public SortedSet<UserRssFeeds> getUserRssFeeds() {
 		return userRssFeeds;
 	}
 
@@ -253,8 +263,27 @@ public class User implements Serializable {
 	 *
 	 * @param userRssFeeds the new user rss feeds
 	 */
-	public void setUserRssFeeds(Set<UserRssFeeds> userRssFeeds) {
+	public void setUserRssFeeds(SortedSet<UserRssFeeds> userRssFeeds) {
 		this.userRssFeeds = userRssFeeds;
+	}
+	
+	
+	/**
+	 * Gets the url code.
+	 *
+	 * @return the url code
+	 */
+	public String getUrlCode() {
+		return urlCode;
+	}
+
+	/**
+	 * Sets the url code.
+	 *
+	 * @param urlCode the new url code
+	 */
+	public void setUrlCode(String urlCode) {
+		this.urlCode = urlCode;
 	}
 
 	/*

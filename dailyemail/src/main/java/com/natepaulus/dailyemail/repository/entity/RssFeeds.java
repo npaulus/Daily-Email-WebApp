@@ -2,6 +2,7 @@ package com.natepaulus.dailyemail.repository.entity;
 
 import java.io.Serializable;
 import java.util.Set;
+import java.util.SortedSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -97,7 +98,7 @@ public class RssFeeds implements Serializable {
 		return userRssFeeds;
 	}
 
-	public void setUserRssFeeds(Set<UserRssFeeds> userRssFeeds) {
+	public void setUserRssFeeds(SortedSet<UserRssFeeds> userRssFeeds) {
 		this.userRssFeeds = userRssFeeds;
 	}
 

@@ -1,0 +1,30 @@
+#if(!$user.urlCode)
+<div class="generateUrlCode">
+	#if($confirmSave == "urlDeleted") 
+		<div name="urlDeleted" id="urlDeleted" class="alert-box success saved">URL Deleted!</div>
+	#end
+	<form name="urlcode" action=#springUrl("/account/generateUrlCode") method="post">
+		<fieldset>
+			<legend>Generate URL for Email Quick View</legend>
+			<p>Generate a unique URL that you can bookmark to view your most up to date Daily Email any time, from any device</p>
+			<input type="submit" class="small button" value="Generate URL" />
+		</fieldset>
+	</form>	
+</div>
+#else
+<div class="existingUrlCode">
+	#if($confirmSave == "urlGenerated") 
+		<div name="urlGenerated" id="urlGenerated" class="alert-box success saved">URL Generated!</div>
+	#end
+	<form name="urlcode" action=#springUrl("/account/deleteUrlCode") method="post">
+		<fieldset>
+			<legend>Current URL</legend>
+			<p>Bookmark this 
+			<a href="http://tempnate.dyndns-free.com:8080#springUrl('/quickview/')${user.urlCode}" target="_blank">
+				link</a> for quick access to your daily email.
+			</p>
+			<input type="submit" class="small button" value="Delete URL" />	
+		</fieldset>
+	</form>	
+</div>
+#end

@@ -50,7 +50,7 @@
 					#set( $feedLinks = $userNewsData.get($feed))
 					#foreach($feedData in $feedLinks)											
 						<p>
-							<a href="$feedData.link">$feedData.title</a> Published: $feedData.pubDateToDisplay<br />
+							<a href="$feedData.link" target="_blank">$feedData.title</a> Published: $feedData.pubDateToDisplay<br />
 							$feedData.description
 						</p>					
 					#end

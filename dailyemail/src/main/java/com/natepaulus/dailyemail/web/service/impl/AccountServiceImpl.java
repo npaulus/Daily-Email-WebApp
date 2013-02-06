@@ -7,6 +7,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.annotation.Resource;
 
@@ -34,6 +35,7 @@ import com.natepaulus.dailyemail.repository.entity.Weather;
 import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
 import com.natepaulus.dailyemail.web.exceptions.RssFeedException;
 import com.natepaulus.dailyemail.web.exceptions.ZipCodeException;
+import com.natepaulus.dailyemail.web.service.UrlCodeGenerator;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 import com.natepaulus.dailyemail.web.service.interfaces.WeatherService;
 import com.sun.syndication.feed.synd.SyndEntry;
@@ -139,7 +141,7 @@ public class AccountServiceImpl implements AccountService {
 			rssFeed.setDateAdded(dt);
 			rssFeed.setDisabled(false);
 			rssFeed.setRssNewsLinks(new HashSet<RssNewsLinks>());
-			rssFeed.setUserRssFeeds(new HashSet<UserRssFeeds>());
+			rssFeed.setUserRssFeeds(new TreeSet<UserRssFeeds>());
 			rssFeed.setUrl(url);
 						
 			Set<RssNewsLinks> rssLinks = new HashSet<RssNewsLinks>();
@@ -318,6 +320,27 @@ public class AccountServiceImpl implements AccountService {
 		}
 
 		return user;
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.AccountService#generateUrlCode(com.natepaulus.dailyemail.repository.entity.User)
+	 */
+	public User generateUrlCode(User user){
+		
+		UrlCodeGenerator ucg = new UrlCodeGenerator();
+		user.setUrlCode(ucg.nextSessionId());
+		
+		return userRepository.save(user);
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.AccountService#deleteUrlCode(com.natepaulus.dailyemail.repository.entity.User)
+	 */
+	public User deleteUrlCode(User user){
+		
+		user.setUrlCode(null);
+		
+		return userRepository.save(user);
 	}
 
 	/**

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+
+	#parse("header.vm")
+	<body>
+	<div class="row">
+		<div class="twelve mobile-four columns">
+		<h2>Oops!  We encountered an error!</h2>
+		</div>
+	</div>
+	<div class="row">		
+		<div class="two mobile-one columns">
+			<nav>
+				<ul class="side-nav">
+					<li><a href=#springUrl("/index")>Home</a></li>
+					<li><a href=#springUrl("/login")>Login</a></li>
+					<li><a href=#springUrl("/register")>Register</a></li>
+				</ul>
+			</nav>
+		</div>
+		<div class="ten mobile-three columns">
+			<p>An error occurred.  Please user the menu to navigate to an appropriate page.  The error has been logged for further review.</p>
+		</div>
+	</div>
+	</body>
+</html>
+			

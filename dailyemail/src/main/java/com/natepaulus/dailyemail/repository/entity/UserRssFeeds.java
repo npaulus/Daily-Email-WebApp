@@ -15,7 +15,7 @@ import javax.persistence.Table;
 @SuppressWarnings("serial")
 @Entity
 @Table(name = "user_rss_feeds")
-public class UserRssFeeds implements Serializable {
+public class UserRssFeeds implements Serializable, Comparable<UserRssFeeds> {
 
 	@Id
 	@Column
@@ -97,6 +97,51 @@ public class UserRssFeeds implements Serializable {
 	public void setDeliver(int deliver) {
 		this.deliver = deliver;
 	}
+	
+	
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((feedName == null) ? 0 : feedName.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((userId == null) ? 0 : userId.hashCode());
+		return result;
+	}
 
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		UserRssFeeds other = (UserRssFeeds) obj;
+		if (feedName == null) {
+			if (other.feedName != null)
+				return false;
+		} else if (!feedName.equals(other.feedName))
+			return false;
+		if (id == null) {
+			if (other.id != null)
+				return false;
+		} else if (!id.equals(other.id))
+			return false;
+		if (userId == null) {
+			if (other.userId != null)
+				return false;
+		} else if (!userId.equals(other.userId))
+			return false;
+		return true;
+	}
+
+	@Override
+	public int compareTo(UserRssFeeds u) {
+		int feedNameCompare = feedName.compareTo(u.getFeedName());
+		return feedNameCompare;
+	}
 		
 }

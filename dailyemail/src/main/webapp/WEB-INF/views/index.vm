@@ -17,8 +17,22 @@
             <div class="ten columns push-two">
                 <div class="row">
 					<div class="eight columns">
-						<p>This site will allow you to receive weather and RSS feed information in a daily email. You can set as many RSS feeds as you would like. 
-							This is a new service and still considered in alpha since I haven't finished the look and feel on the front end.  Check back often for new features!
+						<p>
+							The Daily Email Service is designed to keep you informed with only the news and weather you want to see!  
+							It isn't limited to just email.  You have the option of using the RSS reader or setting up a personalized link that generates your email 
+							anytime!  The website is optimized for mobile devices as well making it easy to read on the go.  <a href=#springUrl("/register")>Register today!</a> <br />
+
+							<br />
+							<h5>Key Features</h5>
+							<ul>
+								<li>Schedule daily email delivery of customized information</li>
+								<li>Subscribe to RSS feeds you want to follow</li>
+								<li>Receive weather information from the National Weather Service</li>
+								<li>Use the RSS reader to view your feeds any time</li>
+								<li>Create a unique link to view your daily email on the go</li>
+							</ul>
+							<br />
+							We're constantly adding new features so please check back frequently!
 						</p>
 					</div>            	
 					<div class="four columns">				
@@ -49,7 +63,7 @@
             </div>
 			</div>
 			<div class="row">
-            <div class="twelve columns">
+            <div class="three columns push-nine">
 				Nate Paulus Copyright &copy; 2012
             </div>
         </div>

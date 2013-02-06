@@ -24,6 +24,8 @@
 						<h3>News Sources</h3>
 						#parse("accountTemplates/newsDelivery.vm")
 						#parse("accountTemplates/addLinks.vm")
+						<h3>Quick View URL</h3>
+						#parse("accountTemplates/urlcode.vm")
 					</div>
 				</div>
 			</div>

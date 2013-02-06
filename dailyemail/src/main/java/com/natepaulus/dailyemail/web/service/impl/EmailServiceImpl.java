@@ -48,6 +48,7 @@ import com.luckycatlabs.sunrisesunset.dto.Location;
 import com.natepaulus.dailyemail.repository.DeliveryScheduleRepository;
 import com.natepaulus.dailyemail.repository.RssFeedsRepository;
 import com.natepaulus.dailyemail.repository.RssNewsLinksRepository;
+import com.natepaulus.dailyemail.repository.UserRepository;
 import com.natepaulus.dailyemail.repository.entity.DeliverySchedule;
 import com.natepaulus.dailyemail.repository.entity.RssFeeds;
 import com.natepaulus.dailyemail.repository.entity.RssNewsLinks;
@@ -83,6 +84,10 @@ public class EmailServiceImpl implements EmailService {
 	/** The User Rss Feeds Repository */
 	@Resource
 	RssNewsLinksRepository rssNewsLinksRepository;
+	
+	/** The user repository. */
+	@Resource
+	UserRepository userRepository;
 
 	/** The java mail sender for sending email. */
 	@Autowired
@@ -100,7 +105,7 @@ public class EmailServiceImpl implements EmailService {
 	 */
 	@Scheduled(cron = "0 0/1 * * * ?")
 	public void retrieveUserListForEmails() {
-		logger.info("Retrieving List of users to email");
+		//logger.info("Retrieving List of users to email");
 		int dayOfWeek = -1;
 		DateTime currentTime = new DateTime();
 
@@ -224,6 +229,20 @@ public class EmailServiceImpl implements EmailService {
 
 		}
 
+	}
+	
+	/* (non-Javadoc)
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.EmailService#generateQuickView(java.lang.String)
+	 */
+	public EmailData generateQuickView(String code){
+		
+		User user = userRepository.findByUrlCode(code);
+		
+		EmailData data = new EmailData();
+		data = getWeatherConditions(data, user);
+		data = getNewsStoriesForEmail(data, user);
+		
+		return data;
 	}
 
 	private void sendErrorEmail(final String errorMessage) {

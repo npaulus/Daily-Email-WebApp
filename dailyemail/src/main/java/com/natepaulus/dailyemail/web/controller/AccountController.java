@@ -7,6 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -26,6 +28,7 @@ import com.natepaulus.dailyemail.repository.entity.User;
 import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
 import com.natepaulus.dailyemail.web.exceptions.RssFeedException;
 import com.natepaulus.dailyemail.web.exceptions.ZipCodeException;
+import com.natepaulus.dailyemail.web.service.impl.AccountServiceImpl;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 
 // TODO: Auto-generated Javadoc
@@ -40,6 +43,9 @@ public class AccountController {
 	/** The account service. */
 	@Autowired
 	AccountService accountService;
+	
+	private final Logger logger = LoggerFactory
+			.getLogger(AccountController.class);
 
 	/**
 	 * Display account page.
@@ -264,6 +270,24 @@ public class AccountController {
 		redirect.addFlashAttribute("user", user);
 		redirect.addFlashAttribute("deliveryTimeEntry", deliveryTimeEntry);
 		redirect.addFlashAttribute("confirmSave", "deliveryTimesSaved");
+		return "redirect:/account";
+	}
+	
+	@RequestMapping(value = "/account/generateUrlCode", method = RequestMethod.POST)
+	public String generateUrlCode(HttpSession session, RedirectAttributes redirect){
+		User user = (User) session.getAttribute("user");
+		user = accountService.generateUrlCode(user);
+		redirect.addFlashAttribute("user", user);
+		redirect.addFlashAttribute("confirmSave", "urlGenerated");
+		return "redirect:/account";
+	}
+	
+	@RequestMapping(value = "/account/deleteUrlCode", method = RequestMethod.POST)
+	public String deleteUrlCode(HttpSession session, RedirectAttributes redirect){
+		User user = (User) session.getAttribute("user");
+		user = accountService.deleteUrlCode(user);
+		redirect.addFlashAttribute("user", user);
+		redirect.addFlashAttribute("confirmSave", "urlDeleted");
 		return "redirect:/account";
 	}
 

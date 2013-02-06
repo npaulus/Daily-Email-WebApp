@@ -1,5 +1,8 @@
 package com.natepaulus.dailyemail.web.service.interfaces;
 
+import com.natepaulus.dailyemail.web.domain.EmailData;
+
+// TODO: Auto-generated Javadoc
 /**
  * The Interface EmailService.
  */
@@ -11,5 +14,14 @@ public interface EmailService {
 	 * at the current time in one minute increments.
 	 */
 	public void retrieveUserListForEmails();
+	
+	
+	/**
+	 * Generate quick view page.
+	 *
+	 * @param code the code
+	 * @return the data
+	 */
+	public EmailData generateQuickView(String code);
 
 }

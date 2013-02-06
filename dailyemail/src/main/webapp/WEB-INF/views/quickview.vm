@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+    #parse("header.vm")
+    <body>
+        <div class="row">
+            <div class="twelve columns">
+				<h3>Daily Email Service Quick View</h3>
+                #if($data.wxCurCond.cityState)
+                    <h5>Current Weather Conditions:</h5>
+                    <p>
+                        Location: $data.wxCurCond.cityState<br />
+                        Weather Station: $data.wxCurCond.weatherStation<br />
+                        Latest Observation: $data.wxCurCond.latestObDateTime<br />
+                        <br/>
+                        Current Temperature: $data.wxCurCond.currentTemp F<br />
+                        Humidity: $data.wxCurCond.humidity %<br />
+                        Current Weather: $data.wxCurCond.curWx<br />
+                        <br />
+                        Wind Speed: $data.wxCurCond.windSpeed MPH<br />
+                        Wind Gusts: $data.wxCurCond.windGust MPH<br />
+                        <br />
+                        Sunrise: $data.wxCurCond.sunRise <br />
+                        Sunset: $data.wxCurCond.sunSet<br />
+                        <br />
+                    </p>
+                    <h5>Weather Forecast for $data.wxCurCond.cityState:</h5>
+                    <p>
+                        #foreach($weatherPeriod in $data.weatherForecast.periodForecast.keySet())                            
+                            $weatherPeriod<br />
+                            $data.weatherForecast.periodForecast.get($weatherPeriod)<br /><br />
+                        #end
+                    </p>
+                    
+                    #else
+                        <p>We are sorry, but our weather sources are currently unavailable.</p>
+					#end
+					
+						#foreach($newsFeed in $data.newsFeeds)
+							<h6>$newsFeed.feedTitle</h6>
+							<p>
+							#foreach($newsStory in $newsFeed.newsStories)
+								<a href="$newsStory.storyLink" target="_blank">$newsStory.storyTitle</a>
+								<br />
+								$newsStory.storyDesc<br />
+							<br />
+							#end				
+							</p>
+						#end
+					
+			</div>
+		</div>
+		#parse("javascript.vm")
+	</body>
+</html>
