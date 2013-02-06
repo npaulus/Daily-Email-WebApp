@@ -20,7 +20,7 @@
 		<fieldset>
 			<legend>Current URL</legend>
 			<p>Bookmark this 
-			<a href="http://tempnate.dyndns-free.com:8080#springUrl('/quickview/')${user.urlCode}" target="_blank">
+			<a href="https://www.vtmnts.com#springUrl('/quickview/')${user.urlCode}" target="_blank">
 				link</a> for quick access to your daily email.
 			</p>
 			<input type="submit" class="small button" value="Delete URL" />	
