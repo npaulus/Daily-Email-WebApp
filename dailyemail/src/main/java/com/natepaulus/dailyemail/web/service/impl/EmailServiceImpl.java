@@ -216,8 +216,10 @@ public class EmailServiceImpl implements EmailService {
 				int rssFeedConnectFailures = rssFeed.getConnectFailures();
 				rssFeedConnectFailures += 1;
 				rssFeed.setConnectFailures(rssFeedConnectFailures);
+				rssFeedsRepository.save(rssFeed);
 				if (rssFeed.getConnectFailures() >= 3) {
 					rssFeed.setDisabled(true);
+					rssFeedsRepository.save(rssFeed);
 					logger.info("The following feed ID was just disabled for too many failed connect attempts: "
 							+ rssFeed.getId());
 					sendErrorEmail("The following feed ID was just disabled for too many failed connect attempts: "

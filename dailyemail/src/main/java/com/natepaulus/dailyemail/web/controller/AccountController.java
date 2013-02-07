@@ -28,7 +28,6 @@ import com.natepaulus.dailyemail.repository.entity.User;
 import com.natepaulus.dailyemail.web.domain.DeliveryTimeEntryForm;
 import com.natepaulus.dailyemail.web.exceptions.RssFeedException;
 import com.natepaulus.dailyemail.web.exceptions.ZipCodeException;
-import com.natepaulus.dailyemail.web.service.impl.AccountServiceImpl;
 import com.natepaulus.dailyemail.web.service.interfaces.AccountService;
 
 // TODO: Auto-generated Javadoc
