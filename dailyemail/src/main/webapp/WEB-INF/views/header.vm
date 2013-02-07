@@ -3,19 +3,25 @@
 <!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
 
 <head>
+	
   <meta charset="utf-8" />
 
   <!-- Set the viewport width to device width for mobile -->
   <meta name="viewport" content="width=device-width" />
-
-  <title>$!pageTitle</title>
-
+  #if(!$pageTitle)
+	<title>Daily Email Service</title>
+  #else
+	<title>$pageTitle</title>
+  #end
   <!-- Included CSS Files, use foundation.css if you do not want minified code -->
   <link rel="stylesheet" href=#springUrl("/resources/stylesheets/foundation.min.css")>
   <link rel="stylesheet" href=#springUrl("/resources/stylesheets/app.css")>
-	<link rel="stylesheet" href=#springUrl("/resources/stylesheets/dailyemail.css")>
+  
   
 
   <!-- Custom Modernizr for Foundation -->
   <script src=#springUrl("/resources/javascripts/modernizr.foundation.js")></script>
+  <link rel="apple-touch-icon" href=#springUrl("/resources/images/apple-touch-icon.png") />
+  <link rel="shortcut icon" href=#springUrl("/resources/images/favicon.ico") />
+  <link rel="icon" href=#springUrl("/resources/images/favicon.ico") />
 </head>

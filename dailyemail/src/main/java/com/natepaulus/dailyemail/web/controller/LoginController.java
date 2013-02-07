@@ -1,5 +1,8 @@
 package com.natepaulus.dailyemail.web.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import com.natepaulus.dailyemail.repository.entity.User;
@@ -32,8 +36,10 @@ public class LoginController {
 	 * @return the string which is the view to display
 	 */
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
-	public String displayLoginForm() {
-		return "login";
+	public ModelAndView displayLoginForm() {
+		Map<String, Object> model = new HashMap<String, Object>();
+		model.put("pageTitle", "Daily Email Service - Login");
+		return new ModelAndView("login", model);
 	}
 
 	/**

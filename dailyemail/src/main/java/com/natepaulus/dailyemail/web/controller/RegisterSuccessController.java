@@ -1,7 +1,11 @@
 package com.natepaulus.dailyemail.web.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * The Class RegisterSuccessController.
@@ -15,8 +19,9 @@ public class RegisterSuccessController {
 	 * @return the view to display
 	 */
 	@RequestMapping(value = "/registerSuccess")
-	public String registerSuccess() {		
-		System.out.println("Get Page");
-		return "registerSuccess";				
+	public ModelAndView registerSuccess() {		
+		Map<String, Object> model = new HashMap<String, Object>();
+		model.put("pageTitle", "Daily Email Service");
+		return new ModelAndView("registerSuccess", model);				
 	}
 }

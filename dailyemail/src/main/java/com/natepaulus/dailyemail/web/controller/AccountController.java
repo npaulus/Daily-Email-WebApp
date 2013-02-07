@@ -85,6 +85,7 @@ public class AccountController {
 			session.setAttribute("user", user);
 			session.setAttribute("deliveryTimeEntry", delTimeEntry);
 			
+			model.put("pageTitle", "Daily Email - Account Page");
 			model.put("confirmSave", confirmSave);			
 			model.put("user", user);
 			model.put("deliveryTimeEntry", delTimeEntry);
@@ -106,6 +107,7 @@ public class AccountController {
 					delTimeEntry.setWeekEndTime(ds.getDisplayTime());
 				}
 			}
+			model.put("pageTitle", "Daily Email - Account Page");
 			model.put("user", loggedInUser);
 			model.put("deliveryTimeEntry", delTimeEntry);
 
@@ -309,6 +311,7 @@ public class AccountController {
 				.getAttribute("deliveryTimeEntry");
 
 		Map<String, Object> model = new HashMap<String, Object>();
+		model.put("pageTitle", "Daily Email - Account Page");
 		model.put("user", user);
 		model.put("deliveryTimeEntry", delTimeEntry);
 		model.put("rssException", ex);
@@ -331,6 +334,7 @@ public class AccountController {
 				.getAttribute("deliveryTimeEntry");
 
 		Map<String, Object> model = new HashMap<String, Object>();
+		model.put("pageTitle", "Daily Email - Account Page");
 		model.put("user", user);
 		model.put("deliveryTimeEntry", delTimeEntry);
 		model.put("zipCodeException", ex);

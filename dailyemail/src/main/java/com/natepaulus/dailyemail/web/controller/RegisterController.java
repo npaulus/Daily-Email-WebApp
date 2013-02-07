@@ -39,7 +39,7 @@ public class RegisterController {
 	@RequestMapping(value = "/register", method = RequestMethod.GET)
 	public String displayRegisterPage(Model model) {
 		model.addAttribute("accountSignUp", new AccountSignUp());
-
+		model.addAttribute("pageTitle", "Daily Email Service - Register");
 		return "register";
 	}
 
@@ -58,6 +58,7 @@ public class RegisterController {
 			BindingResult result, RedirectAttributes redirect, Model model) {
 
 		if (result.hasErrors()) {
+			model.addAttribute("pageTitle", "Daily Email - Register Error"); 
 			return "register";
 		}
 		

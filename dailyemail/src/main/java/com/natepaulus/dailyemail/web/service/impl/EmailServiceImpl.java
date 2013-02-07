@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
@@ -46,10 +47,12 @@ import org.xml.sax.InputSource;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
 import com.natepaulus.dailyemail.repository.DeliveryScheduleRepository;
+import com.natepaulus.dailyemail.repository.FailedMessagesRepository;
 import com.natepaulus.dailyemail.repository.RssFeedsRepository;
 import com.natepaulus.dailyemail.repository.RssNewsLinksRepository;
 import com.natepaulus.dailyemail.repository.UserRepository;
 import com.natepaulus.dailyemail.repository.entity.DeliverySchedule;
+import com.natepaulus.dailyemail.repository.entity.FailedMessages;
 import com.natepaulus.dailyemail.repository.entity.RssFeeds;
 import com.natepaulus.dailyemail.repository.entity.RssNewsLinks;
 import com.natepaulus.dailyemail.repository.entity.User;
@@ -62,6 +65,7 @@ import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.SyndFeedInput;
 
+// TODO: Auto-generated Javadoc
 /**
  * The Class EmailServiceImpl checks every minute to see if any users have
  * requested their email at that time. If it finds any users it then builds and
@@ -77,17 +81,21 @@ public class EmailServiceImpl implements EmailService {
 	@Resource
 	DeliveryScheduleRepository deliveryScheduleRepository;
 
-	/** The Rss Feeds Repository */
+	/** The Rss Feeds Repository. */
 	@Resource
 	RssFeedsRepository rssFeedsRepository;
 
-	/** The User Rss Feeds Repository */
+	/** The User Rss Feeds Repository. */
 	@Resource
 	RssNewsLinksRepository rssNewsLinksRepository;
 	
 	/** The user repository. */
 	@Resource
 	UserRepository userRepository;
+	
+	/** The failed messages repository. */
+	@Resource
+	FailedMessagesRepository failedMessagesRepository;
 
 	/** The java mail sender for sending email. */
 	@Autowired
@@ -141,12 +149,12 @@ public class EmailServiceImpl implements EmailService {
 			
 			// check if current time equals user set time for today's date
 			if (userLocalSetTime.equals(currentLocalTime)) {
-				logger.info("User's local set time is equal to current local time.");
+				//logger.info("User's local set time is equal to current local time.");
 				// if the delivery day (weekend or weekday) equals the delivery
 				// day in the schedule add user to list
 				if (d.getDeliveryDay() == dayOfWeek) {
 					users.add(d.getUser());
-					logger.info("Added user: " + d.getUser().getEmail());
+					//logger.info("Added user: " + d.getUser().getEmail());
 				}
 			}
 		}
@@ -159,6 +167,10 @@ public class EmailServiceImpl implements EmailService {
 
 	}
 
+	
+	/* (non-Javadoc)
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.EmailService#updateRssFeedLinks()
+	 */
 	@Scheduled(cron = "0 0/30 * * * ?")
 	public void updateRssFeedLinks() {
 		List<RssFeeds> rssFeeds = rssFeedsRepository.findByDisabled(false);
@@ -210,7 +222,7 @@ public class EmailServiceImpl implements EmailService {
 				currentLinksInFeed.addAll(rssLinks);
 				rssFeed.setRssNewsLinks(currentLinksInFeed);
 				rssFeedsRepository.save(rssFeed);
-				logger.info("Saved " + rssFeed.getId());
+			//	logger.info("Saved " + rssFeed.getId());
 
 			} catch (Exception ex) {
 				int rssFeedConnectFailures = rssFeed.getConnectFailures();
@@ -233,6 +245,43 @@ public class EmailServiceImpl implements EmailService {
 
 	}
 	
+	
+	/* (non-Javadoc)
+	 * @see com.natepaulus.dailyemail.web.service.interfaces.EmailService#retrySendingFailedMessages()
+	 */
+	@Scheduled(cron = "0 0/5 * * * ?")
+	public void retrySendingFailedMessages(){
+		//logger.info("retry sending failed messages");
+		List<FailedMessages> failedMessages = failedMessagesRepository.findAll();
+		
+		for(final FailedMessages failedMsg : failedMessages){
+			MimeMessagePreparator preparator = new MimeMessagePreparator() {
+
+				@Override
+				public void prepare(MimeMessage mimeMessage) throws Exception {
+					MimeMessageHelper message = new MimeMessageHelper(mimeMessage,
+							"UTF-8");
+					message.setTo(failedMsg.getToAddress());
+					message.setFrom("dailyemail@natepaulus.com");
+					message.setSubject("Daily News & Weather");
+
+					message.setText(failedMsg.getMessage(), true);
+				}
+			};
+			try{
+			this.sender.send(preparator);
+			failedMessagesRepository.delete(failedMsg);
+		//	logger.info("Successfully resent");
+			} catch(MailException e){
+				int failedAttempts = failedMsg.getNumberFailedAttempts() + 1;
+				failedMsg.setNumberFailedAttempts(failedAttempts);
+				failedMessagesRepository.save(failedMsg);
+		//		logger.info("Failed again and incremented counter");
+			}
+		}
+		
+	}
+	
 	/* (non-Javadoc)
 	 * @see com.natepaulus.dailyemail.web.service.interfaces.EmailService#generateQuickView(java.lang.String)
 	 */
@@ -247,6 +296,11 @@ public class EmailServiceImpl implements EmailService {
 		return data;
 	}
 
+	/**
+	 * Send error email.
+	 *
+	 * @param errorMessage the error message
+	 */
 	private void sendErrorEmail(final String errorMessage) {
 
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
@@ -281,28 +335,37 @@ public class EmailServiceImpl implements EmailService {
 		emailData = getWeatherConditions(emailData, user);
 		emailData = getNewsStoriesForEmail(emailData, user);
 		final EmailData data = emailData;
-
+		Map<String, Object> model = new HashMap<String, Object>();
+		model.put("data", data);
+		@SuppressWarnings("deprecation")
+		final String messageText = VelocityEngineUtils
+				.mergeTemplateIntoString(velocityEngine, "email.vm",
+						model);
 		MimeMessagePreparator preparator = new MimeMessagePreparator() {
-
+			
 			@Override
 			public void prepare(MimeMessage mimeMessage) throws Exception {
 				MimeMessageHelper message = new MimeMessageHelper(mimeMessage,
 						"UTF-8");
 				message.setTo(data.getToAddress());
 				message.setFrom("dailyemail@natepaulus.com");
-				message.setSubject("Daily News & Weather");
-				Map<String, Object> model = new HashMap<String, Object>();
-				model.put("data", data);
-				@SuppressWarnings("deprecation")
-				String messageText = VelocityEngineUtils
-						.mergeTemplateIntoString(velocityEngine, "email.vm",
-								model);
+				message.setSubject("Daily News & Weather");				
 				message.setText(messageText, true);
 			}
 		};
-
-		this.sender.send(preparator);
-		logger.info("Message sent to: " + data.getToAddress());
+		try {
+			this.sender.send(preparator);
+			logger.info("Message sent to: " + data.getToAddress());
+		} catch(MailException e){
+			FailedMessages fm = new FailedMessages();
+			fm.setToAddress(data.getToAddress());
+			fm.setToName(data.getToName());
+			fm.setMessage(messageText);			
+			fm.setErrorMessage(e.getMessage());
+			fm.setNumberFailedAttempts(1);
+			failedMessagesRepository.save(fm);
+			logger.info("Email errored occured. Saved to Database.");			
+		}		
 	}
 
 	/**
