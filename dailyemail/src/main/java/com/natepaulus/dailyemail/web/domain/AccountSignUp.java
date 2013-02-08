@@ -27,18 +27,18 @@ public class AccountSignUp {
 	private String last_name;
 	
 	/** The zipcode. */
-	@Length(max=5, min = 5, message="Zip code must be 5 digits!")
-    @Pattern(regexp="[0-9]+", message = "Zip code must be numbers only!")
+	@Length(max=5, min = 5)
+    @Pattern(regexp="[0-9]+")
     @NotNull
 	private String zipcode;
 	
 	/** The email. */
-	@NotNull
+	@NotEmpty
 	@Email
 	private String email;
 	
 	/** The confirm_email. */
-	@NotNull
+	@NotEmpty
 	@Email
 	private String confirm_email;
 	

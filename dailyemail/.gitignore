@@ -3,4 +3,10 @@
 /.classpath
 /.project
 /.settings
-/src/main/webapp/WEB-INF/lib/applicationContext.xml
+/src/main/webapp/WEB-INF/lib/configuration/applicationContext.xml
+/bin
+/target
+/.classpath
+/.project
+/.settings
+/src/main/webapp/WEB-INF/lib/configuration/database.properties

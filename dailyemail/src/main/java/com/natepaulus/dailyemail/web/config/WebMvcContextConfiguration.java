@@ -35,7 +35,7 @@ import org.springframework.web.servlet.mvc.support.ControllerClassNameHandlerMap
 @EnableWebMvc
 @EnableAsync
 @EnableScheduling
-@ImportResource("WEB-INF/lib/applicationContext.xml")
+@ImportResource("WEB-INF/lib/configuration/applicationContext.xml")
 @ComponentScan(basePackages = "com.natepaulus.dailyemail")
 public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 
@@ -71,7 +71,7 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 	public MessageSource messageSource() {
 		ReloadableResourceBundleMessageSource messageSource;
 		messageSource = new ReloadableResourceBundleMessageSource();
-		messageSource.setBasename("WEB-INF/lib/errors");
+		messageSource.setBasename("WEB-INF/lib/configuration/registerErrors");
 		messageSource.setUseCodeAsDefaultMessage(true);
 		return messageSource;
 	}

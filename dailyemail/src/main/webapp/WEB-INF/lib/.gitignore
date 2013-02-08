@@ -8,4 +8,5 @@
 
 /.settings
 
-/applicationContext.xml
+/configuration/applicationContext.xml
+/configuration/database.properties
