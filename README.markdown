@@ -36,7 +36,7 @@ Features
 Roadmap
 -------
 
-From a long term perspective, I am hoping to continue to enhance the RSS reader into more of a portal page.  I'd like to add in weather information and possibly incorporate radar/alerts using my other github project (nws-wx-alerts)[https://github.com/npaulus/nws-wx-alerts].  Also, I laid the groundwork for incorporating information from a user's Facebook news feed.  I'd like to add in Twitter and LinkedIn as well. 
+From a long term perspective, I am hoping to continue to enhance the RSS reader into more of a portal page.  I'd like to add in weather information and possibly incorporate radar/alerts using my other github project [nws-wx-alerts](https://github.com/npaulus/nws-wx-alerts).  Also, I laid the groundwork for incorporating information from a user's Facebook news feed.  I'd like to add in Twitter and LinkedIn as well. 
 
 
 License
