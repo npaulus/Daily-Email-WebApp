@@ -3,16 +3,4 @@
 /.classpath
 /.project
 /.settings
-/src/main/webapp/WEB-INF/lib/configuration/applicationContext.xml
-/bin
-/target
-/.classpath
-/.project
-/.settings
-/src/main/webapp/WEB-INF/lib/configuration/database.properties
-/bin
-/target
-/.classpath
-/.project
-/.settings
-/src/main/webapp/WEB-INF/lib/configuration/socialConfig.properties
+
