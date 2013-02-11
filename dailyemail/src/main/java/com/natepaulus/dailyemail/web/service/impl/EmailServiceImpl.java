@@ -31,6 +31,8 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.mail.MailException;
@@ -72,8 +74,16 @@ import com.sun.syndication.io.SyndFeedInput;
  * sends them an email with their requested data.
  */
 @Service
+@PropertySource("classpath:emailConfig.properties")
 public class EmailServiceImpl implements EmailService {
 
+	@Resource
+    private Environment environment;
+	
+	/** The email addresses to use: */
+	private final static String ADMINISTRATOR = "administrator.email";
+	private final static String DAILY_EMAIL_ADDRESS = "dailyemail.from.email";
+	
 	/** The logger. */
 	final Logger logger = LoggerFactory.getLogger(EmailServiceImpl.class);
 
@@ -262,7 +272,7 @@ public class EmailServiceImpl implements EmailService {
 					MimeMessageHelper message = new MimeMessageHelper(mimeMessage,
 							"UTF-8");
 					message.setTo(failedMsg.getToAddress());
-					message.setFrom("dailyemail@natepaulus.com");
+					message.setFrom(environment.getRequiredProperty(DAILY_EMAIL_ADDRESS));
 					message.setSubject("Daily News & Weather");
 
 					message.setText(failedMsg.getMessage(), true);
@@ -309,8 +319,8 @@ public class EmailServiceImpl implements EmailService {
 			public void prepare(MimeMessage mimeMessage) throws Exception {
 				MimeMessageHelper message = new MimeMessageHelper(mimeMessage,
 						"UTF-8");
-				message.setTo("nate@natepaulus.com");
-				message.setFrom("dailyemail@natepaulus.com");
+				message.setTo(environment.getRequiredProperty(ADMINISTRATOR));
+				message.setFrom(environment.getRequiredProperty(DAILY_EMAIL_ADDRESS));
 				message.setSubject("Error - Daily News & Weather");
 
 				message.setText(errorMessage, true);
@@ -348,7 +358,7 @@ public class EmailServiceImpl implements EmailService {
 				MimeMessageHelper message = new MimeMessageHelper(mimeMessage,
 						"UTF-8");
 				message.setTo(data.getToAddress());
-				message.setFrom("dailyemail@natepaulus.com");
+				message.setFrom(environment.getRequiredProperty(DAILY_EMAIL_ADDRESS));
 				message.setSubject("Daily News & Weather");				
 				message.setText(messageText, true);
 			}
