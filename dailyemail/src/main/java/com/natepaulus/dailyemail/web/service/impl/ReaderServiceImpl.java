@@ -1,6 +1,7 @@
 package com.natepaulus.dailyemail.web.service.impl;
 
 import java.util.LinkedHashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,6 +24,7 @@ import com.natepaulus.dailyemail.repository.entity.RssNewsLinks;
 import com.natepaulus.dailyemail.repository.entity.User;
 import com.natepaulus.dailyemail.repository.entity.UserRssFeeds;
 import com.natepaulus.dailyemail.web.controller.ReaderController;
+import com.natepaulus.dailyemail.web.domain.JSONRssNewsLinks;
 import com.natepaulus.dailyemail.web.service.UserTimeZone;
 import com.natepaulus.dailyemail.web.service.interfaces.ReaderService;
 
@@ -65,6 +67,33 @@ public class ReaderServiceImpl implements ReaderService {
 		return userNewsData;
 	}
 
-	
+	@Override
+	public List<JSONRssNewsLinks> loadAdditionalNewsLinks(User user, long feedId, int pageNumber){
+		DateTimeFormatter outFmt = DateTimeFormat
+				.forPattern("MMM dd',' yyyy h:mm a");
+		String userTz = UserTimeZone.getUserTimeZone(user);
+		
+		// new page request
+		Pageable page = new PageRequest(pageNumber, 15);
+		logger.info("Inside Service: ");
+		List<RssNewsLinks> nextSetOfLinks = rssNewsLinksRepository.findByFeedIdOrderByPubDateDesc(feedId, page);
+		
+		List<JSONRssNewsLinks> jsonRssNewsLinks = new LinkedList<JSONRssNewsLinks>();		
+		
+		for(RssNewsLinks r : nextSetOfLinks){
+			DateTime utcPubDate = r.getPubDate();
+			r.setPubDateToDisplay(outFmt.print(utcPubDate.withZone(DateTimeZone.forID(userTz))));
+			JSONRssNewsLinks link = new JSONRssNewsLinks();
+			link.setFeedId(r.getFeedId());
+			link.setTitle(r.getTitle());
+			link.setDescription(r.getDescription());
+			link.setLink(r.getLink());
+			link.setPubDateToDisplay(r.getPubDateToDisplay());
+			jsonRssNewsLinks.add(link);
+			logger.info("Title: " + r.getTitle());
+		}
+		
+		return jsonRssNewsLinks;
+	}
 
 }

@@ -12,16 +12,20 @@ import javax.servlet.http.HttpSession;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.web.servlet.support.RequestContextUtils;
 
 import com.natepaulus.dailyemail.repository.entity.RssNewsLinks;
 import com.natepaulus.dailyemail.repository.entity.User;
+import com.natepaulus.dailyemail.web.domain.JSONRssNewsLinks;
 import com.natepaulus.dailyemail.web.service.interfaces.EmailService;
 import com.natepaulus.dailyemail.web.service.interfaces.ReaderService;
 import com.natepaulus.dailyemail.web.service.interfaces.SocialService;
@@ -89,6 +93,14 @@ public class ReaderController {
 			return new ModelAndView("reader", model);
 		}
 
+	}
+	
+	@RequestMapping(method = RequestMethod.GET, value="/reader/{feedId}/{pageNumber}", produces = MediaType.APPLICATION_JSON_VALUE)
+	public @ResponseBody List<JSONRssNewsLinks> loadMoreNewsLinks(@PathVariable long feedId, @PathVariable int pageNumber, HttpServletRequest request){
+		User user = (User) request.getSession().getAttribute("user");
+		List<JSONRssNewsLinks> newsLinks = readerService.loadAdditionalNewsLinks(user, feedId, pageNumber);
+		
+		return newsLinks;
 	}
 
 	/**

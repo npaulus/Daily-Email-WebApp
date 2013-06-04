@@ -5,9 +5,9 @@
 		<!-- Page Layout HTML here -->
   
 		<!-- Header and Nav -->
-  
+				
 		<div class="row">
-			<div class="twelve mobile-four columns">
+			<div class="twelve mobile-four columns" style="text-align:center;">
 				<h1>Daily Email Service</h1>
 			</div>    
 		</div>

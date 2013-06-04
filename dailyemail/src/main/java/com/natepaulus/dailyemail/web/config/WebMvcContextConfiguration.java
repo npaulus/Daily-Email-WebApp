@@ -121,7 +121,7 @@ public class WebMvcContextConfiguration extends WebMvcConfigurerAdapter {
 
 		exceptionResolver.setExceptionMappings(mappings);
 		exceptionResolver.setStatusCodes(statusCodes);
-		exceptionResolver.setDefaultErrorView("errorView");
+		//exceptionResolver.setDefaultErrorView("errorView");
 		exceptionResolver.setOrder(2);
 
 		return exceptionResolver;

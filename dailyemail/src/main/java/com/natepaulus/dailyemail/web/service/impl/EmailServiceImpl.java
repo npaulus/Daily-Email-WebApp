@@ -181,7 +181,7 @@ public class EmailServiceImpl implements EmailService {
 	/* (non-Javadoc)
 	 * @see com.natepaulus.dailyemail.web.service.interfaces.EmailService#updateRssFeedLinks()
 	 */
-	@Scheduled(cron = "0 0/30 * * * ?")
+	@Scheduled(cron = "0 0/1 * * * ?")
 	public void updateRssFeedLinks() {
 		List<RssFeeds> rssFeeds = rssFeedsRepository.findByDisabled(false);
 		logger.info("Processing rss feeds");
@@ -215,7 +215,7 @@ public class EmailServiceImpl implements EmailService {
 					link.setLink(entry.getLink());
 					link.setDescription(entry.getDescription().getValue()
 							.replaceAll("\\<.*?>", ""));
-
+					link.setGuid(entry.getUri().toString());
 					Date publicationDate = entry.getPublishedDate();
 					if (publicationDate == null) { // feed doesn't have
 													// published date

@@ -4,14 +4,14 @@
 	
     <body>
          <div class="row">
-			<div class="twelve columns">
+			<div class="twelve columns" style="text-align:center;">
 				<h1>Daily Email Service</h1>
 			</div>    
 		 </div>
 		 
 		 <div class="row">
             
-            <div class="eleven columns push-one">
+            <div class="ten columns push-two">
 				<div class="row">
 					<div class="five columns">
 						#parse("accountTemplates/weatherPreferences.vm")
@@ -32,13 +32,14 @@
 			
 			<!-- Nav Sidebar -->
 			<!-- This is source ordered to be pulled to the left on larger screens -->
-			<div class="one columns pull-eleven">
+			<div class="two columns pull-ten">
         
 				<ul class="side-nav">
 					<li><a href=#springUrl("/index")>Home</a></li>
+					<li><a href=#springUrl("/reader")>RSS Reader</a></li>
 					<li><a href=#springUrl("/account")>Account</a></li>
 					<li><a href=#springUrl("/logout")>Logout</a></li>
-					<li><a href=#springUrl("/reader")>Reader</a></li>
+					
 				</ul>
               
 			</div>

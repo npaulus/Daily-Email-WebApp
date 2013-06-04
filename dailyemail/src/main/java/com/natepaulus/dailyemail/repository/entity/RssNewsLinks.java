@@ -39,6 +39,9 @@ public class RssNewsLinks implements Serializable, Comparable<RssNewsLinks> {
 	private String description;
 	
 	@Column
+	private String guid;
+	
+	@Column
 	@Type(type = "org.jadira.usertype.dateandtime.joda.PersistentDateTime")
 	private DateTime pubDate;
 	
@@ -107,57 +110,43 @@ public class RssNewsLinks implements Serializable, Comparable<RssNewsLinks> {
 
 	
 	
+	public String getGuid() {
+		return guid;
+	}
+
+	public void setGuid(String guid) {
+		this.guid = guid;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result
-				+ ((description == null) ? 0 : description.hashCode());
-		result = prime * result + ((link == null) ? 0 : link.hashCode());
-		result = prime * result + ((title == null) ? 0 : title.hashCode());
+		result = prime * result + ((guid == null) ? 0 : guid.hashCode());
 		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
+		if (this == obj)
 			return true;
-		}
-		if (obj == null) {
+		if (obj == null)
 			return false;
-		}
-		if (getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass())
 			return false;
-		}
 		RssNewsLinks other = (RssNewsLinks) obj;
-		if (description == null) {
-			if (other.description != null) {
+		if (guid == null) {
+			if (other.guid != null)
 				return false;
-			}
-		} else if (!description.equals(other.description)) {
+		} else if (!guid.equals(other.guid))
 			return false;
-		}
-		if (link == null) {
-			if (other.link != null) {
-				return false;
-			}
-		} else if (!link.equals(other.link)) {
-			return false;
-		}
-		if (title == null) {
-			if (other.title != null) {
-				return false;
-			}
-		} else if (!title.equals(other.title)) {
-			return false;
-		}
 		return true;
 	}
 
 	@Override
 	public int compareTo(RssNewsLinks r) {
-		int dateCompare = pubDate.compareTo(r.getPubDate());
-		return dateCompare;
+		int guidCompare = guid.compareTo(r.getGuid());
+		return guidCompare;
 	}
 
 	@Override

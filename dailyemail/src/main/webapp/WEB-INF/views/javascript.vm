@@ -10,3 +10,4 @@
  
   <!-- Initialize JS Plugins -->
   <script src=#springUrl("/resources/javascripts/app.js")></script>
+  <script src=#springUrl("/resources/javascripts/waypoints.min.js")></script>
