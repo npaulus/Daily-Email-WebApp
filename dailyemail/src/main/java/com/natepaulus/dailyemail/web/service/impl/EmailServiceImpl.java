@@ -181,7 +181,7 @@ public class EmailServiceImpl implements EmailService {
 	/* (non-Javadoc)
 	 * @see com.natepaulus.dailyemail.web.service.interfaces.EmailService#updateRssFeedLinks()
 	 */
-	@Scheduled(cron = "0 0/1 * * * ?")
+	@Scheduled(cron = "0 0/30 * * * ?")
 	public void updateRssFeedLinks() {
 		List<RssFeeds> rssFeeds = rssFeedsRepository.findByDisabled(false);
 		logger.info("Processing rss feeds");
@@ -239,7 +239,7 @@ public class EmailServiceImpl implements EmailService {
 				rssFeedConnectFailures += 1;
 				rssFeed.setConnectFailures(rssFeedConnectFailures);
 				rssFeedsRepository.save(rssFeed);
-				if (rssFeed.getConnectFailures() >= 3) {
+				if (rssFeed.getConnectFailures() >= 24) { //change this number to adjust number of tries before disabling
 					rssFeed.setDisabled(true);
 					rssFeedsRepository.save(rssFeed);
 					logger.info("The following feed ID was just disabled for too many failed connect attempts: "
