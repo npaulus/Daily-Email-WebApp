@@ -21,6 +21,9 @@ public class WeatherCurrentConditions {
 
 	/** The humidity. */
 	private String humidity;
+	
+	/** The dew point. */
+	private String dewPoint;
 
 	/** The current weather description. (Cloudy, Sunny, etc) */
 	private String curWx;
@@ -130,6 +133,14 @@ public class WeatherCurrentConditions {
 	 */
 	public void setHumidity(String humidity) {
 		this.humidity = humidity;
+	}
+
+	public String getDewPoint() {
+		return dewPoint;
+	}
+
+	public void setDewPoint(String dewPoint) {
+		this.dewPoint = dewPoint;
 	}
 
 	/**

@@ -480,6 +480,11 @@ public class EmailServiceImpl implements EmailService {
 						(String) exprCCFX.evaluate(docCFX,
 								XPathConstants.STRING));
 				exprCCFX = xpathCCFX
+						.compile("/dwml/data[@type = 'current observations']/parameters/temperature[@type = 'dew point']/value/text()");
+				data.getWxCurCond().setDewPoint(
+						(String) exprCCFX.evaluate(docCFX,
+								XPathConstants.STRING));
+				exprCCFX = xpathCCFX
 						.compile("/dwml/data[@type = 'current observations']/parameters/weather[@time-layout = 'k-p1h-n1-1']/weather-conditions/@weather-summary");
 				data.getWxCurCond().setCurWx(
 						(String) exprCCFX.evaluate(docCFX,
