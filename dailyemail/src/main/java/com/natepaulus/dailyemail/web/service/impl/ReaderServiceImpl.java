@@ -1,7 +1,6 @@
 package com.natepaulus.dailyemail.web.service.impl;
 
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -20,14 +19,13 @@ import org.springframework.stereotype.Service;
 
 import com.natepaulus.dailyemail.repository.RssFeedsRepository;
 import com.natepaulus.dailyemail.repository.RssNewsLinksRepository;
+import com.natepaulus.dailyemail.repository.UserRepository;
 import com.natepaulus.dailyemail.repository.entity.RssNewsLinks;
 import com.natepaulus.dailyemail.repository.entity.User;
 import com.natepaulus.dailyemail.repository.entity.UserRssFeeds;
 import com.natepaulus.dailyemail.web.controller.ReaderController;
-import com.natepaulus.dailyemail.web.domain.JSONRssNewsLinks;
 import com.natepaulus.dailyemail.web.service.UserTimeZone;
 import com.natepaulus.dailyemail.web.service.interfaces.ReaderService;
-
 
 /**
  * The Class ReaderServiceImpl.
@@ -36,64 +34,38 @@ import com.natepaulus.dailyemail.web.service.interfaces.ReaderService;
 public class ReaderServiceImpl implements ReaderService {
 	/** The logger. */
 	final Logger logger = LoggerFactory.getLogger(ReaderController.class);
-	
+
 	@Resource
 	RssFeedsRepository rssFeedsRepository;
-	
+
 	@Resource
 	RssNewsLinksRepository rssNewsLinksRepository;
-	
-	@Override
-	public Map<String, List<RssNewsLinks>> getNewsForReaderDisplay(User user) {
-		DateTimeFormatter outFmt = DateTimeFormat
-				.forPattern("MMM dd',' yyyy h:mm a");
-		String userTz = UserTimeZone.getUserTimeZone(user);
-		Set<UserRssFeeds> userRssFeeds = user.getUserRssFeeds();
-		Pageable page = new PageRequest(0, 15);
-		
-		Map<String, List<RssNewsLinks>> userNewsData = new LinkedHashMap<String, List<RssNewsLinks>>();
-		for(UserRssFeeds urf: userRssFeeds){
-			
-			List<RssNewsLinks> convertTime = rssNewsLinksRepository.findByFeedIdOrderByPubDateDesc(urf.getFeedId(), page);
-			for(RssNewsLinks r : convertTime){
-				DateTime utcPubDate = r.getPubDate();
-				r.setPubDateToDisplay(outFmt.print(utcPubDate.withZone(DateTimeZone.forID(userTz))));
-			}
-				
-			userNewsData.put(urf.getFeedName(),convertTime);
-		}
-		
-		
-		return userNewsData;
-	}
+
+	@Resource
+	UserRepository userRepository;
 
 	@Override
-	public List<JSONRssNewsLinks> loadAdditionalNewsLinks(User user, long feedId, int pageNumber){
-		DateTimeFormatter outFmt = DateTimeFormat
-				.forPattern("MMM dd',' yyyy h:mm a");
-		String userTz = UserTimeZone.getUserTimeZone(user);
-		
-		// new page request
-		Pageable page = new PageRequest(pageNumber, 15);
-		logger.info("Inside Service: ");
-		List<RssNewsLinks> nextSetOfLinks = rssNewsLinksRepository.findByFeedIdOrderByPubDateDesc(feedId, page);
-		
-		List<JSONRssNewsLinks> jsonRssNewsLinks = new LinkedList<JSONRssNewsLinks>();		
-		
-		for(RssNewsLinks r : nextSetOfLinks){
-			DateTime utcPubDate = r.getPubDate();
-			r.setPubDateToDisplay(outFmt.print(utcPubDate.withZone(DateTimeZone.forID(userTz))));
-			JSONRssNewsLinks link = new JSONRssNewsLinks();
-			link.setFeedId(r.getFeedId());
-			link.setTitle(r.getTitle());
-			link.setDescription(r.getDescription());
-			link.setLink(r.getLink());
-			link.setPubDateToDisplay(r.getPubDateToDisplay());
-			jsonRssNewsLinks.add(link);
-			logger.info("Title: " + r.getTitle());
+	public Map<String, List<RssNewsLinks>> getNewsForReaderDisplay(final long userId) {
+		final User user = this.userRepository.findOne(userId);
+
+		final DateTimeFormatter outFmt = DateTimeFormat.forPattern("MMM dd',' yyyy h:mm a");
+		final String userTz = UserTimeZone.getUserTimeZone(user);
+		final Set<UserRssFeeds> userRssFeeds = user.getUserRssFeeds();
+		final Pageable page = new PageRequest(0, 15);
+
+		final Map<String, List<RssNewsLinks>> userNewsData = new LinkedHashMap<String, List<RssNewsLinks>>();
+		for (final UserRssFeeds urf : userRssFeeds) {
+
+			final List<RssNewsLinks> convertTime = this.rssNewsLinksRepository.findByFeedIdOrderByPubDateDesc(urf.getFeedId(), page);
+			for (final RssNewsLinks r : convertTime) {
+				final DateTime utcPubDate = r.getPubDate();
+				r.setPubDateToDisplay(outFmt.print(utcPubDate.withZone(DateTimeZone.forID(userTz))));
+			}
+
+			userNewsData.put(urf.getFeedName(), convertTime);
 		}
-		
-		return jsonRssNewsLinks;
+
+		return userNewsData;
 	}
 
 }

@@ -14,11 +14,11 @@
 	<!--   Configures Spring Data JPA and sets the base package of my DAOs. -->
 	<jpa:repositories base-package="com.natepaulus.dailyemail" />
 
-	<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
-		<property name="host" value="your.host" />
-		<property name="port" value="PORT" />
-		<property name="username" value="USERNAME" />
-		<property name="password" value="PASSWORD" />
+		<bean id="mailSender" class="org.springframework.mail.javamail.JavaMailSenderImpl">
+		<property name="host" value="smtp.live.com" />
+		<property name="port" value="587" />
+		<property name="username" value="dailyemail@vtmnts.com" />
+		<property name="password" value="1^d!r@d2" />
 		<property name="javaMailProperties">
 		<!-- Customize these as necessary for your provider -->
 			<props>

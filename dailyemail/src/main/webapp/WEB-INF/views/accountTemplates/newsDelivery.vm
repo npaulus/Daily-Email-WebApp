@@ -1,6 +1,6 @@
 <div class="newsDelivery">
 	
-	 #if(!$user.userRssFeeds.isEmpty())
+	 #if(!$userRssFeeds.isEmpty())
 			<form name="news" action=#springUrl("/account/news") method="post" class="custom">
 				<fieldset>
 					<legend style="padding-bottom:5px;">Set Included News Information</legend>
@@ -12,7 +12,7 @@
 					#end
 					<div class="row">
 						<div class="twelve mobile-four columns">
-					#foreach($link in $user.userRssFeeds)
+					#foreach($link in $userRssFeeds)
 						<label style="padding: 3px;">
 						<input type="checkbox" name="news" value="$link.feedId"
 						#if($link.deliver == 1)

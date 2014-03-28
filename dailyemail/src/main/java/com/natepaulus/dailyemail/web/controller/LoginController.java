@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import com.natepaulus.dailyemail.repository.entity.User;
 import com.natepaulus.dailyemail.web.exceptions.AuthenticationException;
 import com.natepaulus.dailyemail.web.service.interfaces.UserService;
 
@@ -32,40 +31,34 @@ public class LoginController {
 
 	/**
 	 * Display login form.
-	 * 
+	 *
 	 * @return the string which is the view to display
 	 */
 	@RequestMapping(value = "/login", method = RequestMethod.GET)
 	public ModelAndView displayLoginForm() {
-		Map<String, Object> model = new HashMap<String, Object>();
+		final Map<String, Object> model = new HashMap<String, Object>();
 		model.put("pageTitle", "Daily Email Service - Login");
 		return new ModelAndView("login", model);
 	}
 
 	/**
 	 * Process login.
-	 * 
-	 * @param emailAddress
-	 *            the user email address
-	 * @param pwd
-	 *            the user password
-	 * @param session
-	 *            the session
-	 * @param redirect
-	 *            the redirect to add flash map attributes to
+	 *
+	 * @param emailAddress the user email address
+	 * @param pwd the user password
+	 * @param session the session
+	 * @param redirect the redirect to add flash map attributes to
 	 * @return the string which is the view to display
-	 * @throws AuthenticationException
-	 *             the authentication exception for invalid login attempts
+	 * @throws AuthenticationException the authentication exception for invalid login attempts
 	 */
 	@RequestMapping(value = "/login/*", method = RequestMethod.POST)
-	public String processLogin(@RequestParam String emailAddress,
-			@RequestParam String pwd, HttpSession session,
-			RedirectAttributes redirect) throws AuthenticationException {
-		User user = this.userService.login(emailAddress, pwd);
-		session.setAttribute("user", user);
+	public String processLogin(@RequestParam final String emailAddress, @RequestParam final String pwd, final HttpSession session,
+			final RedirectAttributes redirect) throws AuthenticationException {
+		final long userId = this.userService.login(emailAddress, pwd);
+		session.setAttribute("user", userId);
 		session.removeAttribute(REQUESTED_URL);
 
-		redirect.addFlashAttribute("user", user);
+		redirect.addFlashAttribute("user", userId);
 		return "redirect:/account";
 
 	}

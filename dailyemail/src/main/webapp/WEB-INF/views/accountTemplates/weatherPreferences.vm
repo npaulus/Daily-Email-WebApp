@@ -15,7 +15,7 @@
 									<label>
 									<input name="deliver_pref" type="radio"
 									value="$option" 
-										#if($user.weather.deliver_pref == $option)
+										#if($weather.deliver_pref == $option)
 											checked="checked"
 										#end
 										/>
@@ -40,7 +40,7 @@
 										<small class="error">#springMessageText($zipCodeException.code $zipCodeException.message)</small>
 									#end
 									<p>Current Location (Zipcode): <br />
-									$user.weather.location_name ($user.zipcode)</p>
+									$weather.location_name ($zipcode)</p>
 									<div class="row collapse">
 										<div class="six mobile-two columns">
 											<input placeholder="Zip Code" type="text" name="zipCode" />

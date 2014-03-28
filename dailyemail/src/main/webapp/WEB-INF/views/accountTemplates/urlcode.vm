@@ -1,4 +1,4 @@
-#if(!$user.urlCode)
+#if(!$urlCode)
 <div class="generateUrlCode">
 	#if($confirmSave == "urlDeleted") 
 		<div name="urlDeleted" id="urlDeleted" class="alert-box success saved">URL Deleted!</div>
@@ -20,7 +20,7 @@
 		<fieldset>
 			<legend>Current URL</legend>
 			<p>Bookmark this 
-			<a href="https://www.vtmnts.com#springUrl('/quickview/')${user.urlCode}" target="_blank">
+			<a href="https://www.vtmnts.com#springUrl('/quickview/')${urlCode}" target="_blank">
 				link</a> for quick access to your daily email.
 			</p>
 			<input type="submit" class="small button" value="Delete URL" />	

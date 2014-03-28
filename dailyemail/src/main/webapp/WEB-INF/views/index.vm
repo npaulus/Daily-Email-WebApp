@@ -64,7 +64,7 @@
 			</div>
 			<div class="row">
             <div class="three columns push-nine">
-				Nate Paulus Copyright &copy; 2012
+				#include("footer.vm")
             </div>
         </div>
 		#parse("javascript.vm")

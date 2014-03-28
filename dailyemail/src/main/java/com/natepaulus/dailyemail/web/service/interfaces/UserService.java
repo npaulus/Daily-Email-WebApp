@@ -1,10 +1,8 @@
 package com.natepaulus.dailyemail.web.service.interfaces;
 
-import com.natepaulus.dailyemail.repository.entity.User;
 import com.natepaulus.dailyemail.repository.entity.Weather;
 import com.natepaulus.dailyemail.web.domain.AccountSignUp;
 import com.natepaulus.dailyemail.web.exceptions.AuthenticationException;
-
 
 /**
  * The Interface UserService.
@@ -13,7 +11,7 @@ public interface UserService {
 
 	/**
 	 * Adds the new user to the application
-	 * 
+	 *
 	 * @param acctSignUp
 	 *            the account sign up object that backs the register form on the
 	 *            register page for easy validation.
@@ -26,7 +24,7 @@ public interface UserService {
 
 	/**
 	 * Logs a user into the application.
-	 * 
+	 *
 	 * @param email
 	 *            the email of the user
 	 * @param password
@@ -35,6 +33,6 @@ public interface UserService {
 	 * @throws AuthenticationException
 	 *             thrown when a login is invalid
 	 */
-	public User login(String email, String password)
+	public long login(String email, String password)
 			throws AuthenticationException;
 }
