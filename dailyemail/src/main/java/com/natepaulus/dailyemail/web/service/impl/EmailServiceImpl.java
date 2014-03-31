@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -467,15 +466,16 @@ public class EmailServiceImpl implements EmailService {
 	 * @see com.natepaulus.dailyemail.web.service.interfaces.EmailService# updateRssFeedLinks()
 	 */
 	@Override
-	@Scheduled(cron = "0 0/30 * * * ?")
+	@Scheduled(cron = "0 0/1 * * * ?")
 	@Transactional
 	public void updateRssFeedLinks() {
 		final List<RssFeeds> rssFeeds = this.rssFeedsRepository.findByDisabled(false);
 		this.logger.info("Processing rss feeds");
+		final DateTime dateOfPriorRun = new DateTime().plusMinutes(-30);
+
+		System.out.println("Date of prior run: " + dateOfPriorRun.toString());
 		for (final RssFeeds rssFeed : rssFeeds) {
-
-			final Set<RssNewsLinks> rssLinks = new HashSet<RssNewsLinks>();
-
+			System.out.println("Feed Name: " + rssFeed.getUrl());
 			try {
 
 				final URLConnection connection = new URL(rssFeed.getUrl()).openConnection();
@@ -508,12 +508,11 @@ public class EmailServiceImpl implements EmailService {
 					final DateTime publishedDate = new DateTime(publicationDate);
 					link.setPubDate(publishedDate);
 
-					rssLinks.add(link);
+					if (link.getPubDate().isAfter(dateOfPriorRun)) {
+						rssFeed.getRssNewsLinks().add(link);
+					}
 
 				}
-				final Set<RssNewsLinks> currentLinksInFeed = rssFeed.getRssNewsLinks();
-				currentLinksInFeed.addAll(rssLinks);
-				rssFeed.setRssNewsLinks(currentLinksInFeed);
 				this.rssFeedsRepository.save(rssFeed);
 				// logger.info("Saved " + rssFeed.getId());
 
