@@ -116,7 +116,7 @@ public class EmailServiceImpl implements EmailService {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.natepaulus.dailyemail.web.service.interfaces.EmailService# generateQuickView(java.lang.String)
 	 */
 	@Override
@@ -187,7 +187,7 @@ public class EmailServiceImpl implements EmailService {
 			if (user.getWeather().getDeliver_pref() == 1 || user.getWeather().getDeliver_pref() == 3) {
 				exprCCFX =
 						xpathCCFX
-								.compile("/dwml/data[@type = 'current observations']/time-layout/start-valid-time[@period-name = 'current']/text()");
+						.compile("/dwml/data[@type = 'current observations']/time-layout/start-valid-time[@period-name = 'current']/text()");
 				final String temp = (String) exprCCFX.evaluate(docCFX, XPathConstants.STRING);
 
 				final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
@@ -205,7 +205,7 @@ public class EmailServiceImpl implements EmailService {
 				data.getWxCurCond().setWeatherStation((String) exprCCFX.evaluate(docCFX, XPathConstants.STRING));
 				exprCCFX =
 						xpathCCFX
-								.compile("/dwml/data[@type = 'current observations']/parameters/wind-speed[@type = 'sustained']/value/text()");
+						.compile("/dwml/data[@type = 'current observations']/parameters/wind-speed[@type = 'sustained']/value/text()");
 				double mphWindSpeed = 0;
 				boolean isNAWindSpeed = false;
 				try {
@@ -222,7 +222,7 @@ public class EmailServiceImpl implements EmailService {
 				}
 				exprCCFX =
 						xpathCCFX
-								.compile("/dwml/data[@type = 'current observations']/parameters/wind-speed[@type = 'gust']/value/text()");
+						.compile("/dwml/data[@type = 'current observations']/parameters/wind-speed[@type = 'gust']/value/text()");
 				double mphWindGust = 0;
 				boolean isNAWindGust = false;
 				try {
@@ -239,19 +239,19 @@ public class EmailServiceImpl implements EmailService {
 				}
 				exprCCFX =
 						xpathCCFX
-								.compile("/dwml/data[@type = 'current observations']/parameters/humidity[@type = 'relative']/value/text()");
+						.compile("/dwml/data[@type = 'current observations']/parameters/humidity[@type = 'relative']/value/text()");
 				data.getWxCurCond().setHumidity((String) exprCCFX.evaluate(docCFX, XPathConstants.STRING));
 				exprCCFX =
 						xpathCCFX
-								.compile("/dwml/data[@type = 'current observations']/parameters/temperature[@type = 'apparent']/value/text()");
+						.compile("/dwml/data[@type = 'current observations']/parameters/temperature[@type = 'apparent']/value/text()");
 				data.getWxCurCond().setCurrentTemp((String) exprCCFX.evaluate(docCFX, XPathConstants.STRING));
 				exprCCFX =
 						xpathCCFX
-								.compile("/dwml/data[@type = 'current observations']/parameters/temperature[@type = 'dew point']/value/text()");
+						.compile("/dwml/data[@type = 'current observations']/parameters/temperature[@type = 'dew point']/value/text()");
 				data.getWxCurCond().setDewPoint((String) exprCCFX.evaluate(docCFX, XPathConstants.STRING));
 				exprCCFX =
 						xpathCCFX
-								.compile("/dwml/data[@type = 'current observations']/parameters/weather[@time-layout = 'k-p1h-n1-1']/weather-conditions/@weather-summary");
+						.compile("/dwml/data[@type = 'current observations']/parameters/weather[@time-layout = 'k-p1h-n1-1']/weather-conditions/@weather-summary");
 				data.getWxCurCond().setCurWx((String) exprCCFX.evaluate(docCFX, XPathConstants.STRING));
 				final DateTimeZone dtz = xmlTime.getZone();
 				this.logger.info("TimeZone: " + dtz.toString());
@@ -272,11 +272,11 @@ public class EmailServiceImpl implements EmailService {
 			if (user.getWeather().getDeliver_pref() == 2 || user.getWeather().getDeliver_pref() == 3) {
 				exprCCFX =
 						xpathCCFX
-								.compile("/dwml/data[@type='forecast']/time-layout[layout-key/text()=/dwml/data[@type='forecast']/parameters[@applicable-location='point1']/wordedForecast/@time-layout]/start-valid-time");
+						.compile("/dwml/data[@type='forecast']/time-layout[layout-key/text()=/dwml/data[@type='forecast']/parameters[@applicable-location='point1']/wordedForecast/@time-layout]/start-valid-time");
 				final NodeList days = (NodeList) exprCCFX.evaluate(docCFX, XPathConstants.NODESET);
 				exprCCFX =
 						xpathCCFX
-								.compile("/dwml/data[@type='forecast']/parameters[@applicable-location='point1']/wordedForecast/text");
+						.compile("/dwml/data[@type='forecast']/parameters[@applicable-location='point1']/wordedForecast/text");
 				final NodeList forecastText = (NodeList) exprCCFX.evaluate(docCFX, XPathConstants.NODESET);
 
 				for (int i = 0; i < 3; i++) {
@@ -297,7 +297,7 @@ public class EmailServiceImpl implements EmailService {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.natepaulus.dailyemail.web.service.interfaces.EmailService# retrieveUserListForEmails()
 	 */
 	@Override
@@ -357,7 +357,7 @@ public class EmailServiceImpl implements EmailService {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.natepaulus.dailyemail.web.service.interfaces.EmailService# retrySendingFailedMessages()
 	 */
 	@Override
@@ -462,11 +462,11 @@ public class EmailServiceImpl implements EmailService {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see com.natepaulus.dailyemail.web.service.interfaces.EmailService# updateRssFeedLinks()
 	 */
 	@Override
-	@Scheduled(cron = "0 0/1 * * * ?")
+	@Scheduled(cron = "0 0/30 * * * ?")
 	@Transactional
 	public void updateRssFeedLinks() {
 		final List<RssFeeds> rssFeeds = this.rssFeedsRepository.findByDisabled(false);
@@ -480,8 +480,8 @@ public class EmailServiceImpl implements EmailService {
 
 				final URLConnection connection = new URL(rssFeed.getUrl()).openConnection();
 				connection
-						.setRequestProperty("User-Agent",
-								"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+				.setRequestProperty("User-Agent",
+						"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
 				connection.connect();
 				final InputStream is = connection.getInputStream();
 				final InputSource source = new InputSource(is);

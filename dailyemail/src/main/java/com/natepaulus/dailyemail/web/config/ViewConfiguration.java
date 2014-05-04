@@ -8,17 +8,9 @@ import org.springframework.web.servlet.ViewResolver;
 import org.springframework.web.servlet.view.velocity.VelocityConfigurer;
 import org.springframework.web.servlet.view.velocity.VelocityViewResolver;
 
-/**
- * The Class ViewConfiguration configures velocity as the view resolver.
- */
 @Configuration
 public class ViewConfiguration {
 
-	/**
-	 * Velocity configurer.
-	 *
-	 * @return the velocity configurer
-	 */
 	@Bean
 	public VelocityConfigurer velocityConfigurer() {
 		VelocityConfigurer velocityConfigurer = new VelocityConfigurer();
@@ -31,11 +23,6 @@ public class ViewConfiguration {
 		return velocityConfigurer;
 	}
 
-	/**
-	 * Velocity view resolver.
-	 *
-	 * @return the view resolver
-	 */
 	@Bean
 	public ViewResolver velocityViewResolver() {
 		VelocityViewResolver viewResolver = new VelocityViewResolver();
