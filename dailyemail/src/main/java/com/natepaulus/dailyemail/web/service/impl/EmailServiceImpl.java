@@ -1,27 +1,16 @@
 package com.natepaulus.dailyemail.web.service.impl;
 
-import java.io.InputStream;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.mail.internet.MimeMessage;
-import javax.transaction.Transactional;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
-
+import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
+import com.luckycatlabs.sunrisesunset.dto.Location;
+import com.natepaulus.dailyemail.repository.*;
+import com.natepaulus.dailyemail.repository.entity.*;
+import com.natepaulus.dailyemail.web.domain.EmailData;
+import com.natepaulus.dailyemail.web.domain.NewsFeed;
+import com.natepaulus.dailyemail.web.domain.NewsStory;
+import com.natepaulus.dailyemail.web.service.interfaces.EmailService;
+import com.sun.syndication.feed.synd.SyndEntry;
+import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.io.SyndFeedInput;
 import org.apache.velocity.app.VelocityEngine;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -46,26 +35,19 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
-import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
-import com.luckycatlabs.sunrisesunset.dto.Location;
-import com.natepaulus.dailyemail.repository.DeliveryScheduleRepository;
-import com.natepaulus.dailyemail.repository.FailedMessagesRepository;
-import com.natepaulus.dailyemail.repository.RssFeedsRepository;
-import com.natepaulus.dailyemail.repository.RssNewsLinksRepository;
-import com.natepaulus.dailyemail.repository.UserRepository;
-import com.natepaulus.dailyemail.repository.entity.DeliverySchedule;
-import com.natepaulus.dailyemail.repository.entity.FailedMessages;
-import com.natepaulus.dailyemail.repository.entity.RssFeeds;
-import com.natepaulus.dailyemail.repository.entity.RssNewsLinks;
-import com.natepaulus.dailyemail.repository.entity.User;
-import com.natepaulus.dailyemail.repository.entity.UserRssFeeds;
-import com.natepaulus.dailyemail.web.domain.EmailData;
-import com.natepaulus.dailyemail.web.domain.NewsFeed;
-import com.natepaulus.dailyemail.web.domain.NewsStory;
-import com.natepaulus.dailyemail.web.service.interfaces.EmailService;
-import com.sun.syndication.feed.synd.SyndEntry;
-import com.sun.syndication.feed.synd.SyndFeed;
-import com.sun.syndication.io.SyndFeedInput;
+import javax.annotation.Resource;
+import javax.mail.internet.MimeMessage;
+import javax.transaction.Transactional;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.xpath.XPath;
+import javax.xml.xpath.XPathConstants;
+import javax.xml.xpath.XPathExpression;
+import javax.xml.xpath.XPathFactory;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.*;
 
 // TODO: Auto-generated Javadoc
 /**
@@ -471,9 +453,9 @@ public class EmailServiceImpl implements EmailService {
 	public void updateRssFeedLinks() {
 		final List<RssFeeds> rssFeeds = this.rssFeedsRepository.findByDisabled(false);
 		this.logger.info("Processing rss feeds");
-		final DateTime dateOfPriorRun = new DateTime().plusMinutes(-30);
 
-		System.out.println("Date of prior run: " + dateOfPriorRun.toString());
+
+
 		for (final RssFeeds rssFeed : rssFeeds) {
 			System.out.println("Feed Name: " + rssFeed.getUrl());
 			try {
@@ -507,12 +489,13 @@ public class EmailServiceImpl implements EmailService {
 					}
 					final DateTime publishedDate = new DateTime(publicationDate);
 					link.setPubDate(publishedDate);
-
-					if (link.getPubDate().isAfter(dateOfPriorRun)) {
-						rssFeed.getRssNewsLinks().add(link);
-					}
-
+					rssFeed.getRssNewsLinks().add(link);
 				}
+
+				if(rssFeed.getRssNewsLinks().size() > 0){
+					this.rssFeedsRepository.deleteAll();
+				}
+
 				this.rssFeedsRepository.save(rssFeed);
 				// logger.info("Saved " + rssFeed.getId());
 

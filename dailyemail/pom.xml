@@ -15,7 +15,7 @@
 	</repositories>
 	<properties>
 		<org.springframework.version>4.0.2.RELEASE</org.springframework.version>
-		<jdk.version>1.7</jdk.version>
+		<jdk.version>1.8</jdk.version>
 
 	</properties>
 	<dependencies>
@@ -223,19 +223,38 @@
 			<version>1.1.3</version>
 		</dependency>
 		<dependency>
-			<groupId>luckycatlabs</groupId>
-			<artifactId>sunrisesunset</artifactId>
-			<version>1.0</version>
+			<groupId>com.luckycatlabs</groupId>
+			<artifactId>SunriseSunsetCalculator</artifactId>
+			<version>1.1</version>
 		</dependency>
 		<dependency>
-			<groupId>natepaulus</groupId>
-			<artifactId>weather</artifactId>
-			<version>1.0</version>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>3.1.0</version>
 		</dependency>
 	</dependencies>
 	<build>
 		<finalName>dailyemail</finalName>
 		<plugins>
+			<plugin>
+				<groupId>org.jvnet.jaxb2.maven2</groupId>
+				<artifactId>maven-jaxb2-plugin</artifactId>
+				<version>0.12.3</version>
+				<executions>
+					<execution>
+						<id>xjc1</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<generatePackage>com.natepaulus.nws</generatePackage>
+							<schemaFiles>DWML.xsd</schemaFiles>
+							<schemaDirectory>src/main/resources/schemas</schemaDirectory>
+
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-war-plugin</artifactId>
