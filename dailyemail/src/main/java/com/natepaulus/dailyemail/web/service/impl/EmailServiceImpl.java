@@ -459,7 +459,8 @@ public class EmailServiceImpl implements EmailService {
 		for (final RssFeeds rssFeed : rssFeeds) {
 			System.out.println("Feed Name: " + rssFeed.getUrl());
 			try {
-
+				Set<RssNewsLinks> rssLinks = new HashSet<RssNewsLinks>();
+				
 				final URLConnection connection = new URL(rssFeed.getUrl()).openConnection();
 				connection
 				.setRequestProperty("User-Agent",
@@ -474,30 +475,33 @@ public class EmailServiceImpl implements EmailService {
 				final Iterator iFeed = feed.getEntries().iterator();
 
 				while (iFeed.hasNext()) {
-					final RssNewsLinks link = new RssNewsLinks();
+					RssNewsLinks link = new RssNewsLinks();
 					link.setFeedId(rssFeed.getId());
 					link.setRssFeed(rssFeed);
-					final SyndEntry entry = (SyndEntry) iFeed.next();
+					SyndEntry entry = (SyndEntry) iFeed.next();
 					link.setTitle(entry.getTitle());
 					link.setLink(entry.getLink());
-					link.setDescription(entry.getDescription().getValue().replaceAll("\\<.*?>", ""));
+					link.setDescription(entry.getDescription().getValue()
+							.replaceAll("\\<.*?>", ""));
 					link.setGuid(entry.getUri().toString());
 					Date publicationDate = entry.getPublishedDate();
 					if (publicationDate == null) { // feed doesn't have
 						// published date
 						publicationDate = new Date();
 					}
-					final DateTime publishedDate = new DateTime(publicationDate);
+					DateTime publishedDate = new DateTime(publicationDate);
 					link.setPubDate(publishedDate);
-					rssFeed.getRssNewsLinks().add(link);
-				}
 
-				if(rssFeed.getRssNewsLinks().size() > 0){
-					this.rssFeedsRepository.deleteAll();
-				}
+					rssLinks.add(link);
 
-				this.rssFeedsRepository.save(rssFeed);
-				// logger.info("Saved " + rssFeed.getId());
+				}
+				Set<RssNewsLinks> currentLinksInFeed = rssFeed
+						.getRssNewsLinks();
+				currentLinksInFeed.addAll(rssLinks);
+				rssFeed.setRssNewsLinks(currentLinksInFeed);
+				rssFeedsRepository.save(rssFeed);
+
+				logger.info("Saved " + rssFeed.getId());
 
 			} catch (final Exception ex) {
 				int rssFeedConnectFailures = rssFeed.getConnectFailures();
