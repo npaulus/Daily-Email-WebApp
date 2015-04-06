@@ -264,7 +264,7 @@ public class EmailServiceImpl implements EmailService {
 				for (int i = 0; i < 3; i++) {
 					final Element e = (Element) days.item(i);
 					final Element e2 = (Element) forecastText.item(i);
-					data.getWeatherForecast().getPeriodForecast().put(e.getAttribute("period-name"), e2.getNodeValue());
+					data.getWeatherForecast().getPeriodForecast().put(e.getAttribute("period-name"), e2.getFirstChild().getNodeValue());
 
 				}
 			}
