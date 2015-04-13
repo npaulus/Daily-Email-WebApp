@@ -17,6 +17,7 @@ import org.joda.time.LocalDateTime;
 import org.joda.time.LocalTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.tz.FixedDateTimeZone;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -129,7 +130,12 @@ public class AccountServiceImpl implements AccountService {
 			final DateTimeFormatter fmt = DateTimeFormat.forPattern("hh:mm a");
 
 			final DateTime utc = ds.getTime().toDateTimeToday(DateTimeZone.UTC);
-			final DateTime userTime = utc.withZone(DateTimeZone.forID(ds.getTz()));
+			DateTime userTime = utc.withZone(DateTimeZone.forID(ds.getTz()));
+
+			final DateTimeZone dayLightSavingsCheck = DateTimeZone.forID(ds.getTz());
+			if(!dayLightSavingsCheck.isStandardOffset(System.currentTimeMillis())){
+				userTime = userTime.minusHours(1);
+			}
 
 			ds.setDisplayTime(fmt.print(userTime));
 
@@ -156,9 +162,19 @@ public class AccountServiceImpl implements AccountService {
 		final LocalDateTime userEnteredTime = fmt.parseLocalDateTime(time);
 		final LocalTime userLocalTime = userEnteredTime.toLocalTime();
 
+
+
 		final DateTime dateTimeZone = new DateTime(userLocalTime.toDateTimeToday(DateTimeZone.forID(tz)));
+
+		final DateTimeZone dayLightSavingsCheck = DateTimeZone.forID(tz);
+
+		// Adjust for daylight savings time by always saving to db with no DST
 		final DateTime utc = dateTimeZone.withZone(DateTimeZone.UTC);
-		final LocalTime lt = utc.toLocalTime();
+		LocalTime lt = utc.toLocalTime();
+		if(!dayLightSavingsCheck.isStandardOffset(System.currentTimeMillis())){
+			lt = lt.plusHours(1);
+		}
+
 		deliverySchedule.setDeliveryDay(deliveryDay);
 		deliverySchedule.setDisabled(disabled);
 		deliverySchedule.setIdusers(user.getId());

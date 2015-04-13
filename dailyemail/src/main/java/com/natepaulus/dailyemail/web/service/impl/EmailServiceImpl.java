@@ -310,7 +310,13 @@ public class EmailServiceImpl implements EmailService {
 			// convert local time to today's time & date and user's local time &
 			// date
 			final DateTime userSetTimeDateTime = userSetTime.toDateTimeToday().withZone(DateTimeZone.UTC);
-			final DateTime userLocalSetTime = userSetTimeDateTime.withZone(DateTimeZone.forID(d.getTz()));
+			DateTime userLocalSetTime = userSetTimeDateTime.withZone(DateTimeZone.forID(d.getTz()));
+
+			// Adjust for daylight savings since times saved to db remove the DST offset
+			final DateTimeZone dayLightSavingsCheck = DateTimeZone.forID(d.getTz());
+			if(!dayLightSavingsCheck.isStandardOffset(System.currentTimeMillis())){
+				userLocalSetTime = userLocalSetTime.minusHours(1);
+			}
 
 			/*
 			 * logger.info("before IF userLocalSetTime: " + userLocalSetTime.toString()); logger.info("before IF currentLocalTime: " +
