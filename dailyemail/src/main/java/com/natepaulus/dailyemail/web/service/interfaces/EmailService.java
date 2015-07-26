@@ -28,10 +28,5 @@ public interface EmailService {
 	 * Retry sending failed messages.
 	 */
 	public void retrySendingFailedMessages();
-	
-	/**
-	 * Update rss feed links.
-	 */
-	public void updateRssFeedLinks();
 
 }

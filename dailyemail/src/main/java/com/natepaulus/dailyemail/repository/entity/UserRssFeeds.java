@@ -143,5 +143,17 @@ public class UserRssFeeds implements Serializable, Comparable<UserRssFeeds> {
 		int feedNameCompare = feedName.compareTo(u.getFeedName());
 		return feedNameCompare;
 	}
-		
+
+	@Override
+	public String toString() {
+		return "UserRssFeeds{" +
+				"id=" + id +
+				", userId=" + userId +
+				", feedId=" + feedId +
+				", feedName='" + feedName + '\'' +
+				", deliver=" + deliver +
+				", user=" + user +
+				", rssFeed=" + rssFeed +
+				'}';
+	}
 }

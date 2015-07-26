@@ -10,6 +10,7 @@ import com.natepaulus.dailyemail.web.domain.NewsStory;
 import com.natepaulus.dailyemail.web.service.interfaces.EmailService;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
+import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
 import org.apache.velocity.app.VelocityEngine;
 import org.joda.time.DateTime;
@@ -44,7 +45,9 @@ import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
+import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.*;
@@ -80,6 +83,9 @@ public class EmailServiceImpl implements EmailService {
 	@Resource
 	RssNewsLinksRepository rssNewsLinksRepository;
 
+	@Resource
+	UserRssFeedsRepository userRssFeedsRepository;
+
 	/** The user repository. */
 	@Resource
 	UserRepository userRepository;
@@ -108,37 +114,7 @@ public class EmailServiceImpl implements EmailService {
 
 		EmailData data = new EmailData();
 		data = this.getWeatherConditions(data, user);
-		data = this.getNewsStoriesForEmail(data, user);
-
-		return data;
-	}
-
-	/**
-	 * Gets the news stories for email from the users defined RSS feeds.
-	 *
-	 * @param data the EmailData object to attach the news story information to
-	 * @param user the user
-	 * @return the news stories for email
-	 */
-	private EmailData getNewsStoriesForEmail(final EmailData data, final User user) {
-
-		final Set<UserRssFeeds> userRssFeeds = user.getUserRssFeeds();
-		final Pageable topFiveArticlesByDate = new PageRequest(0, 5);
-
-		for (final UserRssFeeds userRssFeed : userRssFeeds) {
-			if (userRssFeed.getDeliver() == 1) {
-				final NewsFeed newsFeed = new NewsFeed();
-				newsFeed.setFeedTitle(userRssFeed.getFeedName());
-				final List<RssNewsLinks> articles =
-						this.rssNewsLinksRepository.findByFeedIdOrderByPubDateDesc(userRssFeed.getFeedId(), topFiveArticlesByDate);
-				for (final RssNewsLinks r : articles) {
-					final NewsStory newsStory = new NewsStory(r.getTitle(), r.getLink(), r.getDescription());
-					newsFeed.getNewsStories().add(newsStory);
-				}
-
-				data.getNewsFeeds().add(newsFeed);
-			}
-		}
+		this.getRssLinksForEmail(data, user);
 
 		return data;
 	}
@@ -393,7 +369,7 @@ public class EmailServiceImpl implements EmailService {
 		emailData.setToName(user.getFirstName() + " " + user.getLastName());
 
 		emailData = this.getWeatherConditions(emailData, user);
-		emailData = this.getNewsStoriesForEmail(emailData, user);
+		this.getRssLinksForEmail(emailData, user);
 		final EmailData data = emailData;
 		final Map<String, Object> model = new HashMap<String, Object>();
 		model.put("data", data);
@@ -448,86 +424,50 @@ public class EmailServiceImpl implements EmailService {
 		this.logger.info("Error Message sent!");
 	}
 
-	/*
-	 * (non-Javadoc)
-	 *
-	 * @see com.natepaulus.dailyemail.web.service.interfaces.EmailService# updateRssFeedLinks()
-	 */
-	@Override
-	@Scheduled(cron = "0 0/30 * * * ?")
-	@Transactional
-	public void updateRssFeedLinks() {
-		final List<RssFeeds> rssFeeds = this.rssFeedsRepository.findByDisabled(false);
-		this.logger.info("Processing rss feeds");
+	private void getRssLinksForEmail(EmailData data, User user){
 
+		// grab first 5 news items from rss feeds and add to email data
+		for(UserRssFeeds userFeed : user.getUserRssFeeds()){
+			if(userFeed.getDeliver() == 1) {
+				RssFeeds rssFeed = rssFeedsRepository.findOne(userFeed.getFeedId());
 
+				try {
+					final URLConnection connection = new URL(rssFeed.getUrl()).openConnection();
+					connection
+							.setRequestProperty("User-Agent",
+									"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
+					connection.connect();
 
-		for (final RssFeeds rssFeed : rssFeeds) {
-			System.out.println("Feed Name: " + rssFeed.getUrl());
-			try {
-				Set<RssNewsLinks> rssLinks = new HashSet<RssNewsLinks>();
-				
-				final URLConnection connection = new URL(rssFeed.getUrl()).openConnection();
-				connection
-				.setRequestProperty("User-Agent",
-						"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.95 Safari/537.11");
-				connection.connect();
-				final InputStream is = connection.getInputStream();
-				final InputSource source = new InputSource(is);
-				final SyndFeedInput input = new SyndFeedInput();
-				final SyndFeed feed = input.build(source);
+					final InputStream is = connection.getInputStream();
+					final InputSource source = new InputSource(is);
+					final SyndFeedInput input = new SyndFeedInput();
+					final SyndFeed feed = input.build(source);
 
-				@SuppressWarnings("rawtypes")
-				final Iterator iFeed = feed.getEntries().iterator();
+					@SuppressWarnings("rawtypes")
+					final Iterator iFeed = feed.getEntries().iterator();
+					final int numLinks = 5;
+					int counter = 0;
+					final NewsFeed newsFeed = new NewsFeed();
+					newsFeed.setFeedTitle(userFeed.getFeedName());
+					while (iFeed.hasNext() && counter < numLinks) {
 
-				while (iFeed.hasNext()) {
-					RssNewsLinks link = new RssNewsLinks();
-					link.setFeedId(rssFeed.getId());
-					link.setRssFeed(rssFeed);
-					SyndEntry entry = (SyndEntry) iFeed.next();
-					link.setTitle(entry.getTitle());
-					link.setLink(entry.getLink());
-					link.setDescription(entry.getDescription().getValue()
-							.replaceAll("\\<.*?>", ""));
-					link.setGuid(entry.getUri().toString());
-					Date publicationDate = entry.getPublishedDate();
-					if (publicationDate == null) { // feed doesn't have
-						// published date
-						publicationDate = new Date();
+						SyndEntry entry = (SyndEntry) iFeed.next();
+						final NewsStory newsStory = new NewsStory(entry.getTitle(), entry.getLink(),
+								entry.getDescription().getValue().replaceAll("\\<.*?>", ""));
+						newsFeed.getNewsStories().add(newsStory);
+						counter++;
+
 					}
-					DateTime publishedDate = new DateTime(publicationDate);
-					link.setPubDate(publishedDate);
+					data.getNewsFeeds().add(newsFeed);
 
-					rssLinks.add(link);
-
+				} catch (MalformedURLException e) {
+					logger.error("URL is bad: " + e.getStackTrace());
+				} catch (IOException e) {
+					logger.error("IO Exception Occurred: " + e.getStackTrace());
+				} catch (FeedException e) {
+					logger.error("Soething is wrong with the feed: " + e.getStackTrace());
 				}
-				Set<RssNewsLinks> currentLinksInFeed = rssFeed
-						.getRssNewsLinks();
-				currentLinksInFeed.addAll(rssLinks);
-				rssFeed.setRssNewsLinks(currentLinksInFeed);
-				rssFeedsRepository.save(rssFeed);
-
-				logger.info("Saved " + rssFeed.getId());
-
-			} catch (final Exception ex) {
-				int rssFeedConnectFailures = rssFeed.getConnectFailures();
-				rssFeedConnectFailures += 1;
-				rssFeed.setConnectFailures(rssFeedConnectFailures);
-				this.rssFeedsRepository.save(rssFeed);
-				if (rssFeed.getConnectFailures() >= 24) { // change this number
-					// to adjust number
-					// of tries before
-					// disabling
-					rssFeed.setDisabled(true);
-					this.rssFeedsRepository.save(rssFeed);
-					this.logger.info("The following feed ID was just disabled for too many failed connect attempts: "
-							+ rssFeed.getId());
-					this.sendErrorEmail("The following feed ID was just disabled for too many failed connect attempts: "
-							+ rssFeed.getId());
-				}
-				this.logger.error("There was a parsing issue for: " + rssFeed.getId(), ex);
 			}
-
 		}
 
 	}
