@@ -20,7 +20,7 @@
 		<fieldset>
 			<legend>Current URL</legend>
 			<p>Bookmark this 
-			<a href="https://www.vtmnts.com#springUrl('/quickview/')${urlCode}" target="_blank">
+			<a href="http://www.vtmnts.com#springUrl('/quickview/')${urlCode}" target="_blank">
 				link</a> for quick access to your daily email.
 			</p>
 			<input type="submit" class="small button" value="Delete URL" />	
