@@ -64,6 +64,8 @@ public class EmailServiceImpl implements EmailService {
 	@Resource
 	private Environment environment;
 
+	private final static String[] COMPASS_DIRECTIONS =  {"N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW","N"};
+
 	/** The email addresses to use: */
 	private final static String ADMINISTRATOR = "administrator.email";
 	private final static String DAILY_EMAIL_ADDRESS = "dailyemail.from.email";
@@ -195,6 +197,20 @@ public class EmailServiceImpl implements EmailService {
 					final int wGust = (int) Math.round(mphWindGust);
 					data.getWxCurCond().setWindGust(Integer.toString(wGust));
 				}
+
+				exprCCFX =
+						xpathCCFX
+								.compile("/dwml/data[@type = 'current observations']/parameters/direction[@type = 'wind']/value/text()");
+				Double windDirection = (Double) exprCCFX.evaluate(docCFX, XPathConstants.NUMBER);
+
+				setWindDirection(data, windDirection);
+
+				exprCCFX =
+						xpathCCFX
+								.compile("/dwml/data[@type = 'current observations']/parameters/weather[@time-layout = 'k-p1h-n1-1']/weather-conditions/value/visibility/text()");
+
+				data.getWxCurCond().setVisibility((String) exprCCFX.evaluate(docCFX, XPathConstants.STRING));
+
 				exprCCFX =
 						xpathCCFX
 						.compile("/dwml/data[@type = 'current observations']/parameters/humidity[@type = 'relative']/value/text()");
@@ -470,6 +486,17 @@ public class EmailServiceImpl implements EmailService {
 			}
 		}
 
+	}
+
+	private void setWindDirection(EmailData data, Double windDirectionInDegrees){
+		if(windDirectionInDegrees == 999){
+			data.getWxCurCond().setWindDirection("Variable");
+		} else if(windDirectionInDegrees == 0 && data.getWxCurCond().getWindSpeed().equals("NA")){
+			data.getWxCurCond().setWindDirection("Calm");
+		} else {
+			final int sector = (int) Math.round((windDirectionInDegrees % 360) / 22.5);
+			data.getWxCurCond().setWindDirection(COMPASS_DIRECTIONS[sector]);
+		}
 	}
 
 }
