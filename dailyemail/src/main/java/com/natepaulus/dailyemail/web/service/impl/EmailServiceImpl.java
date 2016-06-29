@@ -207,7 +207,7 @@ public class EmailServiceImpl implements EmailService {
 
 				exprCCFX =
 						xpathCCFX
-								.compile("/dwml/data[@type = 'current observations']/parameters/direction[@type = 'visibility']/value/text()");
+								.compile("/dwml/data[@type = 'current observations']/parameters/weather[@time-layout = 'k-p1h-n1-1']/weather-conditions/value/visibility/text()");
 
 				data.getWxCurCond().setVisibility((String) exprCCFX.evaluate(docCFX, XPathConstants.STRING));
 
