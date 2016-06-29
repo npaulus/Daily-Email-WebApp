@@ -34,6 +34,12 @@ public class WeatherCurrentConditions {
 	/** The wind gust speed in MPH. */
 	private String windGust;
 
+	/** The wind direction in degrees of true north */
+	private String windDirection;
+
+	/** The visibility in statue miles */
+	private String visibility;
+
 	/** The sun rise time. */
 	private String sunRise;
 
@@ -198,6 +204,42 @@ public class WeatherCurrentConditions {
 	 */
 	public void setWindGust(String windGust) {
 		this.windGust = windGust;
+	}
+
+	/**
+	 * Gets the wind direction.
+	 *
+	 * @return windDirection the wind direction in degrees
+     */
+	public String getWindDirection() {
+		return windDirection;
+	}
+
+	/**
+	 * Sets the wind direction.
+	 *
+	 * @param windDirection the new wind direction in degrees
+     */
+	public void setWindDirection(String windDirection) {
+		this.windDirection = windDirection;
+	}
+
+	/**
+	 * Gets the visibility in statue miles.
+	 *
+	 * @return visibility in statue miles
+     */
+	public String getVisibility() {
+		return visibility;
+	}
+
+	/**
+	 * Sets the visibility in statue miles.
+	 *
+	 * @param visibility new visiblity in statue miles
+     */
+	public void setVisibility(String visibility) {
+		this.visibility = visibility;
 	}
 
 	/**
