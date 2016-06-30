@@ -280,8 +280,9 @@ public class AccountServiceImpl implements AccountService {
 				final SyndEntry entry = (SyndEntry) iFeed.next();
 				link.setTitle(entry.getTitle());
 				link.setLink(entry.getLink());
-				link.setDescription(entry.getDescription().getValue().replaceAll("\\<.*?>", ""));
-
+				if(null != entry.getDescription()) {
+					link.setDescription(entry.getDescription().getValue().replaceAll("\\<.*?>", ""));
+				}
 				final Date publicationDate = entry.getPublishedDate();
 				final DateTime publishedDate = new DateTime(publicationDate);
 				link.setPubDate(publishedDate);

@@ -8,6 +8,7 @@ import com.natepaulus.dailyemail.web.domain.EmailData;
 import com.natepaulus.dailyemail.web.domain.NewsFeed;
 import com.natepaulus.dailyemail.web.domain.NewsStory;
 import com.natepaulus.dailyemail.web.service.interfaces.EmailService;
+import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
@@ -468,6 +469,10 @@ public class EmailServiceImpl implements EmailService {
 					while (iFeed.hasNext() && counter < numLinks) {
 
 						SyndEntry entry = (SyndEntry) iFeed.next();
+						if(null == entry.getDescription()){
+							entry.setDescription(new SyndContentImpl());
+							entry.getDescription().setValue(new String());
+						}
 						final NewsStory newsStory = new NewsStory(entry.getTitle(), entry.getLink(),
 								entry.getDescription().getValue().replaceAll("\\<.*?>", ""));
 						newsFeed.getNewsStories().add(newsStory);
@@ -495,7 +500,7 @@ public class EmailServiceImpl implements EmailService {
 			data.getWxCurCond().setWindDirection("Calm");
 		} else {
 			final int sector = (int) Math.round((windDirectionInDegrees % 360) / 22.5);
-			data.getWxCurCond().setWindDirection(COMPASS_DIRECTIONS[sector]);
+			data.getWxCurCond().setWindDirection(COMPASS_DIRECTIONS[sector - 1]);
 		}
 	}
 
