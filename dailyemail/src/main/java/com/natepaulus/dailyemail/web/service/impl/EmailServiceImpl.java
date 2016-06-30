@@ -500,7 +500,7 @@ public class EmailServiceImpl implements EmailService {
 			data.getWxCurCond().setWindDirection("Calm");
 		} else {
 			final int sector = (int) Math.round((windDirectionInDegrees % 360) / 22.5);
-			data.getWxCurCond().setWindDirection(COMPASS_DIRECTIONS[sector - 1]);
+			data.getWxCurCond().setWindDirection(COMPASS_DIRECTIONS[sector]);
 		}
 	}
 
