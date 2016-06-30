@@ -14,9 +14,11 @@
                         <br/>
                         Current Temperature: $data.wxCurCond.currentTemp F<br />
                         Humidity: $data.wxCurCond.humidity %<br />
+                        Dew Point: $data.wxCurCond.dewPoint F<br />
+                        Visibility: $data.wxCurCond.visibility mi <br />
                         Current Weather: $data.wxCurCond.curWx<br />
                         <br />
-                        Wind Speed: $data.wxCurCond.windSpeed MPH<br />
+                        Wind Speed: $data.wxCurCond.windDirection $data.wxCurCond.windSpeed MPH<br />
                         Wind Gusts: $data.wxCurCond.windGust MPH<br />
                         <br />
                         Sunrise: $data.wxCurCond.sunRise <br />
