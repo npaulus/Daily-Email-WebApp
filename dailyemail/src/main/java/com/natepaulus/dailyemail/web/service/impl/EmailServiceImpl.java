@@ -1,5 +1,6 @@
 package com.natepaulus.dailyemail.web.service.impl;
 
+import com.google.gson.*;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
 import com.natepaulus.dailyemail.repository.*;
@@ -8,6 +9,7 @@ import com.natepaulus.dailyemail.web.domain.EmailData;
 import com.natepaulus.dailyemail.web.domain.NewsFeed;
 import com.natepaulus.dailyemail.web.domain.NewsStory;
 import com.natepaulus.dailyemail.web.service.interfaces.EmailService;
+import com.sun.jersey.json.impl.provider.entity.JSONArrayProvider;
 import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
@@ -33,6 +35,7 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
+import org.springframework.web.client.RestTemplate;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -118,6 +121,50 @@ public class EmailServiceImpl implements EmailService {
 		EmailData data = new EmailData();
 		data = this.getWeatherConditions(data, user);
 		this.getRssLinksForEmail(data, user);
+
+		return data;
+	}
+
+	/**
+	 * Returns weather forecast based on GPS coordinates using new weather.gov api.
+	 *
+	 * @param data
+	 * @param user
+     * @return
+     */
+	private EmailData getWeatherForecast(final EmailData data, final User user){
+
+		final String uri = "https://api.weather.gov/points/"
+				+ user.getWeather().getLatitude() + "," + user.getWeather().getLongitude() + "/forecast";
+
+		RestTemplate restTemplate = new RestTemplate();
+		String result = restTemplate.getForObject(uri, String.class);
+		JsonParser jsonParser = new JsonParser();
+		JsonElement jsonElement = jsonParser.parse(result);
+		logger.info(result);
+
+		JsonObject forecastData  = jsonElement.getAsJsonObject();
+		JsonObject forecastProperties = forecastData.getAsJsonObject("properties");
+		JsonArray forecastPeriods = forecastProperties.getAsJsonArray("periods");
+
+		for(int index = 0; index < 3; index++){
+			JsonObject forecast = forecastPeriods.get(index).getAsJsonObject();
+			data.getWeatherForecast().getPeriodForecast().put(forecast.get("name").getAsString(),
+					forecast.get("detailedForecast").getAsString());
+		}
+
+		return data;
+	}
+
+	private EmailData getCurrentWeatherConditions(final EmailData data, final User user){
+		final String uri = "https://api.weather.gov/points/"
+				+ user.getWeather().getLatitude() + "," + user.getWeather().getLongitude() + "/stations";
+
+		RestTemplate restTemplate = new RestTemplate();
+		String result = restTemplate.getForObject(uri, String.class);
+		JsonParser jsonParser = new JsonParser();
+		JsonElement jsonElement = jsonParser.parse(result);
+		logger.info(result);
 
 		return data;
 	}
@@ -386,6 +433,8 @@ public class EmailServiceImpl implements EmailService {
 		emailData.setToName(user.getFirstName() + " " + user.getLastName());
 
 		emailData = this.getWeatherConditions(emailData, user);
+		this.getWeatherForecast(new EmailData(), user);
+		this.getCurrentWeatherConditions(new EmailData(), user);
 		this.getRssLinksForEmail(emailData, user);
 		final EmailData data = emailData;
 		final Map<String, Object> model = new HashMap<String, Object>();
