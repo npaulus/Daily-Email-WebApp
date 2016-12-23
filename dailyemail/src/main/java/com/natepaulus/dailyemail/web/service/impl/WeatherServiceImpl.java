@@ -5,10 +5,20 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Resource;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
 
+import com.google.maps.GeoApiContext;
+import com.google.maps.GeocodingApi;
+import com.google.maps.model.AddressComponent;
+import com.google.maps.model.AddressComponentType;
+import com.google.maps.model.GeocodingResult;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
 import com.natepaulus.dailyemail.repository.entity.Weather;
@@ -24,7 +34,15 @@ import com.sun.jersey.core.util.MultivaluedMapImpl;
  * The Class WeatherServiceImpl.
  */
 @Service
+@PropertySource("classpath:google.properties")
 public class WeatherServiceImpl implements WeatherService {
+	/** The logger. */
+	final Logger logger = LoggerFactory.getLogger(WeatherServiceImpl.class);
+
+	@Resource
+	private Environment environment;
+
+	final private static String GOOGLE_API_KEY = "api";
 
 	/* (non-Javadoc)
 	 * @see com.natepaulus.dailyemail.web.service.interfaces.WeatherService#setInitialWeatherLocation(java.lang.String)
@@ -67,75 +85,51 @@ public class WeatherServiceImpl implements WeatherService {
 	 * @param deliveryPref the delivery preference the user selected
 	 * @return the weather location data
 	 */
-	private Map<String, String> getWeatherLocationData(String zip,
-			String deliveryPref) {
-		Client zipCode = Client.create();
-		zipCode.setFollowRedirects(true);
-		WebResource r = zipCode
-				.resource("http://graphical.weather.gov/xml/sample_products/browser_interface/ndfdXMLclient.php");
-		MultivaluedMap<String, String> queryParams = new MultivaluedMapImpl();
-		queryParams.add("listZipCodeList", zip);
-		r.accept(MediaType.APPLICATION_XML);
+	private Map<String, String> getWeatherLocationData(final String zip,
+			final String deliveryPref) {
 
-		Dwml dwml = r.queryParams(queryParams).get(Dwml.class);
+		final GeoApiContext context = new GeoApiContext().setApiKey(environment.getProperty(GOOGLE_API_KEY));
+		GeocodingResult[] results = new GeocodingResult[0];
+		try {
+			results = GeocodingApi.geocode(context,
+					zip).await();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		if(null != results && results.length >= 1 && results[0].addressComponents != null
+				&& results[0].addressComponents.length > 3 && null != results[0].geometry) {
 
-		String result = "";
-		if (StringUtils.isNotBlank(dwml.getLatLonList())) {
-			String[] locationCoordinates = dwml.getLatLonList().split("/s");
-			String[] latLong = locationCoordinates[0].split(",");
+			String city = StringUtils.EMPTY;
+			String state = StringUtils.EMPTY;
 
-			System.out.println("Lat: " + latLong[0]);
-			System.out.println("Long: " + latLong[1]);
-			Client locName = Client.create();
-			WebResource locationName = locName
-					.resource("http://forecast.weather.gov/MapClick.php");
-			MultivaluedMap<String, String> locationNameParams = new MultivaluedMapImpl();
-			locationNameParams.add("lat", latLong[0]);
-			locationNameParams.add("lon", latLong[1]);
-			locationNameParams.add("unit", "0");
-			locationNameParams.add("lg", "english");
-			locationNameParams.add("FcstType", "dwml");
-			locationName.accept(MediaType.APPLICATION_XML);
-			Dwml areaName = locationName.queryParams(locationNameParams).get(
-					Dwml.class);
-
-			List<DataType> list = areaName.getData();
-			Iterator<DataType> dataTypeIterator = list.iterator();
-
-			while (dataTypeIterator.hasNext()) {
-				DataType temp = dataTypeIterator.next();
-				if (temp.getType().equals("forecast")) {
-					List<LocationType> locTypeList = temp.getLocation();
-					Iterator<LocationType> locTypeIterator = locTypeList
-							.iterator();
-					while (locTypeIterator.hasNext()) {
-						LocationType temp1 = locTypeIterator.next();
-						if (temp1.getLocationKey().equals("point1")) {
-							if (temp1.getAreaDescription() != null) {
-								result = temp1.getAreaDescription();
-							} else if (temp1.getDescription() != null) {
-								result = temp1.getDescription();
-							}
-						}
+			for(AddressComponent addressComponent : results[0].addressComponents){
+				for(AddressComponentType addressComponentType : addressComponent.types){
+					switch (addressComponentType.toString()) {
+						case "locality":
+							city = addressComponent.longName;
+							break;
+						case "administrative_area_level_1":
+							state = addressComponent.shortName;
+							break;
 					}
 				}
 			}
+			final String latitude = String.valueOf(results[0].geometry.location.lat);
+			final String longitude = String.valueOf(results[0].geometry.location.lng);
 
 			Map<String, String> map = new HashMap<String, String>();
-			map.put("LocationName", result);
-			map.put("Lat", latLong[0]);
-			map.put("Long", latLong[1]);
+			map.put("LocationName", city + ", " + state);
+			map.put("Lat", latitude);
+			map.put("Long", longitude);
 			map.put("DeliveryPref", deliveryPref);
-
 			return map;
-		} else {
 
+		} else {
 			Map<String, String> map = new HashMap<String, String>();
 			map.put("LocationName", "");
 			map.put("Lat", "0.0");
 			map.put("Long", "0.0");
 			map.put("DeliveryPref", "0");
-
 			return map;
 		}
 	}

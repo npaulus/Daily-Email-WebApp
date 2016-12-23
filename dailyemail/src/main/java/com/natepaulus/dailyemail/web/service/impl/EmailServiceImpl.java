@@ -187,6 +187,7 @@ public class EmailServiceImpl implements EmailService {
 		final JsonElement stationProperties = stationInformation.getAsJsonObject().get("properties");
 
 		data.getWxCurCond().setWeatherStation(stationProperties.getAsJsonObject().get("name").getAsString());
+		data.getWxCurCond().setCityState(user.getWeather().getLocation_name());
 
         final String pointInformation = restTemplate.getForObject(uriPointForCityState, String.class);
 

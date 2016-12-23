@@ -4,3 +4,4 @@
 /.project
 /.settings
 .idea
+/src/main/webapp/WEB-INF/lib/configuration/google.properties
