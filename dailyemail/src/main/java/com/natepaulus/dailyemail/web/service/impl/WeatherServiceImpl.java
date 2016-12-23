@@ -24,12 +24,7 @@ import org.springframework.stereotype.Service;
 
 import com.natepaulus.dailyemail.repository.entity.Weather;
 import com.natepaulus.dailyemail.web.service.interfaces.WeatherService;
-import com.natepaulus.nws.DataType;
-import com.natepaulus.nws.Dwml;
-import com.natepaulus.nws.LocationType;
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
+
 
 /**
  * The Class WeatherServiceImpl.
