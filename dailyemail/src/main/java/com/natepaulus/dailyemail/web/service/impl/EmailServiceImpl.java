@@ -9,12 +9,14 @@ import com.natepaulus.dailyemail.web.domain.EmailData;
 import com.natepaulus.dailyemail.web.domain.NewsFeed;
 import com.natepaulus.dailyemail.web.domain.NewsStory;
 import com.natepaulus.dailyemail.web.service.interfaces.EmailService;
-import com.sun.jersey.json.impl.provider.entity.JSONArrayProvider;
 import com.sun.syndication.feed.synd.SyndContentImpl;
 import com.sun.syndication.feed.synd.SyndEntry;
 import com.sun.syndication.feed.synd.SyndFeed;
 import com.sun.syndication.io.FeedException;
 import com.sun.syndication.io.SyndFeedInput;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.impl.client.LaxRedirectStrategy;
 import org.apache.velocity.app.VelocityEngine;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -26,8 +28,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
 import org.springframework.mail.MailException;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
@@ -42,7 +43,6 @@ import org.xml.sax.InputSource;
 
 import javax.annotation.Resource;
 import javax.mail.internet.MimeMessage;
-import javax.transaction.Transactional;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.xpath.XPath;
@@ -65,7 +65,10 @@ import java.util.*;
 @PropertySource("classpath:emailConfig.properties")
 public class EmailServiceImpl implements EmailService {
 
-	@Resource
+    public static final String N_A = "N/A";
+    public static final double METERS_IN_MILE = 1609.344;
+    public static final double METERS_SECOND_TO_MPH = 0.44704;
+    @Resource
 	private Environment environment;
 
 	private final static String[] COMPASS_DIRECTIONS =  {"N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSW","SW","WSW","W","WNW","NW","NNW","N"};
@@ -141,7 +144,6 @@ public class EmailServiceImpl implements EmailService {
 		String result = restTemplate.getForObject(uri, String.class);
 		JsonParser jsonParser = new JsonParser();
 		JsonElement jsonElement = jsonParser.parse(result);
-		logger.info(result);
 
 		JsonObject forecastData  = jsonElement.getAsJsonObject();
 		JsonObject forecastProperties = forecastData.getAsJsonObject("properties");
@@ -157,14 +159,108 @@ public class EmailServiceImpl implements EmailService {
 	}
 
 	private EmailData getCurrentWeatherConditions(final EmailData data, final User user){
-		final String uri = "https://api.weather.gov/points/"
+
+	    final String uriPointForCityState = "http://api.weather.gov/points/"
+                + user.getWeather().getLatitude() + "," + user.getWeather().getLongitude();
+
+		final String uriStations = "http://api.weather.gov/points/"
 				+ user.getWeather().getLatitude() + "," + user.getWeather().getLongitude() + "/stations";
 
-		RestTemplate restTemplate = new RestTemplate();
-		String result = restTemplate.getForObject(uri, String.class);
-		JsonParser jsonParser = new JsonParser();
-		JsonElement jsonElement = jsonParser.parse(result);
-		logger.info(result);
+		final RestTemplate restTemplate = new RestTemplate();
+		final HttpComponentsClientHttpRequestFactory factory = new HttpComponentsClientHttpRequestFactory();
+		final HttpClient httpClient = HttpClientBuilder.create()
+				.setRedirectStrategy(new LaxRedirectStrategy())
+				.build();
+		factory.setHttpClient(httpClient);
+		restTemplate.setRequestFactory(factory);
+
+		final String stationListResult = restTemplate.getForObject(uriStations, String.class);
+		final JsonParser jsonParser = new JsonParser();
+		final JsonElement stationList = jsonParser.parse(stationListResult);
+		final JsonObject stationsJson = stationList.getAsJsonObject();
+		final JsonArray stations = stationsJson.getAsJsonArray("observationStations");
+
+		final String uriWeatherStation = stations.get(0).getAsString();
+
+		final String stationDetails = restTemplate.getForObject(uriWeatherStation, String.class);
+		final JsonElement stationInformation = jsonParser.parse(stationDetails);
+		final JsonElement stationProperties = stationInformation.getAsJsonObject().get("properties");
+
+		data.getWxCurCond().setWeatherStation(stationProperties.getAsJsonObject().get("name").getAsString());
+
+        final String pointInformation = restTemplate.getForObject(uriPointForCityState, String.class);
+
+        final JsonElement cityStateResponse = jsonParser.parse(pointInformation);
+        final JsonObject cityState = cityStateResponse.getAsJsonObject().get("properties").getAsJsonObject().get("relativeLocation").getAsJsonObject().get("properties").getAsJsonObject();
+        data.getWxCurCond().setCityState(cityState.get("city").getAsString() + ", " + cityState.get("state").getAsString());
+		final String currentWxResponse = restTemplate.getForObject(uriWeatherStation + "/observations", String.class);
+
+		final JsonObject allWxObservationsResponse = jsonParser.parse(currentWxResponse).getAsJsonObject();
+		final JsonArray allWxObservations = allWxObservationsResponse.getAsJsonArray("features");
+		final JsonObject currentWxObservation = allWxObservations.get(0).getAsJsonObject().get("properties").getAsJsonObject();
+
+		final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+		final DateTime obsUTCTime = fmt.withOffsetParsed().parseDateTime(currentWxObservation.get("timestamp").getAsString());
+
+		final DateTime localTime = new DateTime(obsUTCTime).withZone(DateTimeZone.forID(user.getDeliveryTimes().iterator().next().getTz()));
+		final DateTimeFormatter outFmt = DateTimeFormat.forPattern("MMM dd',' yyyy h:mm a");
+		this.logger.info("Printing Local Time with printer: " + outFmt.print(localTime));
+		data.getWxCurCond().setLatestObDateTime(outFmt.print(localTime));
+
+        data.getWxCurCond().setCurWx(currentWxObservation.get("textDescription").getAsString());
+
+        if(!currentWxObservation.get("temperature").getAsJsonObject().get("value").isJsonNull()){
+            data.getWxCurCond().setCurrentTemp(String.valueOf(
+                    Math.round(currentWxObservation.get("temperature").getAsJsonObject().get("value").getAsDouble() * 9 / 5 + 32)));
+        } else {
+            data.getWxCurCond().setCurrentTemp(N_A);
+        }
+
+        if(!currentWxObservation.get("dewpoint").getAsJsonObject().get("value").isJsonNull()){
+            data.getWxCurCond().setDewPoint(String.valueOf(
+                    Math.round(currentWxObservation.get("dewpoint").getAsJsonObject().get("value").getAsDouble() * 9 / 5 + 32)));
+        } else {
+            data.getWxCurCond().setDewPoint(N_A);
+        }
+
+        if(!currentWxObservation.get("relativeHumidity").getAsJsonObject().get("value").isJsonNull()){
+            data.getWxCurCond().setHumidity(String.valueOf(Math.round(currentWxObservation.get("relativeHumidity").getAsJsonObject().get("value").getAsDouble())));
+        } else {
+            data.getWxCurCond().setHumidity(N_A);
+        }
+
+        if(!currentWxObservation.get("visibility").getAsJsonObject().get("value").isJsonNull()) {
+            data.getWxCurCond().setVisibility(String.valueOf(Math.round(currentWxObservation.get("visibility").getAsJsonObject().get("value").getAsDouble() / METERS_IN_MILE)));
+        } else {
+            data.getWxCurCond().setVisibility(N_A);
+        }
+        if(!currentWxObservation.get("windSpeed").getAsJsonObject().get("value").isJsonNull()){
+            data.getWxCurCond().setWindSpeed(String.valueOf(Math.round(currentWxObservation.get("windSpeed").getAsJsonObject().get("value").getAsDouble() / METERS_SECOND_TO_MPH)));
+        } else {
+            data.getWxCurCond().setWindSpeed("0");
+        }
+
+        if(!currentWxObservation.get("windGust").getAsJsonObject().get("value").isJsonNull()){
+            data.getWxCurCond().setWindSpeed(String.valueOf(Math.round(currentWxObservation.get("windGust").getAsJsonObject().get("value").getAsDouble() / METERS_SECOND_TO_MPH)));
+        } else {
+            data.getWxCurCond().setWindGust(N_A);
+        }
+		setWindDirection(data, currentWxObservation.get("windDirection").getAsJsonObject().get("value").getAsDouble());
+
+        final DateTimeZone dtz = localTime.getZone();
+        this.logger.info("TimeZone: " + dtz.toString());
+        final Location location = new Location(user.getWeather().getLatitude(), user.getWeather().getLongitude());
+        final SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, dtz.toString());
+        final Calendar officialSunrise = calculator.getOfficialSunriseCalendarForDate(Calendar.getInstance());
+        final Calendar officialSunset = calculator.getOfficialSunsetCalendarForDate(Calendar.getInstance());
+        final DateTimeFormatter dtfSunriseset = DateTimeFormat.forPattern("h:mm a");
+        final DateTime dtSunrise = new DateTime(officialSunrise);
+        final DateTime dtSunset = new DateTime(officialSunset);
+        final DateTime dtSunriseLocal = dtSunrise.withZone(DateTimeZone.forID(dtz.toString()));
+        final DateTime dtSunsetLocal = dtSunset.withZone(DateTimeZone.forID(dtz.toString()));
+
+        data.getWxCurCond().setSunRise(dtfSunriseset.print(dtSunriseLocal));
+        data.getWxCurCond().setSunSet(dtfSunriseset.print(dtSunsetLocal));
 
 		return data;
 	}
@@ -203,9 +299,9 @@ public class EmailServiceImpl implements EmailService {
 
 				final DateTime localTime = xmlTime;
 
-				this.logger.info("Localtime: " + localTime.toString());
+//				this.logger.info("Localtime: " + localTime.toString());
 				final DateTimeFormatter outFmt = DateTimeFormat.forPattern("MMM dd',' yyyy h:mm a");
-				this.logger.info("Printing Local Time with printer: " + outFmt.print(xmlTime));
+//				this.logger.info("Printing Local Time with printer: " + outFmt.print(xmlTime));
 				data.getWxCurCond().setLatestObDateTime(outFmt.print(xmlTime));
 				data.getWxCurCond().setCityState(user.getWeather().getLocation_name());
 
@@ -552,5 +648,20 @@ public class EmailServiceImpl implements EmailService {
 			data.getWxCurCond().setWindDirection(COMPASS_DIRECTIONS[sector]);
 		}
 	}
+
+	private String convertCelsiusToFahrenheit(final String celsiusValue){
+	    if(null == celsiusValue || "null".equals(celsiusValue)){
+	        return N_A;
+        } else {
+            try {
+                double tempInCelsius = Double.parseDouble(celsiusValue);
+                final Long tempInFahrenheit = Math.round(tempInCelsius * 9 / 5 + 32);
+                return tempInFahrenheit.toString();
+            } catch (NumberFormatException e){
+                logger.error("Bad temp value: ", e);
+                return N_A;
+            }
+        }
+    }
 
 }
