@@ -1,5 +1,6 @@
 package com.natepaulus.dailyemail.web.service.impl;
 
+import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -114,8 +115,9 @@ public class WeatherServiceImpl implements WeatherService {
 					}
 				}
 			}
-			final String latitude = String.valueOf(results[0].geometry.location.lat);
-			final String longitude = String.valueOf(results[0].geometry.location.lng);
+			DecimalFormat roundToFourDigits = new DecimalFormat("#.####");
+			final String latitude = String.valueOf(roundToFourDigits.format(results[0].geometry.location.lat));
+			final String longitude = String.valueOf(roundToFourDigits.format(results[0].geometry.location.lng));
 
 			Map<String, String> map = new HashMap<String, String>();
 			map.put("LocationName", city + ", " + state);

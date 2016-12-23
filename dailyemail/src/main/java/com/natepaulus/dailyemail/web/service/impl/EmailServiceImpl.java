@@ -54,6 +54,7 @@ import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.DecimalFormat;
 import java.util.*;
 
 // TODO: Auto-generated Javadoc
@@ -231,7 +232,8 @@ public class EmailServiceImpl implements EmailService {
         }
 
         if(!currentWxObservation.get("visibility").getAsJsonObject().get("value").isJsonNull()) {
-            data.getWxCurCond().setVisibility(String.valueOf(Math.round(currentWxObservation.get("visibility").getAsJsonObject().get("value").getAsDouble() / METERS_IN_MILE)));
+			DecimalFormat visbilityFormatter = new DecimalFormat("#.#");
+            data.getWxCurCond().setVisibility(String.valueOf(visbilityFormatter.format(currentWxObservation.get("visibility").getAsJsonObject().get("value").getAsDouble() / METERS_IN_MILE)));
         } else {
             data.getWxCurCond().setVisibility(N_A);
         }
@@ -275,141 +277,12 @@ public class EmailServiceImpl implements EmailService {
 	 */
 	private EmailData getWeatherConditions(final EmailData data, final User user) {
 
-		try {
-
-			final URL curCond_ForecastURL =
-					new URL("http://forecast.weather.gov/MapClick.php?lat=" + user.getWeather().getLatitude() + "&lon="
-							+ user.getWeather().getLongitude() + "&unit=0&lg=english&FcstType=dwml");
-			final InputStream inCC_Fx = curCond_ForecastURL.openStream();
-			final DocumentBuilderFactory factoryCurCond_Fx = DocumentBuilderFactory.newInstance();
-			final DocumentBuilder builderCCFX = factoryCurCond_Fx.newDocumentBuilder();
-			final org.w3c.dom.Document docCFX = builderCCFX.parse(inCC_Fx);
-
-			final XPathFactory xPathfactoryCCFX = XPathFactory.newInstance();
-			final XPath xpathCCFX = xPathfactoryCCFX.newXPath();
-			XPathExpression exprCCFX = null;
-
-			if (user.getWeather().getDeliver_pref() == 1 || user.getWeather().getDeliver_pref() == 3) {
-				exprCCFX =
-						xpathCCFX
-						.compile("/dwml/data[@type = 'current observations']/time-layout/start-valid-time[@period-name = 'current']/text()");
-				final String temp = (String) exprCCFX.evaluate(docCFX, XPathConstants.STRING);
-
-				final DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
-				final DateTime xmlTime = fmt.withOffsetParsed().parseDateTime(temp);
-
-				final DateTime localTime = xmlTime;
-
-//				this.logger.info("Localtime: " + localTime.toString());
-				final DateTimeFormatter outFmt = DateTimeFormat.forPattern("MMM dd',' yyyy h:mm a");
-//				this.logger.info("Printing Local Time with printer: " + outFmt.print(xmlTime));
-				data.getWxCurCond().setLatestObDateTime(outFmt.print(xmlTime));
-				data.getWxCurCond().setCityState(user.getWeather().getLocation_name());
-
-				exprCCFX = xpathCCFX.compile("/dwml/data[@type = 'current observations']/location/area-description/text()");
-				data.getWxCurCond().setWeatherStation((String) exprCCFX.evaluate(docCFX, XPathConstants.STRING));
-				exprCCFX =
-						xpathCCFX
-						.compile("/dwml/data[@type = 'current observations']/parameters/wind-speed[@type = 'sustained']/value/text()");
-				double mphWindSpeed = 0;
-				boolean isNAWindSpeed = false;
-				try {
-					mphWindSpeed = (Double) exprCCFX.evaluate(docCFX, XPathConstants.NUMBER);
-					mphWindSpeed = 1.15155 * mphWindSpeed;
-				} catch (final NumberFormatException e) {
-					isNAWindSpeed = true;
-				}
-				if (isNAWindSpeed) {
-					data.getWxCurCond().setWindSpeed("NA");
-				} else {
-					final int wSpeed = (int) Math.round(mphWindSpeed);
-					data.getWxCurCond().setWindSpeed(Integer.toString(wSpeed));
-				}
-				exprCCFX =
-						xpathCCFX
-						.compile("/dwml/data[@type = 'current observations']/parameters/wind-speed[@type = 'gust']/value/text()");
-				double mphWindGust = 0;
-				boolean isNAWindGust = false;
-				try {
-					mphWindGust = (Double) exprCCFX.evaluate(docCFX, XPathConstants.NUMBER);
-					mphWindGust = 1.15155 * mphWindSpeed;
-				} catch (final NumberFormatException e) {
-					isNAWindGust = true;
-				}
-				if (isNAWindGust) {
-					data.getWxCurCond().setWindGust("NA");
-				} else {
-					final int wGust = (int) Math.round(mphWindGust);
-					data.getWxCurCond().setWindGust(Integer.toString(wGust));
-				}
-
-				exprCCFX =
-						xpathCCFX
-								.compile("/dwml/data[@type = 'current observations']/parameters/direction[@type = 'wind']/value/text()");
-				Double windDirection = (Double) exprCCFX.evaluate(docCFX, XPathConstants.NUMBER);
-
-				setWindDirection(data, windDirection);
-
-				exprCCFX =
-						xpathCCFX
-								.compile("/dwml/data[@type = 'current observations']/parameters/weather[@time-layout = 'k-p1h-n1-1']/weather-conditions/value/visibility/text()");
-
-				data.getWxCurCond().setVisibility((String) exprCCFX.evaluate(docCFX, XPathConstants.STRING));
-
-				exprCCFX =
-						xpathCCFX
-						.compile("/dwml/data[@type = 'current observations']/parameters/humidity[@type = 'relative']/value/text()");
-				data.getWxCurCond().setHumidity((String) exprCCFX.evaluate(docCFX, XPathConstants.STRING));
-				exprCCFX =
-						xpathCCFX
-						.compile("/dwml/data[@type = 'current observations']/parameters/temperature[@type = 'apparent']/value/text()");
-				data.getWxCurCond().setCurrentTemp((String) exprCCFX.evaluate(docCFX, XPathConstants.STRING));
-				exprCCFX =
-						xpathCCFX
-						.compile("/dwml/data[@type = 'current observations']/parameters/temperature[@type = 'dew point']/value/text()");
-				data.getWxCurCond().setDewPoint((String) exprCCFX.evaluate(docCFX, XPathConstants.STRING));
-				exprCCFX =
-						xpathCCFX
-						.compile("/dwml/data[@type = 'current observations']/parameters/weather[@time-layout = 'k-p1h-n1-1']/weather-conditions/@weather-summary");
-				data.getWxCurCond().setCurWx((String) exprCCFX.evaluate(docCFX, XPathConstants.STRING));
-				final DateTimeZone dtz = xmlTime.getZone();
-				this.logger.info("TimeZone: " + dtz.toString());
-				final Location location = new Location(user.getWeather().getLatitude(), user.getWeather().getLongitude());
-				final SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, dtz.toString());
-				final Calendar officialSunrise = calculator.getOfficialSunriseCalendarForDate(Calendar.getInstance());
-				final Calendar officialSunset = calculator.getOfficialSunsetCalendarForDate(Calendar.getInstance());
-				final DateTimeFormatter dtfSunriseset = DateTimeFormat.forPattern("h:mm a");
-				final DateTime dtSunrise = new DateTime(officialSunrise);
-				final DateTime dtSunset = new DateTime(officialSunset);
-				final DateTime dtSunriseLocal = dtSunrise.withZone(DateTimeZone.forID(dtz.toString()));
-				final DateTime dtSunsetLocal = dtSunset.withZone(DateTimeZone.forID(dtz.toString()));
-
-				data.getWxCurCond().setSunRise(dtfSunriseset.print(dtSunriseLocal));
-				data.getWxCurCond().setSunSet(dtfSunriseset.print(dtSunsetLocal));
-
-			}
-			if (user.getWeather().getDeliver_pref() == 2 || user.getWeather().getDeliver_pref() == 3) {
-				exprCCFX =
-						xpathCCFX
-						.compile("/dwml/data[@type='forecast']/time-layout[layout-key/text()=/dwml/data[@type='forecast']/parameters[@applicable-location='point1']/wordedForecast/@time-layout]/start-valid-time");
-				final NodeList days = (NodeList) exprCCFX.evaluate(docCFX, XPathConstants.NODESET);
-				exprCCFX =
-						xpathCCFX
-						.compile("/dwml/data[@type='forecast']/parameters[@applicable-location='point1']/wordedForecast/text");
-				final NodeList forecastText = (NodeList) exprCCFX.evaluate(docCFX, XPathConstants.NODESET);
-
-				for (int i = 0; i < 3; i++) {
-					final Element e = (Element) days.item(i);
-					final Element e2 = (Element) forecastText.item(i);
-					data.getWeatherForecast().getPeriodForecast().put(e.getAttribute("period-name"), e2.getFirstChild().getNodeValue());
-
-				}
-			}
-			inCC_Fx.close();
-		} catch (final Exception ex) {
-			this.logger.error("Get Weather Data had an issue.", ex);
+		if (user.getWeather().getDeliver_pref() == 1 || user.getWeather().getDeliver_pref() == 3) {
+			getCurrentWeatherConditions(data, user);
 		}
-
+		if (user.getWeather().getDeliver_pref() == 2 || user.getWeather().getDeliver_pref() == 3) {
+			getWeatherForecast(data, user);
+		}
 		return data;
 
 	}
