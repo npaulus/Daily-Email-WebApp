@@ -1,6 +1,9 @@
 package com.natepaulus.dailyemail.web.service.impl;
 
-import com.google.gson.*;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.luckycatlabs.sunrisesunset.SunriseSunsetCalculator;
 import com.luckycatlabs.sunrisesunset.dto.Location;
 import com.natepaulus.dailyemail.repository.*;
@@ -37,18 +40,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
 import org.springframework.web.client.RestTemplate;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import javax.annotation.Resource;
 import javax.mail.internet.MimeMessage;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
@@ -123,7 +118,7 @@ public class EmailServiceImpl implements EmailService {
 		final User user = this.userRepository.findByUrlCode(code);
 
 		EmailData data = new EmailData();
-		data = this.getWeatherConditions(data, user);
+		data = this.getWeatherDataForEmail(data, user);
 		this.getRssLinksForEmail(data, user);
 
 		return data;
@@ -242,9 +237,9 @@ public class EmailServiceImpl implements EmailService {
         } else {
             data.getWxCurCond().setWindSpeed("0");
         }
-
+		logger.info("Wind gust: " + currentWxObservation.get("windGust").getAsJsonObject().toString());
         if(!currentWxObservation.get("windGust").getAsJsonObject().get("value").isJsonNull()){
-            data.getWxCurCond().setWindSpeed(String.valueOf(Math.round(currentWxObservation.get("windGust").getAsJsonObject().get("value").getAsDouble() / METERS_SECOND_TO_MPH)));
+            data.getWxCurCond().setWindGust(String.valueOf(Math.round(currentWxObservation.get("windGust").getAsJsonObject().get("value").getAsDouble() / METERS_SECOND_TO_MPH)));
         } else {
             data.getWxCurCond().setWindGust(N_A);
         }
@@ -275,13 +270,19 @@ public class EmailServiceImpl implements EmailService {
 	 * @param user the user
 	 * @return the weather conditions
 	 */
-	private EmailData getWeatherConditions(final EmailData data, final User user) {
+	private EmailData getWeatherDataForEmail(final EmailData data, final User user) {
 
-		if (user.getWeather().getDeliver_pref() == 1 || user.getWeather().getDeliver_pref() == 3) {
-			getCurrentWeatherConditions(data, user);
-		}
-		if (user.getWeather().getDeliver_pref() == 2 || user.getWeather().getDeliver_pref() == 3) {
-			getWeatherForecast(data, user);
+		switch (user.getWeather().getDeliver_pref()) {
+			case 1:
+				getCurrentWeatherConditions(data, user);
+				break;
+			case 2:
+				getWeatherForecast(data, user);
+				break;
+			case 3:
+				getWeatherForecast(data, user);
+				getCurrentWeatherConditions(data, user);
+				break;
 		}
 		return data;
 
@@ -402,9 +403,7 @@ public class EmailServiceImpl implements EmailService {
 		emailData.setToAddress(user.getEmail());
 		emailData.setToName(user.getFirstName() + " " + user.getLastName());
 
-		emailData = this.getWeatherConditions(emailData, user);
-		this.getWeatherForecast(new EmailData(), user);
-		this.getCurrentWeatherConditions(new EmailData(), user);
+		emailData = this.getWeatherDataForEmail(emailData, user);
 		this.getRssLinksForEmail(emailData, user);
 		final EmailData data = emailData;
 		final Map<String, Object> model = new HashMap<String, Object>();
