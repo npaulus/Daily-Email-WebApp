@@ -18,6 +18,7 @@ I am using Apache Maven for dependency management.  In the resources folder, I a
  - socialConfig.properties  - Set keys for connection factories (Facebook shown as an example)
  - emailConfig.properties - Set the email addresses for the daily email and the administrator for errors
  - applicationContext.xml - Primarily for setting up your email connection
+ - google.properties - Need to add an api key for using Google Maps API (api=YOURKEY)
 
 Features
 ------------
