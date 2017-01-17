@@ -234,7 +234,8 @@ public class EmailServiceImpl implements EmailService {
         }
         if(!currentWxObservation.get("windSpeed").getAsJsonObject().get("value").isJsonNull()){
             data.getWxCurCond().setWindSpeed(String.valueOf(Math.round(currentWxObservation.get("windSpeed").getAsJsonObject().get("value").getAsDouble() / METERS_SECOND_TO_MPH)));
-        } else {
+			setWindDirection(data, currentWxObservation.get("windDirection").getAsJsonObject().get("value").getAsDouble());
+		} else {
             data.getWxCurCond().setWindSpeed("0");
         }
 		logger.info("Wind gust: " + currentWxObservation.get("windGust").getAsJsonObject().toString());
@@ -243,7 +244,6 @@ public class EmailServiceImpl implements EmailService {
         } else {
             data.getWxCurCond().setWindGust(N_A);
         }
-		setWindDirection(data, currentWxObservation.get("windDirection").getAsJsonObject().get("value").getAsDouble());
 
         final DateTimeZone dtz = localTime.getZone();
         this.logger.info("TimeZone: " + dtz.toString());
