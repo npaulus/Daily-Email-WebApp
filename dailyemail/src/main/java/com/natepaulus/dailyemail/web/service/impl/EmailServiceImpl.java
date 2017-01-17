@@ -61,7 +61,7 @@ import java.util.*;
 @PropertySource("classpath:emailConfig.properties")
 public class EmailServiceImpl implements EmailService {
 
-    public static final String N_A = "N/A";
+    public static final String N_A = "NA";
     public static final double METERS_IN_MILE = 1609.344;
     public static final double METERS_SECOND_TO_MPH = 0.44704;
     @Resource
@@ -232,9 +232,9 @@ public class EmailServiceImpl implements EmailService {
         } else {
             data.getWxCurCond().setVisibility(N_A);
         }
+		logger.info("Wind speed: " + currentWxObservation.get("windSpeed").getAsJsonObject().toString());
         if(!currentWxObservation.get("windSpeed").getAsJsonObject().get("value").isJsonNull()){
             data.getWxCurCond().setWindSpeed(String.valueOf(Math.round(currentWxObservation.get("windSpeed").getAsJsonObject().get("value").getAsDouble() / METERS_SECOND_TO_MPH)));
-			setWindDirection(data, currentWxObservation.get("windDirection").getAsJsonObject().get("value").getAsDouble());
 		} else {
             data.getWxCurCond().setWindSpeed("0");
         }
@@ -244,8 +244,12 @@ public class EmailServiceImpl implements EmailService {
         } else {
             data.getWxCurCond().setWindGust(N_A);
         }
+		logger.info("Wind direction: " + currentWxObservation.get("windDirection").getAsJsonObject().toString());
+		if(!currentWxObservation.get("windDirection").getAsJsonObject().isJsonNull()) {
+			setWindDirection(data, currentWxObservation.get("windDirection").getAsJsonObject().get("value").getAsDouble());
+		}
 
-        final DateTimeZone dtz = localTime.getZone();
+		final DateTimeZone dtz = localTime.getZone();
         this.logger.info("TimeZone: " + dtz.toString());
         final Location location = new Location(user.getWeather().getLatitude(), user.getWeather().getLongitude());
         final SunriseSunsetCalculator calculator = new SunriseSunsetCalculator(location, dtz.toString());
