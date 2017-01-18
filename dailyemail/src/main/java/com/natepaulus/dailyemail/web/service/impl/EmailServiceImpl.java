@@ -245,7 +245,7 @@ public class EmailServiceImpl implements EmailService {
             data.getWxCurCond().setWindGust(N_A);
         }
 		logger.info("Wind direction: " + currentWxObservation.get("windDirection").getAsJsonObject().toString());
-		if(!currentWxObservation.get("windDirection").getAsJsonObject().isJsonNull()) {
+		if(!currentWxObservation.get("windDirection").getAsJsonObject().get("value").isJsonNull()) {
 			setWindDirection(data, currentWxObservation.get("windDirection").getAsJsonObject().get("value").getAsDouble());
 		}
 
