@@ -247,6 +247,8 @@ public class EmailServiceImpl implements EmailService {
 		logger.info("Wind direction: " + currentWxObservation.get("windDirection").getAsJsonObject().toString());
 		if(!currentWxObservation.get("windDirection").getAsJsonObject().get("value").isJsonNull()) {
 			setWindDirection(data, currentWxObservation.get("windDirection").getAsJsonObject().get("value").getAsDouble());
+		} else {
+			data.getWxCurCond().setWindDirection("");
 		}
 
 		final DateTimeZone dtz = localTime.getZone();
