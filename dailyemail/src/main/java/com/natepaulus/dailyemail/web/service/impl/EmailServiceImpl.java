@@ -39,6 +39,7 @@ import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.velocity.VelocityEngineUtils;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestTemplate;
 import org.xml.sax.InputSource;
 
@@ -131,7 +132,7 @@ public class EmailServiceImpl implements EmailService {
 	 * @param user
      * @return
      */
-	private EmailData getWeatherForecast(final EmailData data, final User user){
+	private EmailData getWeatherForecast(final EmailData data, final User user) throws ResourceAccessException{
 
 		final String uri = "https://api.weather.gov/points/"
 				+ user.getWeather().getLatitude() + "," + user.getWeather().getLongitude() + "/forecast";
@@ -154,12 +155,12 @@ public class EmailServiceImpl implements EmailService {
 		return data;
 	}
 
-	private EmailData getCurrentWeatherConditions(final EmailData data, final User user){
+	private EmailData getCurrentWeatherConditions(final EmailData data, final User user) throws ResourceAccessException{
 
-	    final String uriPointForCityState = "http://api.weather.gov/points/"
+	    final String uriPointForCityState = "https://api.weather.gov/points/"
                 + user.getWeather().getLatitude() + "," + user.getWeather().getLongitude();
 
-		final String uriStations = "http://api.weather.gov/points/"
+		final String uriStations = "https://api.weather.gov/points/"
 				+ user.getWeather().getLatitude() + "," + user.getWeather().getLongitude() + "/stations";
 
 		final RestTemplate restTemplate = new RestTemplate();
@@ -280,14 +281,29 @@ public class EmailServiceImpl implements EmailService {
 
 		switch (user.getWeather().getDeliver_pref()) {
 			case 1:
-				getCurrentWeatherConditions(data, user);
+				try {
+					getCurrentWeatherConditions(data, user);
+				} catch (ResourceAccessException e){
+					data.getWxCurCond().setCityState(null); // this sets error condition in email
+					logger.error("SSL Error is still occurring", e);
+				}
 				break;
 			case 2:
-				getWeatherForecast(data, user);
+				try {
+					getWeatherForecast(data, user);
+				} catch (ResourceAccessException e){
+					data.getWxCurCond().setCityState(null);
+					logger.error("SSL Error is still occurring", e);
+				}
 				break;
 			case 3:
-				getWeatherForecast(data, user);
-				getCurrentWeatherConditions(data, user);
+				try {
+					getWeatherForecast(data, user);
+					getCurrentWeatherConditions(data, user);
+				} catch (ResourceAccessException e){
+					data.getWxCurCond().setCityState(null);
+					logger.error("SSL Error is still occurring", e);
+				}
 				break;
 		}
 		return data;
@@ -510,7 +526,7 @@ public class EmailServiceImpl implements EmailService {
 				} catch (IOException e) {
 					logger.error("IO Exception Occurred: " + e.getStackTrace());
 				} catch (FeedException e) {
-					logger.error("Soething is wrong with the feed: " + e.getStackTrace());
+					logger.error("Something is wrong with the feed: " + e.getStackTrace());
 				}
 			}
 		}
@@ -527,20 +543,5 @@ public class EmailServiceImpl implements EmailService {
 			data.getWxCurCond().setWindDirection(COMPASS_DIRECTIONS[sector]);
 		}
 	}
-
-	private String convertCelsiusToFahrenheit(final String celsiusValue){
-	    if(null == celsiusValue || "null".equals(celsiusValue)){
-	        return N_A;
-        } else {
-            try {
-                double tempInCelsius = Double.parseDouble(celsiusValue);
-                final Long tempInFahrenheit = Math.round(tempInCelsius * 9 / 5 + 32);
-                return tempInFahrenheit.toString();
-            } catch (NumberFormatException e){
-                logger.error("Bad temp value: ", e);
-                return N_A;
-            }
-        }
-    }
 
 }
